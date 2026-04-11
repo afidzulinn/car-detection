@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Data & Weights
+dataset/
+checkpoints/
+weights/
+vlm/vlm_checkpoints/
+*.pt
+*.pth
+*.safetensors
+
+# Docs
+docs/
+
+# Claude/Codex
+.claude/
+.codex
+
+# Misc
+.DS_Store
+*.log
+.env

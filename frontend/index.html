@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Component Detector</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 24px; }
+    h1 { font-size: 1.6rem; color: #38bdf8; }
+    .subtitle { color: #94a3b8; font-size: 0.9rem; }
+    .nav { display: flex; gap: 12px; }
+    .nav a { padding: 6px 16px; background: #1e293b; border-radius: 999px; color: #94a3b8; text-decoration: none; font-size: 0.85rem; transition: all 0.2s; }
+    .nav a:hover { background: #334155; color: #e2e8f0; }
+    .nav a.active { background: #0284c7; color: white; }
+    .card { background: #1e293b; border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+    .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: #cbd5e1; border-bottom: 1px solid #334155; padding-bottom: 12px; }
+    .component-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #0f172a; }
+    .component-row:last-child { border-bottom: none; }
+    .comp-left { display: flex; flex-direction: column; gap: 3px; }
+    .component-name { font-size: 0.95rem; color: #94a3b8; }
+    .conf { font-size: 0.72rem; color: #475569; }
+    .badge { padding: 5px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; transition: all 0.3s ease; }
+    .open   { background: #16a34a; color: white; box-shadow: 0 0 8px #16a34a55; }
+    .closed { background: #dc2626; color: white; }
+    .unknown { background: #475569; color: white; }
+    .changed-alert { padding: 10px 14px; background: #fbbf2415; border: 1px solid #fbbf24; border-radius: 8px; color: #fbbf24; font-size: 0.85rem; margin-bottom: 12px; display: none; }
+    .status-bar { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding: 12px; background: #0f172a; border-radius: 8px; font-size: 0.85rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot.active { background: #22c55e; animation: pulse 1.2s infinite; }
+    .dot.inactive { background: #ef4444; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .fps-counter { margin-left: auto; font-size: 0.75rem; color: #475569; }
+  </style>
+</head>
+<body>
+  <h1>Car Component Detector</h1>
+  <p class="subtitle">Objective 1 — Real-time CNN Detection</p>
+  <nav class="nav">
+    <a href="index.html" class="active">Detection</a>
+    <a href="vlm.html">VLM Description</a>
+    <a href="grounding.html">Visual Grounding</a>
+  </nav>
+  <div class="card">
+    <div class="card-title">AI Realtime Detected State</div>
+    <div class="changed-alert" id="changedAlert"></div>
+    <div id="components"></div>
+    <div class="status-bar">
+      <div class="dot inactive" id="dot"></div>
+      <span id="statusText">Waiting for connection...</span>
+      <span class="fps-counter" id="fpsCounter"></span>
+    </div>
+  </div>
+  <script>
+    const LABEL_NAMES = {
+      front_left_door: "Front Left Door",
+      front_right_door: "Front Right Door",
+      rear_left_door: "Rear Left Door",
+      rear_right_door: "Rear Right Door",
+      hood: "Hood"
+    };
+    const container = document.getElementById("components");
+    const dot = document.getElementById("dot");
+    const statusText = document.getElementById("statusText");
+    const fpsCounter = document.getElementById("fpsCounter");
+    const changedAlert = document.getElementById("changedAlert");
+
+    Object.entries(LABEL_NAMES).forEach(([key, name]) => {
+      container.innerHTML += `<div class="component-row"><div class="comp-left"><div class="component-name">${name}</div><div class="conf" id="conf-${key}">Confidence: —</div></div><span class="badge unknown" id="badge-${key}">Unknown</span></div>`;
+    });
+
+    let frameCount = 0, lastFpsTime = Date.now();
+    function updateFPS() {
+      const delta = (Date.now() - lastFpsTime) / 1000;
+      if (delta >= 2) { fpsCounter.textContent = `${(frameCount/delta).toFixed(1)} fps`; frameCount = 0; lastFpsTime = Date.now(); }
+    }
+
+    let ws;
+    function connect() {
+      ws = new WebSocket("ws://localhost:8000/ws/dashboard");
+      ws.onopen = () => { dot.className = "dot active"; statusText.textContent = "Connected — receiving predictions"; };
+      ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data.ping) return;
+        frameCount++; updateFPS();
+        updateUI(data.predictions, data.changed_components || []);
+      };
+      ws.onclose = () => { dot.className = "dot inactive"; statusText.textContent = "Disconnected — retrying in 3s..."; fpsCounter.textContent = ""; setTimeout(connect, 3000); };
+    }
+
+    function updateUI(predictions, changed) {
+      Object.entries(predictions).forEach(([key, val]) => {
+        const badge = document.getElementById(`badge-${key}`);
+        const conf  = document.getElementById(`conf-${key}`);
+        if (!badge) return;
+        badge.textContent = val.status === "open" ? "Open" : val.status === "closed" ? "Closed" : "Unknown";
+        badge.className = `badge ${val.status || "unknown"}`;
+        conf.textContent = val.confidence ? `Confidence: ${(val.confidence*100).toFixed(1)}%` : "Confidence: —";
+      });
+      if (changed && changed.length > 0) {
+        changedAlert.textContent = `Changed: ${changed.map(k => LABEL_NAMES[k] || k).join(", ")}`;
+        changedAlert.style.display = "block";
+        setTimeout(() => { changedAlert.style.display = "none"; }, 3000);
+      }
+    }
+    connect();
+  </script>
+</body>
+</html>
