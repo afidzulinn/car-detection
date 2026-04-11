@@ -1,7 +1,7 @@
 # Car Component AI Detector
 
 Real-time deep learning system that detects open/closed states of car doors and hood
-by capturing the user's currently active browser tab showing a 3D car web interface.
+by capturing the user's browser tab showing a 3D car web interface via the Screen Capture API.
 
 ---
 
@@ -9,9 +9,19 @@ by capturing the user's currently active browser tab showing a 3D car web interf
 
 | # | Task | Type | Status |
 |---|------|------|--------|
-| 1 | Custom CNN from scratch — real-time detection via browser capture | Mandatory | Done |
+| 1 | Custom CNN from scratch — real-time detection via Screen Capture | Mandatory | Done |
 | 2 | Fine-tune VLM (SmolVLM-500M-Instruct) — natural language description | Bonus | Ready to run |
 | 3 | Visual Grounding (Grounding DINO) — text-prompted bounding boxes | Bonus | Done |
+
+---
+
+## Quick Start
+
+```bash
+./start.sh
+```
+
+This starts the backend and opens `http://localhost:8000` in your browser. That's it.
 
 ---
 
@@ -24,33 +34,29 @@ car-detection/
 │   └── augment_data.py        # 7-type augmentation → ~5,376 total samples
 ├── model/
 │   ├── architecture.py        # Custom CNN + SE-Attention (built from scratch, no pretrained)
-│   ├── dataset.py             # Combo-stratified train/val split
-│   ├── train.py               # AdamW + CosineAnnealingLR, 80 epochs
-│   ├── evaluate.py            # Per-label accuracy, ROC-AUC, exact-match
-│   └── change_detector.py     # 3-frame temporal buffer, hysteresis thresholds
+│   ├── dataset.py             # Angle-stratified train/val split (50/50 per-label balance)
+│   ├── train.py               # AdamW + OneCycleLR, mixup, label smoothing, early stopping
+│   ├── evaluate.py            # Per-label accuracy, ROC-AUC, exact-match, threshold search
+│   └── change_detector.py     # 5-frame temporal buffer, per-label hysteresis thresholds
 ├── backend/
-│   ├── app.py                 # FastAPI — WebSocket broker + REST endpoints
+│   ├── app.py                 # FastAPI — WebSocket broker + REST endpoints + static frontend
 │   ├── vlm_module.py          # SmolVLM-500M + LoRA lazy-loader
 │   └── requirements.txt
-├── extension/
-│   ├── manifest.json          # Chrome Extension Manifest V3
-│   ├── background.js          # Streams active tab frames via WebSocket (1 FPS)
-│   └── popup.html             # Start / Stop buttons
 ├── frontend/
-│   ├── index.html             # Objective 1 — live status dashboard
-│   ├── vlm.html               # Objective 2 — capture & describe page
-│   └── grounding.html         # Objective 3 — text-prompted grounding page
+│   └── index.html             # Single-page web app — all 3 objectives in one page
 ├── vlm/
-│   ├── finetune.py            # QLoRA fine-tuning script (run once, needs GPU)
+│   ├── finetune.py            # QLoRA fine-tuning script (optimised for 4 GB VRAM)
 │   └── inference.py           # Standalone VLM CLI for testing
 ├── visual_grounding/
 │   └── inference.py           # Grounding DINO wrapper + prompt expansion
 ├── checkpoints/
-│   └── best_model.pt          # Trained CNN weights (auto-created by train.py)
+│   ├── best_model.pt          # Trained CNN weights (auto-created by train.py)
+│   └── thresholds.json        # Per-label optimal thresholds (auto-created by evaluate.py)
 ├── docs/
 │   ├── PRESENTATION_SLIDE_DECK.md
 │   ├── DEMO_VIDEO_GUIDE.md
 │   └── SUBMISSION_CHECKLIST.md
+├── start.sh                   # One-command launcher: backend + browser
 ├── .env                       # CAR_URL setting
 ├── Dockerfile
 └── docker-compose.yml
@@ -61,12 +67,12 @@ car-detection/
 ## System Architecture
 
 ```
-  USER'S CHROME BROWSER
+  USER'S BROWSER
   (tab: 3D car model page)
          │
-         │  captureVisibleTab() — no new browser opened
+         │  Screen Capture API (getDisplayMedia)
          ▼
-  Chrome Extension (extension/)
+  Web App (localhost:8000)
          │
          │  WebSocket  ws://localhost:8000/ws/extension
          │  JPEG frames @ 1 FPS
@@ -80,8 +86,8 @@ car-detection/
     │
     │  WebSocket  ws://localhost:8000/ws/dashboard
     ▼
-frontend/index.html        frontend/vlm.html    frontend/grounding.html
-  (live status)            (NL description)      (bounding boxes)
+  Web App — tab-based UI
+  [Detection] [VLM Description] [Visual Grounding]
 ```
 
 ---
@@ -90,8 +96,8 @@ frontend/index.html        frontend/vlm.html    frontend/grounding.html
 
 | Requirement | Version | Notes |
 |---|---|---|
-| Python | 3.10 or 3.11 | Recommended |
-| Google Chrome | Latest | For the extension |
+| Python | 3.10+ | Recommended |
+| Google Chrome | Latest | Screen Capture API support |
 | ChromeDriver | Must match Chrome | Needed only for data collection |
 | CUDA GPU | 4 GB+ VRAM | Only for VLM fine-tuning (Objective 2) |
 
@@ -162,7 +168,7 @@ python data_collection/augment_data.py
 `brightness_high` · `brightness_low` · `motion_blur` · `gaussian_noise` ·
 `hue_shift` · `perspective` · `jpeg_compress`
 
-> Horizontal flip is intentionally excluded — it would swap left↔right door labels.
+> Horizontal flip is intentionally excluded — it would swap left/right door labels.
 
 ---
 
@@ -174,14 +180,17 @@ python data_collection/augment_data.py
 python model/train.py
 ```
 
-**Output:** `checkpoints/best_model.pt`
+**Output:** `checkpoints/best_model.pt` + `checkpoints/thresholds.json`
 
 Training configuration:
 - Architecture: 5-block CNN + SE-Attention, built fully from scratch (~3.2 M params)
-- Loss: BCEWithLogitsLoss (multi-label, 5 independent binary outputs)
-- Optimizer: AdamW — lr=3e-4, weight_decay=1e-4
-- Scheduler: CosineAnnealingLR, T_max=80 epochs
-- Split: combo-stratified 80/20 (val = only original images from held-out combos)
+- Loss: BCEWithLogitsLoss with class-balanced pos_weight
+- Optimizer: AdamW (lr=3e-4, weight_decay=1e-4)
+- Scheduler: OneCycleLR (warmup 10%, cosine annealing)
+- Regularisation: Mixup (alpha=0.3), Label Smoothing (0.05), Dropout
+- Early stopping: patience=20 epochs
+- Max epochs: 100 (stops early when converged)
+- Auto-evaluation: thresholds are computed and saved after training
 
 ---
 
@@ -191,14 +200,15 @@ Training configuration:
 python model/evaluate.py
 ```
 
-Prints per-component precision/recall/F1, ROC-AUC, and exact-match accuracy.
+Prints per-component precision/recall/F1, ROC-AUC, exact-match accuracy,
+and saves per-label optimal thresholds to `checkpoints/thresholds.json`.
 
 ---
 
 ## Step 6 — Fine-Tune VLM *(Objective 2 only — needs GPU)*
 
-> Skip if doing Objective 1 only.  
-> Requires GPU with ≥ 4 GB VRAM. Takes ~15–20 minutes (SmolVLM-500M is much lighter than PaliGemma-3B).
+> Skip if doing Objective 1 only.
+> Requires GPU with 4 GB+ VRAM. Takes ~1.5 hours on RTX 3050 Laptop.
 
 ```bash
 python vlm/finetune.py
@@ -210,42 +220,47 @@ python vlm/finetune.py
 
 ---
 
-## Step 7 — Start the Backend
+## Step 7 — Run the App
 
-### Option A — Direct (development)
+### Option A — Quick Start (recommended)
+
+```bash
+./start.sh
+```
+
+Starts the backend and opens `http://localhost:8000` in your browser.
+
+Custom port: `PORT=3000 ./start.sh`
+
+### Option B — Manual
 
 ```bash
 uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Verify: open `http://localhost:8000/health` — should return `{"status":"ok",...}`
+Then open `http://localhost:8000` in your browser.
 
-### Option B — Docker
+### Option C — Docker
 
 ```bash
 docker-compose up --build
 ```
 
-- Backend API: `http://localhost:8000`
-- Frontend (nginx): `http://localhost:3000`
-
 ---
 
-## Step 8 — Run the Web App (All Objectives)
+## Step 8 — Use the Web App
 
 > **No Chrome Extension needed.** The web app uses the Screen Capture API built into
 > modern browsers — just share a browser tab.
 
-1. Backend must be running (Step 7).
-
-2. Open the 3D car model page in Chrome:
+1. Open the 3D car model page in Chrome:
    `https://euphonious-concha-ab5c5d.netlify.app/`
 
-3. Open `frontend/index.html` in a **second tab** (or `http://localhost:3000` via Docker).
+2. Go to `http://localhost:8000` (opened automatically by `start.sh`).
 
-4. Click **Start Capture** and select the tab showing the 3D car model.
+3. Click **Start Capture** and select the tab showing the 3D car model.
 
-5. The app streams frames at 1 FPS — switch between the three tabs inside the app:
+4. The app streams frames at 1 FPS. Use the tabs to switch between objectives:
 
 ### Objective 1 — Real-Time Detection
 - Component states update live as you click buttons on the 3D car page.
@@ -268,8 +283,9 @@ docker-compose up --build
 
 | Endpoint | Method | Description |
 |---|---|---|
+| `/` | GET | Web app (single-page frontend) |
 | `/health` | GET | Backend health check |
-| `/ws/extension` | WebSocket | Receives JPEG frames from the Chrome extension |
+| `/ws/extension` | WebSocket | Receives JPEG frames from the web app |
 | `/ws/dashboard` | WebSocket | Pushes predictions to dashboard clients |
 | `/api/vlm/describe` | POST | VLM natural language description |
 | `/api/grounding/locate` | POST | Grounding DINO bounding box detection |
@@ -295,15 +311,14 @@ Response: { "annotated_image": "<base64 JPEG>",
 
 | Problem | Cause | Fix |
 |---|---|---|
-| `ws://localhost:8000` refused | Backend not running | Run Step 7 first |
-| Extension ID not found | Extension not loaded | Go to `chrome://extensions/` and load unpacked |
-| Dashboard never updates | Extension not streaming | Click ▶ Start Detection in the extension popup |
-| Extension captures wrong tab | Active tab ≠ 3D car page | Switch to the 3D car tab, then click Start |
-| `WARNING: No checkpoint found` | Model not trained yet | Run Steps 2–4 |
+| `ws://localhost:8000` refused | Backend not running | Run `./start.sh` |
+| Screen capture not working | Browser doesn't support Screen Capture API | Use latest Chrome or Edge |
+| Dashboard never updates | Capture not started | Click "Start Capture" and share the 3D car tab |
+| `WARNING: No checkpoint found` | Model not trained yet | Run Steps 2-4 |
 | `WARNING: LoRA weights not found` | VLM not fine-tuned | Run Step 6, or ignore (base SmolVLM used) |
 | Grounding DINO `FileNotFoundError` | Weights not downloaded | Run the wget command in Step 1 |
 | Selenium `TimeoutException` | ChromeDriver version mismatch | Match ChromeDriver to your Chrome version |
-| CUDA OOM on VLM fine-tune | Not enough VRAM | Set `per_device_train_batch_size=1` in `vlm/finetune.py` |
+| CUDA OOM on VLM fine-tune | Not enough VRAM | Already optimised for 4 GB; reduce LoRA rank if needed |
 
 ---
 
@@ -312,46 +327,60 @@ Response: { "annotated_image": "<base64 JPEG>",
 ### Custom CNN — Objective 1
 
 ```
-Input: 224 × 224 RGB
-  ↓
-Conv Block 1:  3  →  32 ch  (Conv3×3 → BN → GELU → Conv3×3 → BN → GELU → MaxPool2×2 → Dropout)
-Conv Block 2:  32 →  64 ch
-Conv Block 3:  64 → 128 ch
-Conv Block 4: 128 → 256 ch
-Conv Block 5: 256 → 512 ch
-  ↓
-Squeeze-and-Excitation attention  (512 → 64 → 512 → sigmoid)
-  ↓
-AdaptiveAvgPool2d(1) → Flatten
-  ↓
-FC 512 → 256 → 64 → 5  (GELU + Dropout between layers)
-  ↓
-5 independent sigmoid outputs  (FL door · FR door · RL door · RR door · Hood)
+Input: 224 x 224 RGB
+  |
+Conv Block 1:  3  ->  32 ch  (Conv3x3 -> BN -> GELU -> Conv3x3 -> BN -> GELU -> MaxPool2x2 -> Dropout)
+Conv Block 2:  32 ->  64 ch
+Conv Block 3:  64 -> 128 ch
+Conv Block 4: 128 -> 256 ch
+Conv Block 5: 256 -> 512 ch
+  |
+Squeeze-and-Excitation attention  (512 -> 64 -> 512 -> sigmoid)
+  |
+AdaptiveAvgPool2d(1) -> Flatten
+  |
+FC 512 -> 256 -> 64 -> 5  (GELU + Dropout between layers)
+  |
+5 independent sigmoid outputs  (FL door, FR door, RL door, RR door, Hood)
 ```
 
-**Parameters:** ~3.2 M  
-**Inference:** ~8 ms CPU / ~2 ms GPU per frame  
+**Parameters:** ~3.2 M
+**Inference:** ~8 ms CPU / ~2 ms GPU per frame
 **No transfer learning** — all weights trained from random initialisation
+
+### Training Improvements
+
+| Technique | Purpose |
+|---|---|
+| OneCycleLR | Aggressive warmup + cosine decay for better convergence |
+| Mixup (alpha=0.3) | Regularisation via interpolated training pairs |
+| Label Smoothing (0.05) | Better probability calibration (thresholds closer to 0.5) |
+| Early Stopping (patience=20) | Auto-stop when converged, prevents overfitting |
+| Per-label Optimal Thresholds | Maximise F1 per component instead of using fixed 0.5 |
 
 ### Change Detector
 
-Each frame → CNN → probabilities averaged over a **3-frame rolling buffer**.  
-Hysteresis prevents flickering at ambiguous angles:
+Each frame -> CNN -> probabilities averaged over a **5-frame rolling buffer**.
+Per-label hysteresis prevents flickering at ambiguous angles:
 
-- p ≥ 0.60 → **Open**
-- p ≤ 0.40 → **Closed**
-- 0.40 < p < 0.60 → keep previous state
+- p >= threshold + 0.12 -> **Open**
+- p <= threshold - 0.12 -> **Closed**
+- Otherwise -> keep previous state
+
+Thresholds are loaded from `checkpoints/thresholds.json` (produced by `evaluate.py`).
 
 ### VLM — Objective 2
 
 | Setting | Value |
 |---|---|
 | Base model | HuggingFaceTB/SmolVLM-500M-Instruct |
-| Parameters | 507 M (vs 3 B for PaliGemma — 6× lighter) |
+| Parameters | 507 M (vs 3 B for PaliGemma — 6x lighter) |
 | Method | QLoRA (4-bit NF4 quantisation) |
-| LoRA rank | r=16, alpha=32 |
-| Target modules | q_proj, v_proj, k_proj, o_proj |
-| Epochs | 3 · lr=2e-4 · batch 2 + grad accum 8 |
+| LoRA rank | r=4, alpha=8 |
+| Target modules | q_proj, v_proj |
+| Optimiser | AdamW 8-bit (bitsandbytes) |
+| Training | 3 epochs, lr=2e-4, gradient checkpointing |
+| VRAM | ~3.5 GB (fits on 4 GB GPU) |
 
 ### Visual Grounding — Objective 3
 
@@ -361,7 +390,7 @@ Hysteresis prevents flickering at ambiguous angles:
 | Mode | Zero-shot (no fine-tuning needed) |
 | Box threshold | 0.35 |
 | Text threshold | 0.25 |
-| Prompt expansion | `"front left door"` → `"front left door . door"` |
+| Prompt expansion | `"front left door"` -> `"front left door . door"` |
 
 ---
 
@@ -370,6 +399,6 @@ Hysteresis prevents flickering at ambiguous angles:
 | Criteria | How it is met |
 |---|---|
 | Model Architecture Efficiency | From-scratch CNN, 3.2 M params, ~8 ms/frame inference |
-| Model Accuracy | Per-label BCE loss · ROC-AUC · exact-match — run `python model/evaluate.py` |
-| Real-Time Integration | Extension → WebSocket → FastAPI → live dashboard at 1 FPS |
+| Model Accuracy | Per-label BCE loss, ROC-AUC, exact-match — run `python model/evaluate.py` |
+| Real-Time Integration | Screen Capture -> WebSocket -> FastAPI -> live dashboard at 1 FPS |
 | Presentation & Reporting | README + `docs/` slide deck + per-label evaluation report |
