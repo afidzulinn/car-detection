@@ -231,69 +231,36 @@ docker-compose up --build
 
 ---
 
-## Step 8 — Install the Chrome Extension
+## Step 8 — Run the Web App (All Objectives)
 
-1. Open Chrome → `chrome://extensions/`
-2. Enable **Developer mode** (toggle, top-right)
-3. Click **Load unpacked**
-4. Select the `extension/` folder
-5. Copy the **Extension ID** shown on the card — you will need it for Objectives 2 & 3
-
----
-
-## Step 9 — Objective 1: Real-Time Detection
-
-1. Open the 3D car model page in Chrome:
-   `https://euphonious-concha-ab5c5d.netlify.app/`
-
-2. Open the dashboard in a **second tab**:
-   - Docker: `http://localhost:3000/index.html`
-   - Manual: open `frontend/index.html` in Chrome
-
-3. Click the **Car Detector** extension icon → **▶ Start Detection**
-
-4. Switch to the 3D car tab and click any component button (e.g. "Front Left Door")
-
-5. The dashboard badge flips **Open/Closed** within ~3 seconds and shows a
-   yellow "Changed: Front Left Door" alert.
-
----
-
-## Step 10 — Objective 2: VLM Description
+> **No Chrome Extension needed.** The web app uses the Screen Capture API built into
+> modern browsers — just share a browser tab.
 
 1. Backend must be running (Step 7).
 
-2. Open `frontend/vlm.html` in Chrome.
+2. Open the 3D car model page in Chrome:
+   `https://euphonious-concha-ab5c5d.netlify.app/`
 
-3. Paste your **Extension ID** into the configuration field.
+3. Open `frontend/index.html` in a **second tab** (or `http://localhost:3000` via Docker).
 
-4. Go to the 3D car tab and set some components open/closed.
+4. Click **Start Capture** and select the tab showing the 3D car model.
 
-5. Return to `vlm.html` → click **📸 Capture Current 3D View & Describe**.
+5. The app streams frames at 1 FPS — switch between the three tabs inside the app:
 
-6. The page captures a screenshot of the active tab and returns a description like:
-   > "The car currently has: open: front left door, hood. closed: front right door,
-   > rear left door, rear right door."
+### Objective 1 — Real-Time Detection
+- Component states update live as you click buttons on the 3D car page.
+- The dashboard shows Open/Closed badges with confidence percentages.
+- Yellow "Changed" alerts appear when a component switches state.
 
----
+### Objective 2 — VLM Description
+- Click **Capture Current Frame & Describe**.
+- The captured frame is sent to the SmolVLM backend which returns a natural language
+  description like: *"The car currently has: open: front left door, hood. closed: ..."*
 
-## Step 11 — Objective 3: Visual Grounding
-
-1. Backend must be running **and** Grounding DINO weights must be present
-   (`weights/groundingdino_swint_ogc.pth` — see Step 1).
-
-2. Open `frontend/grounding.html` in Chrome.
-
-3. Paste your **Extension ID**.
-
-4. Go to the 3D car tab and set some components open.
-
-5. Return to `grounding.html`, type a prompt such as `open front left door` and click
-   **Generate Grounding**.
-
-6. The screenshot is returned with red bounding boxes drawn around matched components.
-
-Use the quick-suggestion chips for common queries: `Open doors`, `Hood`, `Front left door`, etc.
+### Objective 3 — Visual Grounding
+- Type a prompt (e.g. `front left door`) or use the quick-suggestion chips.
+- Click **Generate** — the backend returns an annotated image with bounding boxes
+  drawn around matched components.
 
 ---
 

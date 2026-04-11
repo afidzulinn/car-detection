@@ -35,8 +35,8 @@ def _load_thresholds() -> tuple[list[float], list[float]]:
     open_t, close_t = [], []
     for label in LABELS:
         opt = thr_map.get(label, 0.5)
-        # Apply hysteresis band around the optimal threshold
-        hysteresis = 0.08
+        # Apply wider hysteresis band for more stable real-time detection
+        hysteresis = 0.12
         open_t.append(min(opt + hysteresis, 0.95))
         close_t.append(max(opt - hysteresis, 0.05))
 
@@ -55,7 +55,7 @@ class ChangeDetectorWrapper:
       3. Returns current state dict + list of labels that just changed.
     """
 
-    def __init__(self, model: CarComponentCNN, buffer_size: int = 3):
+    def __init__(self, model: CarComponentCNN, buffer_size: int = 5):
         self.model        = model
         self.buffer_size  = buffer_size
         self.open_thr, self.close_thr = _load_thresholds()

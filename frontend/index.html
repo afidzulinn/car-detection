@@ -3,107 +3,607 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Car Component Detector</title>
+  <title>Car Component AI Detector</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 24px; }
-    h1 { font-size: 1.6rem; color: #38bdf8; }
-    .subtitle { color: #94a3b8; font-size: 0.9rem; }
-    .nav { display: flex; gap: 12px; }
-    .nav a { padding: 6px 16px; background: #1e293b; border-radius: 999px; color: #94a3b8; text-decoration: none; font-size: 0.85rem; transition: all 0.2s; }
-    .nav a:hover { background: #334155; color: #e2e8f0; }
-    .nav a.active { background: #0284c7; color: white; }
-    .card { background: #1e293b; border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
-    .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: #cbd5e1; border-bottom: 1px solid #334155; padding-bottom: 12px; }
-    .component-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #0f172a; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+    /* ── Header ──────────────────────────────────── */
+    .header { text-align: center; padding: 32px 20px 0; }
+    .header h1 { font-size: 1.8rem; color: #38bdf8; }
+    .header .sub { color: #64748b; font-size: 0.9rem; margin-top: 4px; }
+
+    /* ── Layout ──────────────────────────────────── */
+    .main { max-width: 960px; margin: 0 auto; padding: 24px 20px 60px; }
+
+    /* ── Capture Control ─────────────────────────── */
+    .capture-section {
+      background: #1e293b; border-radius: 16px; padding: 24px;
+      margin-bottom: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+    .capture-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .capture-header h2 { font-size: 1rem; color: #cbd5e1; }
+    .capture-status {
+      margin-left: auto; display: flex; align-items: center; gap: 6px;
+      font-size: 0.82rem; color: #64748b;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot.active { background: #22c55e; animation: pulse 1.2s infinite; }
+    .dot.inactive { background: #ef4444; }
+    .dot.idle { background: #475569; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .capture-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      padding: 10px 24px; border: none; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s; letter-spacing: 0.02em;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-start { background: #22c55e; color: #052e16; }
+    .btn-stop  { background: #ef4444; color: white; }
+
+    .preview-container {
+      margin-top: 16px; display: none;
+      border: 1px solid #334155; border-radius: 10px; overflow: hidden;
+      position: relative; background: #000;
+    }
+    .preview-container video {
+      width: 100%; display: block; max-height: 280px; object-fit: contain;
+    }
+    .fps-badge {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(0,0,0,0.7); padding: 3px 10px;
+      border-radius: 999px; font-size: 0.72rem; color: #94a3b8;
+    }
+
+    /* ── Tabs ─────────────────────────────────────── */
+    .tabs {
+      display: flex; gap: 4px; margin-bottom: 20px;
+      background: #1e293b; border-radius: 12px; padding: 4px;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px 0; text-align: center;
+      background: transparent; border: none; border-radius: 8px;
+      color: #94a3b8; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn:hover { color: #e2e8f0; }
+    .tab-btn.active { background: #334155; color: #fff; }
+    .tab-btn.t1.active { color: #38bdf8; }
+    .tab-btn.t2.active { color: #a78bfa; }
+    .tab-btn.t3.active { color: #f59e0b; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cards ────────────────────────────────────── */
+    .card {
+      background: #1e293b; border-radius: 16px; padding: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4); margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 1rem; font-weight: 700; color: #cbd5e1;
+      margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 12px;
+    }
+
+    /* ── Objective 1: Detection ───────────────────── */
+    .component-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; border-bottom: 1px solid #0f172a;
+    }
     .component-row:last-child { border-bottom: none; }
     .comp-left { display: flex; flex-direction: column; gap: 3px; }
     .component-name { font-size: 0.95rem; color: #94a3b8; }
     .conf { font-size: 0.72rem; color: #475569; }
-    .badge { padding: 5px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; transition: all 0.3s ease; }
+    .badge {
+      padding: 5px 16px; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 700; transition: all 0.3s ease;
+    }
     .open   { background: #16a34a; color: white; box-shadow: 0 0 8px #16a34a55; }
     .closed { background: #dc2626; color: white; }
     .unknown { background: #475569; color: white; }
-    .changed-alert { padding: 10px 14px; background: #fbbf2415; border: 1px solid #fbbf24; border-radius: 8px; color: #fbbf24; font-size: 0.85rem; margin-bottom: 12px; display: none; }
-    .status-bar { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding: 12px; background: #0f172a; border-radius: 8px; font-size: 0.85rem; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .dot.active { background: #22c55e; animation: pulse 1.2s infinite; }
-    .dot.inactive { background: #ef4444; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .fps-counter { margin-left: auto; font-size: 0.75rem; color: #475569; }
+    .changed-alert {
+      padding: 10px 14px; background: #fbbf2415; border: 1px solid #fbbf24;
+      border-radius: 8px; color: #fbbf24; font-size: 0.85rem;
+      margin-bottom: 12px; display: none;
+    }
+
+    /* ── Objective 2: VLM ─────────────────────────── */
+    .vlm-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white; font-size: 1rem; font-weight: 700;
+      border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s;
+    }
+    .vlm-btn:hover { opacity: 0.85; }
+    .vlm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .description-box {
+      margin-top: 16px; padding: 18px;
+      background: #0f172a; border-radius: 10px;
+      border-left: 4px solid #7c3aed;
+      font-size: 0.95rem; line-height: 1.75; color: #cbd5e1;
+      display: none; white-space: pre-wrap;
+    }
+    .preview-img {
+      margin-top: 16px; width: 100%; border-radius: 10px;
+      border: 1px solid #334155; display: none;
+    }
+    .preview-label { font-size: 0.75rem; color: #64748b; margin: 16px 0 6px; display: none; }
+
+    /* ── Objective 3: Grounding ────────────────────── */
+    .input-row { display: flex; gap: 10px; align-items: stretch; }
+    .prompt-input {
+      flex: 1; padding: 12px 16px;
+      background: #0f172a; border: 1px solid #334155;
+      border-radius: 8px; color: #e2e8f0; font-size: 0.95rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .prompt-input:focus { border-color: #f59e0b; }
+    .ground-btn {
+      padding: 12px 20px; background: #f59e0b; color: #0f172a;
+      font-weight: 700; border: none; border-radius: 8px;
+      cursor: pointer; white-space: nowrap; font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+    .ground-btn:hover { opacity: 0.85; }
+    .ground-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .suggestions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      padding: 5px 14px; background: #0f172a;
+      border: 1px solid #475569; border-radius: 999px;
+      font-size: 0.8rem; cursor: pointer; color: #94a3b8; transition: all 0.2s;
+    }
+    .chip:hover { border-color: #f59e0b; color: #f59e0b; }
+    .output-area { margin-top: 20px; display: none; }
+    .output-label { font-size: 0.75rem; color: #64748b; margin-bottom: 8px; }
+    .output-area img {
+      width: 100%; border-radius: 10px; border: 1px solid #334155; display: block;
+    }
+    .detected-labels { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .det-chip {
+      padding: 5px 14px; background: #78350f; border: 1px solid #f59e0b;
+      border-radius: 999px; font-size: 0.8rem; color: #fef3c7; font-weight: 600;
+    }
+    .box-count { margin-top: 8px; font-size: 0.82rem; color: #64748b; }
+    .no-result {
+      margin-top: 16px; color: #94a3b8; font-size: 0.9rem; text-align: center;
+      padding: 16px; background: #0f172a; border-radius: 8px; display: none;
+    }
+
+    /* ── Loading ──────────────────────────────────── */
+    .loading {
+      margin-top: 20px; text-align: center;
+      color: #94a3b8; font-size: 0.9rem; display: none;
+    }
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid #334155; border-top-color: #38bdf8;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Hint ─────────────────────────────────────── */
+    .hint {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+      padding: 14px 18px; font-size: 0.84rem; color: #64748b; line-height: 1.6;
+    }
+    .hint strong { color: #94a3b8; }
   </style>
 </head>
 <body>
-  <h1>Car Component Detector</h1>
-  <p class="subtitle">Objective 1 — Real-time CNN Detection</p>
-  <nav class="nav">
-    <a href="index.html" class="active">Detection</a>
-    <a href="vlm.html">VLM Description</a>
-    <a href="grounding.html">Visual Grounding</a>
-  </nav>
-  <div class="card">
-    <div class="card-title">AI Realtime Detected State</div>
-    <div class="changed-alert" id="changedAlert"></div>
-    <div id="components"></div>
-    <div class="status-bar">
-      <div class="dot inactive" id="dot"></div>
-      <span id="statusText">Waiting for connection...</span>
-      <span class="fps-counter" id="fpsCounter"></span>
-    </div>
-  </div>
-  <script>
-    const LABEL_NAMES = {
-      front_left_door: "Front Left Door",
-      front_right_door: "Front Right Door",
-      rear_left_door: "Rear Left Door",
-      rear_right_door: "Rear Right Door",
-      hood: "Hood"
-    };
-    const container = document.getElementById("components");
-    const dot = document.getElementById("dot");
-    const statusText = document.getElementById("statusText");
-    const fpsCounter = document.getElementById("fpsCounter");
-    const changedAlert = document.getElementById("changedAlert");
 
-    Object.entries(LABEL_NAMES).forEach(([key, name]) => {
-      container.innerHTML += `<div class="component-row"><div class="comp-left"><div class="component-name">${name}</div><div class="conf" id="conf-${key}">Confidence: —</div></div><span class="badge unknown" id="badge-${key}">Unknown</span></div>`;
+  <div class="header">
+    <h1>Car Component AI Detector</h1>
+    <p class="sub">Real-time detection via Screen Capture — no extension needed</p>
+  </div>
+
+  <div class="main">
+
+    <!-- ════ Screen Capture ════ -->
+    <div class="capture-section">
+      <div class="capture-header">
+        <h2>Screen Capture</h2>
+        <div class="capture-status">
+          <div class="dot idle" id="captureDot"></div>
+          <span id="captureStatusText">Idle</span>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-bottom:16px">
+        <strong>How it works:</strong> Click "Start Capture" and select the browser tab
+        showing the 3D car model. Frames are streamed to the backend at 1 FPS for
+        real-time detection. VLM and Grounding use the latest captured frame.
+      </div>
+
+      <div class="capture-controls">
+        <button class="btn btn-start" id="startBtn" onclick="startCapture()">Start Capture</button>
+        <button class="btn btn-stop"  id="stopBtn"  onclick="stopCapture()" disabled>Stop</button>
+      </div>
+
+      <div class="preview-container" id="previewContainer">
+        <video id="previewVideo" autoplay muted playsinline></video>
+        <span class="fps-badge" id="fpsBadge"></span>
+      </div>
+    </div>
+
+    <!-- ════ Tabs ════ -->
+    <div class="tabs">
+      <button class="tab-btn t1 active" onclick="switchTab('detection')">Detection</button>
+      <button class="tab-btn t2" onclick="switchTab('vlm')">VLM Description</button>
+      <button class="tab-btn t3" onclick="switchTab('grounding')">Visual Grounding</button>
+    </div>
+
+    <!-- ════ Tab 1: Detection ════ -->
+    <div class="tab-panel active" id="panel-detection">
+      <div class="card">
+        <div class="card-title">Objective 1 — Real-time CNN Detection</div>
+        <div class="changed-alert" id="changedAlert"></div>
+        <div id="components"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:20px;padding:12px;background:#0f172a;border-radius:8px;font-size:0.85rem;">
+          <div class="dot inactive" id="wsDot"></div>
+          <span id="wsStatus">Waiting for connection...</span>
+          <span style="margin-left:auto;font-size:0.75rem;color:#475569" id="wsFps"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ Tab 2: VLM ════ -->
+    <div class="tab-panel" id="panel-vlm">
+      <div class="card">
+        <div class="card-title">Objective 2 — VLM Car Description</div>
+
+        <button class="vlm-btn" id="vlmBtn" onclick="runVLM()" disabled>
+          Capture Current Frame & Describe
+        </button>
+
+        <div class="loading" id="vlmLoading">
+          <span class="spinner" style="border-top-color:#a78bfa"></span>
+          Analyzing car components with VLM...
+        </div>
+
+        <p class="preview-label" id="vlmPreviewLabel">Captured Frame:</p>
+        <img class="preview-img" id="vlmPreviewImg" alt="Captured frame">
+        <div class="description-box" id="vlmDesc"></div>
+      </div>
+    </div>
+
+    <!-- ════ Tab 3: Grounding ════ -->
+    <div class="tab-panel" id="panel-grounding">
+      <div class="card">
+        <div class="card-title">Objective 3 — Text-prompted Visual Grounding</div>
+
+        <div class="input-row">
+          <input type="text" class="prompt-input" id="groundPrompt"
+                 placeholder="e.g. front left door">
+          <button class="ground-btn" id="groundBtn" onclick="runGrounding()" disabled>
+            Generate
+          </button>
+        </div>
+
+        <div class="suggestions">
+          <span class="chip" onclick="setPrompt('open doors')">Open doors</span>
+          <span class="chip" onclick="setPrompt('front left door')">Front left door</span>
+          <span class="chip" onclick="setPrompt('front right door')">Front right door</span>
+          <span class="chip" onclick="setPrompt('rear left door')">Rear left door</span>
+          <span class="chip" onclick="setPrompt('rear right door')">Rear right door</span>
+          <span class="chip" onclick="setPrompt('hood')">Hood</span>
+          <span class="chip" onclick="setPrompt('all open components')">All open</span>
+        </div>
+
+        <div class="loading" id="groundLoading">
+          <span class="spinner" style="border-top-color:#f59e0b"></span>
+          Localizing objects with Grounding DINO...
+        </div>
+
+        <div class="output-area" id="groundOutput">
+          <p class="output-label">Grounding Result:</p>
+          <img id="groundResultImg" src="" alt="Grounding result">
+          <div class="detected-labels" id="groundDetLabels"></div>
+          <p class="box-count" id="groundBoxCount"></p>
+        </div>
+
+        <div class="no-result" id="groundNoResult"></div>
+      </div>
+    </div>
+
+  </div><!-- .main -->
+
+<script>
+// ── Config ──────────────────────────────────────────────────────
+// Auto-detect backend URL from current page origin
+const _origin = window.location.origin !== "null" ? window.location.origin : "http://localhost:8000";
+const API = _origin;
+const WS_EXTENSION = _origin.replace(/^http/, "ws") + "/ws/extension";
+const WS_DASHBOARD = _origin.replace(/^http/, "ws") + "/ws/dashboard";
+
+const LABEL_NAMES = {
+  front_left_door:  "Front Left Door",
+  front_right_door: "Front Right Door",
+  rear_left_door:   "Rear Left Door",
+  rear_right_door:  "Rear Right Door",
+  hood:             "Hood"
+};
+
+// ── State ───────────────────────────────────────────────────────
+let captureStream = null;
+let captureInterval = null;
+let wsExtension = null;
+let wsDashboard = null;
+let latestFrameB64 = null;
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
+
+// ── Init Detection UI ───────────────────────────────────────────
+const compsEl = document.getElementById("components");
+Object.entries(LABEL_NAMES).forEach(([key, name]) => {
+  compsEl.innerHTML += `
+    <div class="component-row">
+      <div class="comp-left">
+        <div class="component-name">${name}</div>
+        <div class="conf" id="conf-${key}">Confidence: —</div>
+      </div>
+      <span class="badge unknown" id="badge-${key}">Unknown</span>
+    </div>`;
+});
+
+// ── Tab Switching ───────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById(`panel-${name}`).classList.add("active");
+  const idx = { detection: 0, vlm: 1, grounding: 2 }[name];
+  document.querySelectorAll(".tab-btn")[idx].classList.add("active");
+}
+
+// ── Screen Capture ──────────────────────────────────────────────
+async function startCapture() {
+  try {
+    captureStream = await navigator.mediaDevices.getDisplayMedia({
+      video: { displaySurface: "browser", frameRate: { ideal: 1, max: 2 } },
+      audio: false
     });
 
-    let frameCount = 0, lastFpsTime = Date.now();
-    function updateFPS() {
-      const delta = (Date.now() - lastFpsTime) / 1000;
-      if (delta >= 2) { fpsCounter.textContent = `${(frameCount/delta).toFixed(1)} fps`; frameCount = 0; lastFpsTime = Date.now(); }
-    }
+    const video = document.getElementById("previewVideo");
+    video.srcObject = captureStream;
+    document.getElementById("previewContainer").style.display = "block";
+    document.getElementById("startBtn").disabled = true;
+    document.getElementById("stopBtn").disabled = false;
+    document.getElementById("vlmBtn").disabled = false;
+    document.getElementById("groundBtn").disabled = false;
 
-    let ws;
-    function connect() {
-      ws = new WebSocket("ws://localhost:8000/ws/dashboard");
-      ws.onopen = () => { dot.className = "dot active"; statusText.textContent = "Connected — receiving predictions"; };
-      ws.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        if (data.ping) return;
-        frameCount++; updateFPS();
-        updateUI(data.predictions, data.changed_components || []);
-      };
-      ws.onclose = () => { dot.className = "dot inactive"; statusText.textContent = "Disconnected — retrying in 3s..."; fpsCounter.textContent = ""; setTimeout(connect, 3000); };
-    }
+    updateCaptureStatus("active", "Streaming");
 
-    function updateUI(predictions, changed) {
-      Object.entries(predictions).forEach(([key, val]) => {
-        const badge = document.getElementById(`badge-${key}`);
-        const conf  = document.getElementById(`conf-${key}`);
-        if (!badge) return;
-        badge.textContent = val.status === "open" ? "Open" : val.status === "closed" ? "Closed" : "Unknown";
-        badge.className = `badge ${val.status || "unknown"}`;
-        conf.textContent = val.confidence ? `Confidence: ${(val.confidence*100).toFixed(1)}%` : "Confidence: —";
-      });
-      if (changed && changed.length > 0) {
-        changedAlert.textContent = `Changed: ${changed.map(k => LABEL_NAMES[k] || k).join(", ")}`;
-        changedAlert.style.display = "block";
-        setTimeout(() => { changedAlert.style.display = "none"; }, 3000);
+    // When user stops sharing via browser UI
+    captureStream.getVideoTracks()[0].addEventListener("ended", () => stopCapture());
+
+    // Wait for video to be ready
+    await new Promise(r => { video.onloadedmetadata = r; });
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Connect to backend WebSocket and start sending frames
+    connectExtensionWS();
+
+  } catch (err) {
+    if (err.name !== "NotAllowedError") {
+      alert("Screen capture error: " + err.message);
+    }
+  }
+}
+
+function stopCapture() {
+  if (captureInterval) { clearInterval(captureInterval); captureInterval = null; }
+  if (captureStream) { captureStream.getTracks().forEach(t => t.stop()); captureStream = null; }
+  if (wsExtension) { wsExtension.close(); wsExtension = null; }
+
+  document.getElementById("previewVideo").srcObject = null;
+  document.getElementById("previewContainer").style.display = "none";
+  document.getElementById("startBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = true;
+  document.getElementById("vlmBtn").disabled = true;
+  document.getElementById("groundBtn").disabled = true;
+  latestFrameB64 = null;
+
+  updateCaptureStatus("idle", "Idle");
+}
+
+function captureFrame() {
+  const video = document.getElementById("previewVideo");
+  if (!video.videoWidth) return null;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+function updateCaptureStatus(state, text) {
+  const dot = document.getElementById("captureDot");
+  dot.className = "dot " + state;
+  document.getElementById("captureStatusText").textContent = text;
+}
+
+// ── WebSocket: send frames to backend (replaces extension) ─────
+function connectExtensionWS() {
+  wsExtension = new WebSocket(WS_EXTENSION);
+
+  wsExtension.onopen = () => {
+    updateCaptureStatus("active", "Connected — streaming frames");
+    captureInterval = setInterval(() => {
+      if (wsExtension?.readyState === WebSocket.OPEN) {
+        const frame = captureFrame();
+        if (frame) {
+          latestFrameB64 = frame;
+          wsExtension.send(frame);
+        }
       }
+    }, 1000); // 1 FPS
+  };
+
+  wsExtension.onclose = () => {
+    if (captureStream) {
+      updateCaptureStatus("inactive", "Backend disconnected — retrying...");
+      setTimeout(connectExtensionWS, 3000);
     }
-    connect();
-  </script>
+  };
+
+  wsExtension.onerror = () => {};
+}
+
+// ── WebSocket: receive predictions (dashboard) ─────────────────
+let frameCount = 0, lastFpsTime = Date.now();
+
+function connectDashboard() {
+  wsDashboard = new WebSocket(WS_DASHBOARD);
+
+  wsDashboard.onopen = () => {
+    document.getElementById("wsDot").className = "dot active";
+    document.getElementById("wsStatus").textContent = "Connected — receiving predictions";
+  };
+
+  wsDashboard.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.ping) return;
+    frameCount++;
+    const now = Date.now();
+    const delta = (now - lastFpsTime) / 1000;
+    if (delta >= 2) {
+      document.getElementById("wsFps").textContent = `${(frameCount / delta).toFixed(1)} fps`;
+      document.getElementById("fpsBadge").textContent = `${(frameCount / delta).toFixed(1)} fps`;
+      frameCount = 0; lastFpsTime = now;
+    }
+    updateDetection(data.predictions, data.changed_components || []);
+  };
+
+  wsDashboard.onclose = () => {
+    document.getElementById("wsDot").className = "dot inactive";
+    document.getElementById("wsStatus").textContent = "Disconnected — retrying...";
+    document.getElementById("wsFps").textContent = "";
+    setTimeout(connectDashboard, 3000);
+  };
+}
+
+function updateDetection(predictions, changed) {
+  Object.entries(predictions).forEach(([key, val]) => {
+    const badge = document.getElementById(`badge-${key}`);
+    const conf  = document.getElementById(`conf-${key}`);
+    if (!badge) return;
+    badge.textContent = val.status === "open" ? "Open" : val.status === "closed" ? "Closed" : "Unknown";
+    badge.className = "badge " + (val.status || "unknown");
+    conf.textContent = val.confidence ? `Confidence: ${(val.confidence * 100).toFixed(1)}%` : "Confidence: —";
+  });
+  if (changed?.length > 0) {
+    const alert = document.getElementById("changedAlert");
+    alert.textContent = "Changed: " + changed.map(k => LABEL_NAMES[k] || k).join(", ");
+    alert.style.display = "block";
+    setTimeout(() => { alert.style.display = "none"; }, 3000);
+  }
+}
+
+// ── Objective 2: VLM ────────────────────────────────────────────
+async function runVLM() {
+  const btn     = document.getElementById("vlmBtn");
+  const loading = document.getElementById("vlmLoading");
+  const desc    = document.getElementById("vlmDesc");
+  const img     = document.getElementById("vlmPreviewImg");
+  const label   = document.getElementById("vlmPreviewLabel");
+
+  const frame = captureFrame();
+  if (!frame) { alert("No capture active."); return; }
+
+  btn.disabled = true;
+  loading.style.display = "block";
+  desc.style.display = "none";
+
+  img.src = frame;
+  img.style.display = "block";
+  label.style.display = "block";
+
+  try {
+    const res = await fetch(`${API}/api/vlm/describe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image_b64: frame })
+    });
+    const data = await res.json();
+    desc.textContent = data.success ? data.description : "Error: " + data.description;
+    desc.style.display = "block";
+  } catch (err) {
+    desc.textContent = "Failed: " + err.message;
+    desc.style.display = "block";
+  } finally {
+    loading.style.display = "none";
+    btn.disabled = false;
+  }
+}
+
+// ── Objective 3: Grounding ──────────────────────────────────────
+function setPrompt(text) {
+  document.getElementById("groundPrompt").value = text;
+  document.getElementById("groundPrompt").focus();
+}
+
+document.getElementById("groundPrompt").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") runGrounding();
+});
+
+async function runGrounding() {
+  const prompt   = document.getElementById("groundPrompt").value.trim();
+  const btn      = document.getElementById("groundBtn");
+  const loading  = document.getElementById("groundLoading");
+  const output   = document.getElementById("groundOutput");
+  const noResult = document.getElementById("groundNoResult");
+  const resImg   = document.getElementById("groundResultImg");
+  const detLabel = document.getElementById("groundDetLabels");
+  const boxCount = document.getElementById("groundBoxCount");
+
+  if (!prompt) { alert("Please enter a text prompt."); return; }
+
+  const frame = captureFrame();
+  if (!frame) { alert("No capture active."); return; }
+
+  btn.disabled = true;
+  loading.style.display = "block";
+  output.style.display = "none";
+  noResult.style.display = "none";
+
+  try {
+    const res = await fetch(`${API}/api/grounding/locate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image_b64: frame, prompt })
+    });
+    const data = await res.json();
+
+    if (data.success && data.boxes?.length > 0) {
+      resImg.src = `data:image/jpeg;base64,${data.annotated_image}`;
+      output.style.display = "block";
+      detLabel.innerHTML = "";
+      data.detected_labels.forEach(lbl => {
+        const chip = document.createElement("span");
+        chip.className = "det-chip";
+        chip.textContent = lbl;
+        detLabel.appendChild(chip);
+      });
+      boxCount.textContent = `${data.boxes.length} object(s) detected`;
+    } else {
+      noResult.textContent = data.error
+        ? "Error: " + data.error
+        : "No objects detected for this prompt. Try a different description.";
+      noResult.style.display = "block";
+    }
+  } catch (err) {
+    noResult.textContent = "Connection error: " + err.message;
+    noResult.style.display = "block";
+  } finally {
+    loading.style.display = "none";
+    btn.disabled = false;
+  }
+}
+
+// ── Boot ────────────────────────────────────────────────────────
+connectDashboard();
+</script>
 </body>
 </html>

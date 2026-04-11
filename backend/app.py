@@ -67,7 +67,7 @@ def run_cnn_inference(img: Image.Image, threshold=0.5) -> dict:
 
 def run_smoothed_inference(img: Image.Image) -> tuple[dict, list]:
     tensor = image_to_tensor(img)
-    confirmed_state, changed_idx, avg_probs = change_detector.update(tensor)
+    confirmed_state, changed_labels, avg_probs = change_detector.update(tensor)
     prediction = {
         LABELS[i]: {
             "status": "open" if confirmed_state[i] else "closed",
@@ -75,7 +75,7 @@ def run_smoothed_inference(img: Image.Image) -> tuple[dict, list]:
         }
         for i in range(len(LABELS))
     }
-    return prediction, [LABELS[i] for i in changed_idx]
+    return prediction, changed_labels
 
 def detect_changes(old: dict, new: dict) -> list:
     changed = []
@@ -186,6 +186,38 @@ _grounding_model = None
 def get_grounding_model():
     global _grounding_model
     if _grounding_model is None:
+        # Patch: newer transformers removed get_head_mask from BertModel
+        from transformers import BertModel as _BM
+        if not hasattr(_BM, "get_head_mask"):
+            def _get_head_mask(self, head_mask, num_hidden_layers, is_attention_chunked=False):
+                if head_mask is not None:
+                    if head_mask.dim() == 1:
+                        head_mask = head_mask.unsqueeze(0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1)
+                        head_mask = head_mask.expand(num_hidden_layers, -1, -1, -1, -1)
+                    elif head_mask.dim() == 2:
+                        head_mask = head_mask.unsqueeze(1).unsqueeze(-1).unsqueeze(-1)
+                    return head_mask
+                return [None] * num_hidden_layers
+            _BM.get_head_mask = _get_head_mask
+
+        # Patch: newer transformers removed `device` param from get_extended_attention_mask.
+        # Old signature: (self, attention_mask, input_shape, device, dtype=None)
+        # New signature: (self, attention_mask, input_shape, dtype=None)
+        # GroundingDINO passes `device` as 3rd positional arg → lands in `dtype`, crashes.
+        from transformers.modeling_utils import ModuleUtilsMixin
+        _orig_get_ext = ModuleUtilsMixin.get_extended_attention_mask
+        import inspect
+        _params = list(inspect.signature(_orig_get_ext).parameters.keys())
+        if "device" not in _params:
+            def _patched_get_ext(self, attention_mask, input_shape, *args, **kwargs):
+                # Drop `device` if passed positionally (GroundingDINO compat)
+                if args and isinstance(args[0], torch.device):
+                    args = args[1:]
+                if "device" in kwargs:
+                    kwargs.pop("device")
+                return _orig_get_ext(self, attention_mask, input_shape, *args, **kwargs)
+            ModuleUtilsMixin.get_extended_attention_mask = _patched_get_ext
+
         from groundingdino.util.inference import load_model
 
         config_path = ROOT_DIR / "groundingdino" / "config" / "GroundingDINO_SwinT_OGC.py"
@@ -240,3 +272,15 @@ def health():
         "dashboard_clients": len(dashboard_clients),
         "model_loaded": ckpt.exists()
     }
+
+# ── Serve Frontend ───────────────────────────────────────────
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+FRONTEND_DIR = ROOT_DIR / "frontend"
+
+@app.get("/")
+def serve_index():
+    return FileResponse(FRONTEND_DIR / "index.html")
+
+app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
