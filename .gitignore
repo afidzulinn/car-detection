@@ -13,17 +13,25 @@ env/
 
 # Data & Weights
 dataset/
+dataset*/
+data/
+data_raw/
 checkpoints/
 weights/
 vlm/vlm_checkpoints/
 *.pt
 *.pth
 *.safetensors
+*.bin
+*.onnx
 
 # Archives & Temp
 *.zip
 *.tar.gz
+*.tgz
+*.tar
 *.rar
+*.7z
 0.26.0
 .codex
 
