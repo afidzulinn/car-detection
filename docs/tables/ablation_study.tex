@@ -1,0 +1,18 @@
+% Table: Architectural Ablation Study for Paper 1 (Objective 1: Multi-Scale PA-SCAN)
+\begin{table*}[htbp]
+\centering
+\caption{Architectural ablation study of Multi-Scale PA-SCAN on the paired angle-stratified validation set ($N=128$).}
+\label{tab:ablation_study}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccc c ccccc cccc}
+\hline
+\textbf{Architecture Variant} & \textbf{CoordConv} & \textbf{CBAM} & \textbf{FiLM} & \textbf{Params} & \textbf{FL} & \textbf{FR} & \textbf{RL} & \textbf{RR} & \textbf{Hood} & \textbf{Mean Acc ($\Delta$)} & \textbf{Macro F1} & \textbf{ROC-AUC} & \textbf{Exact Match} \\
+\hline
+Baseline Standard CNN & -- & -- & -- & 5.14\,M & 95.3\% & 93.0\% & 93.0\% & 96.9\% & 100.0\% & \textbf{95.62\%} (---) & 0.9569 & 0.9940 & 78.12\% \\
+CNN + CoordConv & \checkmark & -- & -- & 6.05\,M & 96.1\% & 93.0\% & 93.0\% & 96.1\% & 100.0\% & \textbf{95.62\%} (---) & 0.9573 & 0.9869 & 78.12\% \\
+CNN + CoordConv + CBAM & \checkmark & \checkmark & -- & 6.11\,M & 96.9\% & 93.0\% & 92.2\% & 92.2\% & 100.0\% & \textbf{94.84\%} (-0.78\%) & 0.9512 & 0.9756 & 74.22\% \\
+Full PA-SCAN (+ FiLM) & \checkmark & \checkmark & \checkmark & 7.50\,M & 95.3\% & 91.4\% & 92.2\% & 93.8\% & 100.0\% & \textbf{94.53\%} (-1.09\%) & 0.9471 & 0.9714 & 73.44\% \\
+\hline
+\end{tabular}%
+}
+\end{table*}

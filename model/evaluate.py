@@ -1,5 +1,5 @@
 """
-Evaluation script with:
+Evaluation script (supports Windows & Ubuntu/Linux, NVIDIA CUDA GPU & CPU) with:
   - Per-label classification report (precision / recall / F1)
   - ROC-AUC per label
   - Exact-match accuracy
@@ -9,43 +9,60 @@ Usage:
     python model/evaluate.py
 """
 import json
+import platform
 import sys
-import torch
-import numpy as np
-from sklearn.metrics import classification_report, roc_auc_score, f1_score
-from architecture import CarComponentCNN, LABELS
-from dataset import get_dataloaders
 from pathlib import Path
 
-DEVICE   = "cuda" if torch.cuda.is_available() else "cpu"
+import numpy as np
+import torch
+from sklearn.metrics import classification_report, f1_score, roc_auc_score
+
+# Ensure local imports work regardless of current working directory on Windows or Ubuntu
+MODEL_DIR = Path(__file__).resolve().parent
+if str(MODEL_DIR) not in sys.path:
+    sys.path.insert(0, str(MODEL_DIR))
+
+from architecture import CarComponentCNN, LABELS
+from dataset import get_dataloaders
+
+DEVICE   = "cuda" if torch.cuda.is_available() else ("mps" if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() else "cpu")
 ROOT_DIR = Path(__file__).resolve().parents[1]
 
 
 def find_optimal_threshold(probs: np.ndarray, targets: np.ndarray) -> float:
-    """Find the probability threshold that maximises F1 on the val set."""
-    best_f1, best_thr = 0.0, 0.5
-    for thr in np.arange(0.1, 0.9, 0.02):
+    """
+    Find the probability threshold in [0.20, 0.80] that maximises F1 on the val set.
+    When multiple thresholds achieve the same peak F1 (e.g. F1 = 1.0000 across a wide
+    margin), select the threshold closest to 0.50 to maximise decision margin stability.
+    """
+    best_f1, best_thr = -1.0, 0.50
+    for thr in np.arange(0.20, 0.81, 0.02):
         preds = (probs >= thr).astype(int)
         f1    = f1_score(targets, preds, zero_division=0)
-        if f1 > best_f1:
+        if (f1 > best_f1 + 1e-6) or (
+            abs(f1 - best_f1) <= 1e-6 and abs(thr - 0.50) < abs(best_thr - 0.50)
+        ):
             best_f1, best_thr = f1, thr
     return round(float(best_thr), 2)
 
 
 def evaluate(checkpoint_path: str, data_dir: str):
+    gpu_info = f" ({torch.cuda.get_device_name(0)})" if DEVICE == "cuda" else ""
+    print(f"Evaluating on OS: {platform.system()} | Device: {DEVICE}{gpu_info}")
+
     model = CarComponentCNN().to(DEVICE)
-    ckpt  = torch.load(checkpoint_path, map_location=DEVICE)
+    ckpt  = torch.load(checkpoint_path, map_location=DEVICE, weights_only=True)
     model.load_state_dict(ckpt)
     model.eval()
 
-    _, val_dl = get_dataloaders(data_dir, batch_size=16, num_workers=2)
+    _, val_dl = get_dataloaders(data_dir, batch_size=16)
 
     all_probs   = []
     all_targets = []
 
     with torch.no_grad():
         for imgs, labels in val_dl:
-            imgs    = imgs.to(DEVICE)
+            imgs    = imgs.to(DEVICE, non_blocking=(DEVICE == "cuda"))
             logits  = model(imgs)
             probs   = torch.sigmoid(logits).cpu().numpy()
             all_probs.append(probs)
@@ -72,8 +89,10 @@ def evaluate(checkpoint_path: str, data_dir: str):
             print("  ROC-AUC : N/A (only one class present)")
 
     exact_05 = np.all(all_preds_05 == all_targets, axis=1).mean()
+    mean_acc_05 = (all_preds_05 == all_targets).mean()
     print(f"\n{'='*65}")
-    print(f"Exact Match @ 0.50 : {exact_05:.2%}")
+    print(f"Mean Per-Label Accuracy @ 0.50 : {mean_acc_05:.2%}")
+    print(f"Exact Match @ 0.50             : {exact_05:.2%}")
 
     # ── Per-label optimal threshold search ───────────────────────────────────
     print("\n" + "=" * 65)
@@ -87,16 +106,19 @@ def evaluate(checkpoint_path: str, data_dir: str):
         thr = find_optimal_threshold(all_probs[:, i], all_targets[:, i])
         thresholds[label] = thr
         all_preds_opt[:, i] = (all_probs[:, i] >= thr).astype(int)
-        f1 = f1_score(all_targets[:, i], all_preds_opt[:, i], zero_division=0)
-        print(f"  {label:<22} optimal_thr={thr:.2f}  F1={f1:.4f}")
+        f1  = f1_score(all_targets[:, i], all_preds_opt[:, i], zero_division=0)
+        acc = (all_preds_opt[:, i] == all_targets[:, i]).mean()
+        print(f"  {label:<22} optimal_thr={thr:.2f}  Acc={acc:.2%}  F1={f1:.4f}")
 
     exact_opt = np.all(all_preds_opt == all_targets, axis=1).mean()
-    print(f"\nExact Match @ optimal thresholds : {exact_opt:.2%}")
-    print(f"Improvement over 0.50            : {exact_opt - exact_05:+.2%}")
+    mean_acc_opt = (all_preds_opt == all_targets).mean()
+    print(f"\nMean Per-Label Accuracy @ optimal thresholds : {mean_acc_opt:.2%}")
+    print(f"Exact Match @ optimal thresholds             : {exact_opt:.2%}")
+    print(f"Exact Match improvement over 0.50            : {exact_opt - exact_05:+.2%}")
 
     # ── Save thresholds so inference can load them ────────────────────────────
     thr_path = ROOT_DIR / "checkpoints" / "thresholds.json"
-    with open(thr_path, "w") as f:
+    with open(thr_path, "w", encoding="utf-8") as f:
         json.dump(thresholds, f, indent=2)
     print(f"\nThresholds saved to: {thr_path}")
 

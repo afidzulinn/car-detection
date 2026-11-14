@@ -1,0 +1,4 @@
+# Konfigurasi uv agar otomatis memilih wheel PyTorch CUDA 12.4 (+cu124)
+# dibandingkan wheel CPU standar di PyPI pada Windows & Ubuntu.
+index-strategy = "unsafe-best-match"
+extra-index-url = ["https://download.pytorch.org/whl/cu124"]

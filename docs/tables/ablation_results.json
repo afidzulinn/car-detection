@@ -1,0 +1,142 @@
+[
+  {
+    "mean_acc_05": 0.953125,
+    "exact_05": 0.765625,
+    "per_label_acc_05": {
+      "front_left_door": 0.953125,
+      "front_right_door": 0.9296875,
+      "rear_left_door": 0.9140625,
+      "rear_right_door": 0.96875,
+      "hood": 1.0
+    },
+    "mean_acc_opt": 0.95625,
+    "exact_opt": 0.78125,
+    "macro_f1_opt": 0.9569324030694848,
+    "macro_auc": 0.99404296875,
+    "per_label_acc_opt": {
+      "front_left_door": 0.953125,
+      "front_right_door": 0.9296875,
+      "rear_left_door": 0.9296875,
+      "rear_right_door": 0.96875,
+      "hood": 1.0
+    },
+    "per_label_auc": {
+      "front_left_door": 0.997802734375,
+      "front_right_door": 0.984619140625,
+      "rear_left_door": 0.9912109375,
+      "rear_right_door": 0.99658203125,
+      "hood": 1.0
+    },
+    "id": "v1_baseline_cnn",
+    "name": "Baseline Standard CNN",
+    "params": 5138053,
+    "use_coordconv": false,
+    "use_cbam": false,
+    "use_film": false
+  },
+  {
+    "mean_acc_05": 0.9484375,
+    "exact_05": 0.75,
+    "per_label_acc_05": {
+      "front_left_door": 0.9375,
+      "front_right_door": 0.9296875,
+      "rear_left_door": 0.921875,
+      "rear_right_door": 0.953125,
+      "hood": 1.0
+    },
+    "mean_acc_opt": 0.95625,
+    "exact_opt": 0.78125,
+    "macro_f1_opt": 0.9572952727816437,
+    "macro_auc": 0.9869140625,
+    "per_label_acc_opt": {
+      "front_left_door": 0.9609375,
+      "front_right_door": 0.9296875,
+      "rear_left_door": 0.9296875,
+      "rear_right_door": 0.9609375,
+      "hood": 1.0
+    },
+    "per_label_auc": {
+      "front_left_door": 0.991455078125,
+      "front_right_door": 0.9658203125,
+      "rear_left_door": 0.9853515625,
+      "rear_right_door": 0.991943359375,
+      "hood": 1.0
+    },
+    "id": "v2_cnn_coordconv",
+    "name": "CNN + CoordConv",
+    "params": 6048133,
+    "use_coordconv": true,
+    "use_cbam": false,
+    "use_film": false
+  },
+  {
+    "mean_acc_05": 0.9375,
+    "exact_05": 0.71875,
+    "per_label_acc_05": {
+      "front_left_door": 0.9375,
+      "front_right_door": 0.9296875,
+      "rear_left_door": 0.90625,
+      "rear_right_door": 0.9140625,
+      "hood": 1.0
+    },
+    "mean_acc_opt": 0.9484375,
+    "exact_opt": 0.7421875,
+    "macro_f1_opt": 0.9511931871110963,
+    "macro_auc": 0.975634765625,
+    "per_label_acc_opt": {
+      "front_left_door": 0.96875,
+      "front_right_door": 0.9296875,
+      "rear_left_door": 0.921875,
+      "rear_right_door": 0.921875,
+      "hood": 1.0
+    },
+    "per_label_auc": {
+      "front_left_door": 0.9970703125,
+      "front_right_door": 0.937744140625,
+      "rear_left_door": 0.96337890625,
+      "rear_right_door": 0.97998046875,
+      "hood": 1.0
+    },
+    "id": "v3_cnn_coordconv_cbam",
+    "name": "CNN + CoordConv + CBAM",
+    "params": 6114263,
+    "use_coordconv": true,
+    "use_cbam": true,
+    "use_film": false
+  },
+  {
+    "mean_acc_05": 0.9390625,
+    "exact_05": 0.71875,
+    "per_label_acc_05": {
+      "front_left_door": 0.9375,
+      "front_right_door": 0.9140625,
+      "rear_left_door": 0.90625,
+      "rear_right_door": 0.9375,
+      "hood": 1.0
+    },
+    "mean_acc_opt": 0.9453125,
+    "exact_opt": 0.734375,
+    "macro_f1_opt": 0.9470880805209163,
+    "macro_auc": 0.97138671875,
+    "per_label_acc_opt": {
+      "front_left_door": 0.953125,
+      "front_right_door": 0.9140625,
+      "rear_left_door": 0.921875,
+      "rear_right_door": 0.9375,
+      "hood": 1.0
+    },
+    "per_label_auc": {
+      "front_left_door": 0.9814453125,
+      "front_right_door": 0.91650390625,
+      "rear_left_door": 0.984375,
+      "rear_right_door": 0.974609375,
+      "hood": 1.0
+    },
+    "id": "v4_full_pascan",
+    "name": "Full PA-SCAN (+ FiLM)",
+    "params": 7498591,
+    "use_coordconv": true,
+    "use_cbam": true,
+    "use_film": true
+  }
+]

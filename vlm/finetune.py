@@ -1,40 +1,26 @@
 """
-Fine-tune SmolVLM-500M-Instruct using QLoRA for car component description.
-Requirements: transformers>=4.45.0, peft, bitsandbytes, trl, datasets, accelerate
+Fine-tune PaliGemma-3B using QLoRA for car component description.
+Requirements: transformers, peft, bitsandbytes, trl, datasets, accelerate
 
 Run: python vlm/finetune.py
 """
-import os
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
-
 import torch
-# Ampere TF32 — lossless speedup for fp32 ops remaining in mixed-precision
-torch.backends.cuda.matmul.allow_tf32 = True
-torch.backends.cudnn.allow_tf32 = True
-
 import json
 from pathlib import Path
 from PIL import Image
 from datasets import Dataset
 from transformers import (
     AutoProcessor,
+    PaliGemmaForConditionalGeneration,
     BitsAndBytesConfig,
     TrainingArguments,
 )
 from peft import LoraConfig, get_peft_model, TaskType
-from transformers import Trainer
-
-try:
-    from transformers import AutoModelForVision2Seq
-    _ModelClass = AutoModelForVision2Seq
-except ImportError:
-    from transformers import AutoModelForImageTextToText
-    _ModelClass = AutoModelForImageTextToText
+from trl import SFTTrainer
 
 # ── Config ─────────────────────────────────────────────────────
-MODEL_ID  = "HuggingFaceTB/SmolVLM-500M-Instruct"
-# VLM sudah pretrained — raw data cukup, augmentasi hanya perlu untuk CNN from-scratch
-DATA_DIR  = Path("dataset/raw")
+MODEL_ID  = "google/paligemma-3b-pt-224"
+DATA_DIR  = Path("dataset/augmented")
 SAVE_DIR  = Path("vlm/vlm_checkpoints")
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -83,112 +69,61 @@ def finetune():
     bnb_cfg = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_compute_dtype=torch.bfloat16,
         bnb_4bit_use_double_quant=True,
     )
 
-    model = _ModelClass.from_pretrained(
+    model = PaliGemmaForConditionalGeneration.from_pretrained(
         MODEL_ID,
         quantization_config=bnb_cfg,
         device_map="auto",
     )
 
     lora_cfg = LoraConfig(
-        r=4,
-        lora_alpha=8,
-        target_modules=["q_proj", "v_proj"],
+        r=16,
+        lora_alpha=32,
+        target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
         lora_dropout=0.05,
         bias="none",
         task_type=TaskType.CAUSAL_LM,
     )
-    # Freeze vision encoder — LoRA only touches the language model
-    for param in model.model.vision_model.parameters():
-        param.requires_grad = False
-
     model = get_peft_model(model, lora_cfg)
-    model.gradient_checkpointing_enable()
     model.print_trainable_parameters()
 
     dataset = load_vlm_dataset()
     print(f"Dataset size: {len(dataset)} samples")
 
     def collate_fn(batch):
-        images = [Image.open(item["image_path"]).convert("RGB") for item in batch]
-        full_texts = []
-        prompt_texts = []
-        for item in batch:
-            # Full conversation (user + assistant) — used as input_ids
-            full_msgs = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image"},
-                        {"type": "text", "text": item["prompt"]},
-                    ],
-                },
-                {
-                    "role": "assistant",
-                    "content": [{"type": "text", "text": item["answer"]}],
-                },
-            ]
-            full_texts.append(
-                processor.apply_chat_template(full_msgs, add_generation_prompt=False)
-            )
-            # Prompt-only (user turn + generation prefix) — to measure what to mask
-            prompt_msgs = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image"},
-                        {"type": "text", "text": item["prompt"]},
-                    ],
-                },
-            ]
-            prompt_texts.append(
-                processor.apply_chat_template(prompt_msgs, add_generation_prompt=True)
-            )
-
-        enc = processor(
-            text=full_texts,
-            images=images,
-            padding=True,
-            return_tensors="pt",
+        images = [Image.open(p).convert("RGB") for p in batch["image_path"]]
+        texts  = [
+            f"<image>{q}\n{a}"
+            for q, a in zip(batch["prompt"], batch["answer"])
+        ]
+        return processor(
+            text=texts, images=images,
+            padding=True, return_tensors="pt"
         )
-
-        # Mask prompt + padding in labels — only train on assistant answer tokens
-        labels = enc["input_ids"].clone()
-        labels[labels == processor.tokenizer.pad_token_id] = -100
-        for i, pt in enumerate(prompt_texts):
-            prompt_len = len(processor.tokenizer(pt, add_special_tokens=False)["input_ids"])
-            labels[i, :prompt_len] = -100
-        enc["labels"] = labels
-        return enc
 
     args = TrainingArguments(
         output_dir=str(SAVE_DIR),
         num_train_epochs=3,
-        per_device_train_batch_size=1,
-        gradient_accumulation_steps=16,
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps=8,
         learning_rate=2e-4,
-        warmup_steps=50,
-        fp16=True,
-        gradient_checkpointing=True,
-        optim="adamw_bnb_8bit",
+        warmup_ratio=0.05,
+        bf16=True,
         logging_steps=10,
         save_strategy="epoch",
         save_total_limit=2,
         report_to="none",
         dataloader_num_workers=2,
-        dataloader_pin_memory=True,
-        dataloader_prefetch_factor=2,
-        remove_unused_columns=False,
     )
 
-    trainer = Trainer(
+    trainer = SFTTrainer(
         model=model,
         args=args,
         train_dataset=dataset,
-        processing_class=processor.tokenizer,
+        tokenizer=processor.tokenizer,
         data_collator=collate_fn,
     )
 

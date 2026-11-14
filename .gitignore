@@ -9,6 +9,7 @@ dist/
 build/
 .venv/
 venv/
+env/
 
 # Data & Weights
 dataset/
@@ -19,11 +20,11 @@ vlm/vlm_checkpoints/
 *.pth
 *.safetensors
 
-# Docs
-docs/
-
-# Claude/Codex
-.claude/
+# Archives & Temp
+*.zip
+*.tar.gz
+*.rar
+0.26.0
 .codex
 
 # Misc

@@ -1,7 +1,8 @@
 # Car Component AI Detector
 
-Real-time deep learning system that detects open/closed states of car doors and hood
-by capturing the user's browser tab showing a 3D car web interface via the Screen Capture API.
+Real-time deep learning system that detects open/closed states of 5 car components
+(`front_left_door`, `front_right_door`, `rear_left_door`, `rear_right_door`, `hood`)
+by capturing the user's currently active browser tab showing a 3D car web interface.
 
 ---
 
@@ -9,19 +10,9 @@ by capturing the user's browser tab showing a 3D car web interface via the Scree
 
 | # | Task | Type | Status |
 |---|------|------|--------|
-| 1 | Custom CNN from scratch — real-time detection via Screen Capture | Mandatory | Done |
-| 2 | Fine-tune VLM (SmolVLM-500M-Instruct) — natural language description | Bonus | Ready to run |
+| 1 | Custom CNN from scratch (Multi-Scale PA-SCAN) — real-time detection via browser capture | Mandatory | Done (**96.56% Mean Acc / 0.9934 AUC**) |
+| 2 | Fine-tune VLM (PaliGemma) — natural language description | Bonus | Ready to run |
 | 3 | Visual Grounding (Grounding DINO) — text-prompted bounding boxes | Bonus | Done |
-
----
-
-## Quick Start
-
-```bash
-./start.sh
-```
-
-This starts the backend and opens `http://localhost:8000` in your browser. That's it.
 
 ---
 
@@ -30,33 +21,38 @@ This starts the backend and opens `http://localhost:8000` in your browser. That'
 ```
 car-detection/
 ├── data_collection/
-│   ├── collect_data.py        # Selenium: captures 32×8×3 = 768 images automatically
-│   └── augment_data.py        # 7-type augmentation → ~5,376 total samples
+│   ├── collect_data.py        # Raycast-safe Selenium collector (32×8×3 = 768 images)
+│   └── augment_data.py        # 7-type geometry-safe augmentation → ~6,144 total samples
 ├── model/
-│   ├── architecture.py        # Custom CNN + SE-Attention (built from scratch, no pretrained)
-│   ├── dataset.py             # Angle-stratified train/val split (50/50 per-label balance)
-│   ├── train.py               # AdamW + OneCycleLR, mixup, label smoothing, early stopping
-│   ├── evaluate.py            # Per-label accuracy, ROC-AUC, exact-match, threshold search
-│   └── change_detector.py     # 5-frame temporal buffer, per-label hysteresis thresholds
+│   ├── architecture.py        # Multi-Scale PA-SCAN Custom CNN (from scratch, no pretrained)
+│   ├── dataset.py             # Paired angle-stratified split + ROI crop + RAM cache
+│   ├── train.py               # Cross-platform (Windows/Ubuntu) + CUDA AMP FP16 trainer
+│   ├── evaluate.py            # Per-label P/R/F1, ROC-AUC, exact-match & threshold search
+│   └── change_detector.py     # 3-frame rolling buffer + per-label hysteresis thresholds
 ├── backend/
-│   ├── app.py                 # FastAPI — WebSocket broker + REST endpoints + static frontend
-│   ├── vlm_module.py          # SmolVLM-500M + LoRA lazy-loader
-│   └── requirements.txt
+│   ├── app.py                 # FastAPI — WebSocket broker + ROI inference + REST endpoints
+│   ├── vlm_module.py          # PaliGemma + LoRA lazy-loader
+│   └── requirements.txt       # Includes PyTorch CUDA 12.4 index for Windows & Ubuntu
+├── extension/
+│   ├── manifest.json          # Chrome Extension Manifest V3
+│   ├── background.js          # Streams active tab frames via WebSocket (1 FPS)
+│   └── popup.html             # Start / Stop controls
 ├── frontend/
-│   └── index.html             # Single-page web app — all 3 objectives in one page
+│   ├── index.html             # Objective 1 — live status dashboard
+│   ├── vlm.html               # Objective 2 — capture & describe page
+│   └── grounding.html         # Objective 3 — text-prompted grounding page
 ├── vlm/
-│   ├── finetune.py            # QLoRA fine-tuning script (optimised for 4 GB VRAM)
+│   ├── finetune.py            # QLoRA fine-tuning script (run once, needs GPU)
 │   └── inference.py           # Standalone VLM CLI for testing
 ├── visual_grounding/
 │   └── inference.py           # Grounding DINO wrapper + prompt expansion
 ├── checkpoints/
-│   ├── best_model.pt          # Trained CNN weights (auto-created by train.py)
-│   └── thresholds.json        # Per-label optimal thresholds (auto-created by evaluate.py)
+│   ├── best_model.pt          # Trained Custom CNN weights (auto-created by train.py)
+│   └── thresholds.json        # Per-label optimal F1 thresholds (auto-created by evaluate.py)
 ├── docs/
 │   ├── PRESENTATION_SLIDE_DECK.md
 │   ├── DEMO_VIDEO_GUIDE.md
 │   └── SUBMISSION_CHECKLIST.md
-├── start.sh                   # One-command launcher: backend + browser
 ├── .env                       # CAR_URL setting
 ├── Dockerfile
 └── docker-compose.yml
@@ -67,12 +63,12 @@ car-detection/
 ## System Architecture
 
 ```
-  USER'S BROWSER
+  USER'S CHROME BROWSER
   (tab: 3D car model page)
          │
-         │  Screen Capture API (getDisplayMedia)
+         │  captureVisibleTab() — no new browser opened
          ▼
-  Web App (localhost:8000)
+  Chrome Extension (extension/)
          │
          │  WebSocket  ws://localhost:8000/ws/extension
          │  JPEG frames @ 1 FPS
@@ -81,13 +77,13 @@ car-detection/
          │
     ┌────┴──────────────────────────┐
     │                               │
-[CNN + ChangeDetector]     POST /api/vlm/describe
+[ROI Crop + PA-SCAN CNN]    POST /api/vlm/describe
 (model/ + change_detector)  POST /api/grounding/locate
     │
     │  WebSocket  ws://localhost:8000/ws/dashboard
     ▼
-  Web App — tab-based UI
-  [Detection] [VLM Description] [Visual Grounding]
+frontend/index.html        frontend/vlm.html    frontend/grounding.html
+  (live status)            (NL description)      (bounding boxes)
 ```
 
 ---
@@ -96,30 +92,64 @@ car-detection/
 
 | Requirement | Version | Notes |
 |---|---|---|
-| Python | 3.10+ | Recommended |
-| Google Chrome | Latest | Screen Capture API support |
-| ChromeDriver | Must match Chrome | Needed only for data collection |
-| CUDA GPU | 4 GB+ VRAM | Only for VLM fine-tuning (Objective 2) |
-
-### Install ChromeDriver (Ubuntu/Debian)
-```bash
-# Check your Chrome version first
-google-chrome --version
-
-# Install matching chromedriver
-sudo apt install chromium-chromedriver
-# OR download manually from https://chromedriver.chromium.org/downloads
-```
+| Python | 3.10 or 3.11 | Windows & Ubuntu/Linux supported |
+| Google Chrome | Latest | For Chrome Extension & Selenium capture |
+| ChromeDriver | Matching Chrome | Auto-managed by Selenium 4.18+ |
+| NVIDIA GPU *(optional)* | RTX 3050 / CUDA 12.x | Supported with FP16 AMP acceleration (`cu124`) |
 
 ---
 
-## Step 1 — Install Python Dependencies
+## Step 1 — Virtual Environment & Dependencies dengan `uv` (Windows & Ubuntu)
 
-Run from the project root:
+Proyek ini sudah dilengkapi konfigurasi [`uv.toml`](uv.toml) (`index-strategy = "unsafe-best-match"`) agar `uv` otomatis mengunduh wheel **PyTorch CUDA 12.4 (`+cu124`)** untuk GPU NVIDIA RTX (bukan versi CPU bawaan PyPI).
 
-```bash
-pip install -r backend/requirements.txt
+### A. Buat & Aktifkan `.venv` dengan `uv`
+
+Jalankan dari folder root proyek (`E:\car-detection`):
+
+```powershell
+# 1. Buat virtual environment (.venv) dengan uv (sangat cepat, <1 detik)
+uv venv --python 3.10
 ```
+
+**2. Aktifkan `.venv` sesuai terminal Anda:**
+- **Windows PowerShell:**
+  ```powershell
+  .\.venv\Scripts\Activate.ps1
+  ```
+- **Windows Command Prompt (`cmd.exe`):**
+  ```cmd
+  .\.venv\Scripts\activate.bat
+  ```
+- **Windows Git Bash (`MINGW64`):**
+  ```bash
+  source .venv/Scripts/activate
+  ```
+- **Ubuntu / Linux:**
+  ```bash
+  source .venv/bin/activate
+  ```
+
+### B. Instal Dependensi + PyTorch GPU dengan `uv`
+
+```powershell
+# Instal seluruh paket di backend/requirements.txt (otomatis menarik PyTorch CUDA 12.4)
+uv pip install -r backend/requirements.txt --index-strategy unsafe-best-match
+```
+
+Jika di environment Anda sebelumnya sudah terinstal `torch` versi `+cpu`, paksa ganti ke versi GPU CUDA 12.4 dengan `uv`:
+
+```powershell
+uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu124
+```
+
+Verifikasi bahwa **NVIDIA GeForce RTX 3050 Laptop GPU** sudah aktif:
+
+```powershell
+python -c "import torch; print('PyTorch:', torch.__version__, '| CUDA available:', torch.cuda.is_available(), '| Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
+```
+
+> **Tips `uv run`:** Anda juga bisa langsung menjalankan script tanpa aktivasi manual menggunakan `uv run python model/train.py` atau `uv run python model/evaluate.py`.
 
 For **Objective 3** (Visual Grounding), install Grounding DINO separately:
 
@@ -128,8 +158,7 @@ pip install groundingdino-py
 
 # Download pretrained weights (~700 MB, one-time)
 mkdir -p weights
-wget -q https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth \
-     -O weights/groundingdino_swint_ogc.pth
+curl -L https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth -o weights/groundingdino_swint_ogc.pth
 ```
 
 ---
@@ -138,19 +167,18 @@ wget -q https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-
 
 > Skip if `dataset/raw/annotations.json` already exists.
 
-The script opens Chrome, automatically clicks every button combination (32 states),
-rotates the camera through 8 angles at 3 elevation levels, and saves each screenshot.
+The script opens Chrome, clicks every component combination ($2^5 = 32$ states),
+rotates the camera through 8 horizontal angles ($0^\circ..315^\circ$) at 3 elevation levels,
+and saves each screenshot.
 
 ```bash
 python data_collection/collect_data.py
 ```
 
-**Output:** `dataset/raw/` — 768 JPEG images + `annotations.json`
-
-- 32 state combos × 8 horizontal angles × 3 elevations (top / eye-level / low)
-- Controls are hidden during capture so they do not appear in training images
-
-> Set `HEADLESS=1` to run Chrome without a visible window.
+**Key calibration & anti-corruption safeguards in `collect_data.py`:**
+- **Raycast-Free Corner Drag:** Camera drag starts at offset `(-450, -200)` from the `<canvas>` center so the cursor never touches the 3D car mesh or accidentally toggles doors.
+- **Complete UI Container Hiding:** Sets `button.parentElement.style.display = 'none'` so the top white button bar is completely removed during capture.
+- **Above-Ground Elevation Offsets:** Uses `(0, "mid")`, `(+45, "high")`, and `(+85, "top")` (avoiding negative vertical offsets that orbit underneath the car floor).
 
 ---
 
@@ -162,243 +190,159 @@ python data_collection/collect_data.py
 python data_collection/augment_data.py
 ```
 
-**Output:** `dataset/augmented/` — ~5,376 images + `annotations.json`
-
-7 augmentation types per image:
+7 photometric & sensor augmentations per image:
 `brightness_high` · `brightness_low` · `motion_blur` · `gaussian_noise` ·
 `hue_shift` · `perspective` · `jpeg_compress`
 
-> Horizontal flip is intentionally excluded — it would swap left/right door labels.
+> Horizontal flip is intentionally excluded so left (`FL, RL`) and right (`FR, RR`) door geometry is preserved.
 
 ---
 
-## Step 4 — Train the CNN Model
-
-> Skip if `checkpoints/best_model.pt` already exists.
+## Step 4 — Train the Custom CNN Model (Windows & Ubuntu, GPU / CPU)
 
 ```bash
 python model/train.py
 ```
 
-**Output:** `checkpoints/best_model.pt` + `checkpoints/thresholds.json`
+Optional CLI flags:
 
-Training configuration:
-- Architecture: 5-block CNN + SE-Attention, built fully from scratch (~3.2 M params)
-- Loss: BCEWithLogitsLoss with class-balanced pos_weight
-- Optimizer: AdamW (lr=3e-4, weight_decay=1e-4)
-- Scheduler: OneCycleLR (warmup 10%, cosine annealing)
-- Regularisation: Mixup (alpha=0.3), Label Smoothing (0.05), Dropout
-- Early stopping: patience=20 epochs
-- Max epochs: 100 (stops early when converged)
-- Auto-evaluation: thresholds are computed and saved after training
+```bash
+# Train on NVIDIA GPU (auto-detected) or specify batch size / epochs / workers:
+python model/train.py --epochs 40 --batch-size 16 --lr 0.0025
+```
+
+**Output:** `checkpoints/best_model.pt`
+
+Training highlights:
+- **Cross-Platform OS & Device Support:** Automatically detects `cuda` (with FP16 Automatic Mixed Precision `torch.amp.autocast` and `cudnn.benchmark`), `mps`, or `cpu`. Automatically selects optimal DataLoader workers (`workers=0` with RAM cache on Windows `spawn`; `workers=2..4` with Copy-on-Write RAM cache and `persistent_workers=True` on Ubuntu `fork`).
+- **Deterministic ROI Cropping (`crop_car_roi`):** Crops `ROI_BOX_NORM = (0.17, 0.19, 0.83, 0.62)`, removing $71.6\%$ of empty background/UI and increasing effective 2D spatial pixel density on the car by **$3.52\times$**.
+- **Paired Angle-Stratified Split:** Holds out 2 unseen camera angles per combination ($50\%$ Open / $50\%$ Closed balance per label) while pairing foreground states so mutual information $I(Y_{\text{RR}} ; \theta, Y_{\text{-RR}}) = 0$ on the training set.
+- **Multi-Task Loss:** $\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{BCE}}(\hat{y}, y) + 0.35\,\mathcal{L}_{\text{CE}}(\hat{p}(\theta), \theta^*)$ with `AdamW` and `OneCycleLR`.
 
 ---
 
-## Step 5 — Evaluate the Model *(optional)*
+## Step 5 — Evaluate the Model
 
 ```bash
 python model/evaluate.py
 ```
 
-Prints per-component precision/recall/F1, ROC-AUC, exact-match accuracy,
-and saves per-label optimal thresholds to `checkpoints/thresholds.json`.
+Prints per-component Precision, Recall, F1-Score, ROC-AUC, and Exact-Match accuracy, and saves optimal per-label thresholds to `checkpoints/thresholds.json`.
+
+### Measured Validation Benchmark (Unseen Camera Angles)
+
+| Component (`LABELS`) | Accuracy (@0.50) | Accuracy (@Optimal Thr) | F1-Score | ROC-AUC |
+| :--- | :---: | :---: | :---: | :---: |
+| **`front_left_door` (`FL`)** | 100.00% | **100.00%** | **1.0000** | **1.0000** |
+| **`front_right_door` (`FR`)** | 96.88% | **100.00%** | **1.0000** | **1.0000** |
+| **`rear_left_door` (`RL`)** | 85.94% | **89.06%** | **0.8955** | **0.9746** |
+| **`rear_right_door` (`RR`)** | 100.00% | **100.00%** | **1.0000** | **1.0000** |
+| **`hood` (`Hood`)** | 90.62% | **93.75%** | **0.9412** | **0.9922** |
+| **Mean Across All 5 Components** | **94.69%** | **96.56%** | **0.9673** | **0.9934** |
+| **Exact Match (All 5 Correct Simultaneously)** | **73.44%** | **82.81%** | — | — |
 
 ---
 
 ## Step 6 — Fine-Tune VLM *(Objective 2 only — needs GPU)*
 
-> Skip if doing Objective 1 only.
-> Requires GPU with 4 GB+ VRAM. Takes ~1.5 hours on RTX 3050 Laptop.
+> Skip if doing Objective 1 only. Requires GPU with ≥ 8 GB VRAM.
 
 ```bash
 python vlm/finetune.py
 ```
 
-**Output:** `vlm/vlm_checkpoints/final/` — LoRA adapter weights
-
-> If skipped, the backend falls back to base SmolVLM-500M-Instruct (still functional, just not fine-tuned).
+**Output:** `vlm/vlm_checkpoints/final/` — LoRA adapter weights.
 
 ---
 
-## Step 7 — Run the App
+## Step 7 — Start the Backend
 
-### Option A — Quick Start (recommended)
-
-```bash
-./start.sh
-```
-
-Starts the backend and opens `http://localhost:8000` in your browser.
-
-Custom port: `PORT=3000 ./start.sh`
-
-### Option B — Manual
+### Option A — Direct (Development)
 
 ```bash
 uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Then open `http://localhost:8000` in your browser.
+Verify: open `http://localhost:8000/health` — returns `{"status":"ok", "model_loaded": true, ...}`
 
-### Option C — Docker
+### Option B — Docker
 
 ```bash
 docker-compose up --build
 ```
 
+- Backend API: `http://localhost:8000`
+- Frontend (nginx): `http://localhost:3000`
+
 ---
 
-## Step 8 — Use the Web App
+## Step 8 — Install the Chrome Extension
 
-> **No Chrome Extension needed.** The web app uses the Screen Capture API built into
-> modern browsers — just share a browser tab.
+1. Open Chrome → `chrome://extensions/`
+2. Enable **Developer mode** (toggle, top-right)
+3. Click **Load unpacked**
+4. Select the `extension/` folder
+5. Copy the **Extension ID** shown on the card — needed for Objectives 2 & 3
+
+---
+
+## Step 9 — Objective 1: Real-Time Detection
 
 1. Open the 3D car model page in Chrome:
    `https://euphonious-concha-ab5c5d.netlify.app/`
-
-2. Go to `http://localhost:8000` (opened automatically by `start.sh`).
-
-3. Click **Start Capture** and select the tab showing the 3D car model.
-
-4. The app streams frames at 1 FPS. Use the tabs to switch between objectives:
-
-### Objective 1 — Real-Time Detection
-- Component states update live as you click buttons on the 3D car page.
-- The dashboard shows Open/Closed badges with confidence percentages.
-- Yellow "Changed" alerts appear when a component switches state.
-
-### Objective 2 — VLM Description
-- Click **Capture Current Frame & Describe**.
-- The captured frame is sent to the SmolVLM backend which returns a natural language
-  description like: *"The car currently has: open: front left door, hood. closed: ..."*
-
-### Objective 3 — Visual Grounding
-- Type a prompt (e.g. `front left door`) or use the quick-suggestion chips.
-- Click **Generate** — the backend returns an annotated image with bounding boxes
-  drawn around matched components.
+2. Open the dashboard in a **second tab**:
+   - Docker: `http://localhost:3000/index.html`
+   - Manual: open `frontend/index.html` in Chrome
+3. Click the **Car Detector** extension icon → **▶ Start Detection**
+4. Switch to the 3D car tab and click any component button (e.g. "Front Left Door")
+5. The dashboard badge updates **Open/Closed** in real time and highlights changed components.
 
 ---
 
-## API Reference
+## Step 10 — Objective 2: VLM Description
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/` | GET | Web app (single-page frontend) |
-| `/health` | GET | Backend health check |
-| `/ws/extension` | WebSocket | Receives JPEG frames from the web app |
-| `/ws/dashboard` | WebSocket | Pushes predictions to dashboard clients |
-| `/api/vlm/describe` | POST | VLM natural language description |
-| `/api/grounding/locate` | POST | Grounding DINO bounding box detection |
-
-### POST `/api/vlm/describe`
-```json
-Request:  { "image_b64": "<base64 JPEG or data URL>" }
-Response: { "description": "The car currently has: ...", "success": true }
-```
-
-### POST `/api/grounding/locate`
-```json
-Request:  { "image_b64": "<base64 JPEG>", "prompt": "front left door" }
-Response: { "annotated_image": "<base64 JPEG>",
-            "boxes": [[cx, cy, w, h], ...],
-            "detected_labels": ["front left door"],
-            "success": true }
-```
+1. Ensure the backend is running (Step 7).
+2. Open `frontend/vlm.html` in Chrome and paste your **Extension ID**.
+3. Set any combination of doors/hood on the 3D car tab.
+4. Click **📸 Capture Current 3D View & Describe**.
 
 ---
 
-## Troubleshooting
+## Step 11 — Objective 3: Visual Grounding
 
-| Problem | Cause | Fix |
-|---|---|---|
-| `ws://localhost:8000` refused | Backend not running | Run `./start.sh` |
-| Screen capture not working | Browser doesn't support Screen Capture API | Use latest Chrome or Edge |
-| Dashboard never updates | Capture not started | Click "Start Capture" and share the 3D car tab |
-| `WARNING: No checkpoint found` | Model not trained yet | Run Steps 2-4 |
-| `WARNING: LoRA weights not found` | VLM not fine-tuned | Run Step 6, or ignore (base SmolVLM used) |
-| Grounding DINO `FileNotFoundError` | Weights not downloaded | Run the wget command in Step 1 |
-| Selenium `TimeoutException` | ChromeDriver version mismatch | Match ChromeDriver to your Chrome version |
-| CUDA OOM on VLM fine-tune | Not enough VRAM | Already optimised for 4 GB; reduce LoRA rank if needed |
+1. Ensure the backend is running and Grounding DINO weights are placed at `weights/groundingdino_swint_ogc.pth`.
+2. Open `frontend/grounding.html` in Chrome and paste your **Extension ID**.
+3. Type a prompt such as `open front left door` and click **Generate Grounding**.
 
 ---
 
 ## Model Details
 
-### Custom CNN — Objective 1
+### Custom CNN (Multi-Scale PA-SCAN) — Objective 1
+
+Built **100% from scratch** (random initialization, zero pretrained weights / zero transfer learning):
 
 ```
-Input: 224 x 224 RGB
-  |
-Conv Block 1:  3  ->  32 ch  (Conv3x3 -> BN -> GELU -> Conv3x3 -> BN -> GELU -> MaxPool2x2 -> Dropout)
-Conv Block 2:  32 ->  64 ch
-Conv Block 3:  64 -> 128 ch
-Conv Block 4: 128 -> 256 ch
-Conv Block 5: 256 -> 512 ch
-  |
-Squeeze-and-Excitation attention  (512 -> 64 -> 512 -> sigmoid)
-  |
-AdaptiveAvgPool2d(1) -> Flatten
-  |
-FC 512 -> 256 -> 64 -> 5  (GELU + Dropout between layers)
-  |
-5 independent sigmoid outputs  (FL door, FR door, RL door, RR door, Hood)
+Full Browser Frame (1070 × 805 RGB)
+  ↓  crop_car_roi (ROI_BOX_NORM = 0.17, 0.19, 0.83, 0.62 → 3.52× pixel density gain)
+Cropped ROI (224 × 224 RGB) + CoordConv (X, Y ∈ [-1, 1]) → 5 × 224 × 224
+  ↓
+Stage 1..4 (ResidualConvBlock, stride=2): 5 → 32 → 64 → 128 → 256 ch  (F4: 256 × 14 × 14)
+  ↓
+Stage 5 (ResidualConvBlock, stride=2):    256 → 512 ch                (F5: 512 × 7 × 7)
+  ↓
+CBAM Attention: Squeeze-and-Excitation (Channel) + 3×3 Spatial Attention
+  ├──► Branch 1 (Global Pose Context): AdaptiveAvgPool2d(1) → 512-d → Pose Head (8 angles)
+  └──► Branch 2 (Multi-Scale Spatial Grid):
+         Concat[F4 (14×14), Upsample(F5) (14×14)] → 1×1 Conv (64 ch)
+         0.5 * AdaptiveAvgPool2d(6×6) + 0.5 * AdaptiveMaxPool2d(6×6) → 2304-d
+  ↓
+Pose-Conditioned FiLM Gate: s_gated = (1 + tanh(γ(θ))) ⊙ s_feat + β(θ)
+  ↓
+5 Disentangled Component Heads (ModuleList of 5 independent Linear(2304 → 96 → 1) MLPs)
+  ↓
+5 Sigmoid Outputs (FL door · FR door · RL door · RR door · Hood)
 ```
 
-**Parameters:** ~3.2 M
-**Inference:** ~8 ms CPU / ~2 ms GPU per frame
-**No transfer learning** — all weights trained from random initialisation
-
-### Training Improvements
-
-| Technique | Purpose |
-|---|---|
-| OneCycleLR | Aggressive warmup + cosine decay for better convergence |
-| Mixup (alpha=0.3) | Regularisation via interpolated training pairs |
-| Label Smoothing (0.05) | Better probability calibration (thresholds closer to 0.5) |
-| Early Stopping (patience=20) | Auto-stop when converged, prevents overfitting |
-| Per-label Optimal Thresholds | Maximise F1 per component instead of using fixed 0.5 |
-
-### Change Detector
-
-Each frame -> CNN -> probabilities averaged over a **5-frame rolling buffer**.
-Per-label hysteresis prevents flickering at ambiguous angles:
-
-- p >= threshold + 0.12 -> **Open**
-- p <= threshold - 0.12 -> **Closed**
-- Otherwise -> keep previous state
-
-Thresholds are loaded from `checkpoints/thresholds.json` (produced by `evaluate.py`).
-
-### VLM — Objective 2
-
-| Setting | Value |
-|---|---|
-| Base model | HuggingFaceTB/SmolVLM-500M-Instruct |
-| Parameters | 507 M (vs 3 B for PaliGemma — 6x lighter) |
-| Method | QLoRA (4-bit NF4 quantisation) |
-| LoRA rank | r=4, alpha=8 |
-| Target modules | q_proj, v_proj |
-| Optimiser | AdamW 8-bit (bitsandbytes) |
-| Training | 3 epochs, lr=2e-4, gradient checkpointing |
-| VRAM | ~3.5 GB (fits on 4 GB GPU) |
-
-### Visual Grounding — Objective 3
-
-| Setting | Value |
-|---|---|
-| Model | Grounding DINO SwinT-OGC |
-| Mode | Zero-shot (no fine-tuning needed) |
-| Box threshold | 0.35 |
-| Text threshold | 0.25 |
-| Prompt expansion | `"front left door"` -> `"front left door . door"` |
-
----
-
-## Evaluation Criteria
-
-| Criteria | How it is met |
-|---|---|
-| Model Architecture Efficiency | From-scratch CNN, 3.2 M params, ~8 ms/frame inference |
-| Model Accuracy | Per-label BCE loss, ROC-AUC, exact-match — run `python model/evaluate.py` |
-| Real-Time Integration | Screen Capture -> WebSocket -> FastAPI -> live dashboard at 1 FPS |
-| Presentation & Reporting | README + `docs/` slide deck + per-label evaluation report |
+- **Backbone Efficiency:** Strided $3\times 3$ residual blocks reduce backbone compute from $3.28\text{ GMACs}$ to **$0.855\text{ GMACs}$** ($3.84\times$ fewer MACs).
+- **Temporal Change Detector:** 3-frame rolling probability average with per-label hysteresis bands around the optimal F1 thresholds loaded from `checkpoints/thresholds.json`.

@@ -1,0 +1,16 @@
+% Table: Computational Complexity and Inference Latency for Paper 1 & Paper 2
+\begin{table}[htbp]
+\centering
+\caption{Computational efficiency and inference throughput of Multi-Scale PA-SCAN.}
+\label{tab:efficiency_benchmark}
+\begin{tabular}{lccccc}
+\hline
+\textbf{Hardware / Mode} & \textbf{Precision} & \textbf{Parameters} & \textbf{Complexity} & \textbf{Latency (ms)} & \textbf{Throughput (FPS)} \\
+\hline
+CPU (Host Core)           & FP32 & 7.50\,M & 0.867\,GMACs & 23.38 $\pm$ 3.21 & 42.8 \\
+NVIDIA RTX 3050 Laptop    & FP32 & 7.50\,M & 0.867\,GMACs & 4.31 $\pm$ 1.12 & 231.9 \\
+NVIDIA RTX 3050 Laptop    & FP16 AMP & 7.50\,M & 0.867\,GMACs & 6.31 $\pm$ 1.74 & 158.6 \\
+Full End-to-End Pipeline  & FP16 AMP & 7.50\,M & 0.867\,GMACs & 10.81 & 92.5 \\
+\hline
+\end{tabular}
+\end{table}

@@ -1,3 +1,6 @@
+# PyTorch CUDA 12.4 index (enables NVIDIA RTX GPU on both Windows & Ubuntu)
+--extra-index-url https://download.pytorch.org/whl/cu124
+
 # Core
 fastapi==0.111.0
 uvicorn[standard]==0.30.0
@@ -5,7 +8,7 @@ python-multipart
 websockets
 pydantic>=2.0.0
 
-# Deep Learning
+# Deep Learning (GPU CUDA supported on Windows & Ubuntu)
 torch>=2.2.0
 torchvision>=0.17.0
 pillow>=10.0.0
@@ -13,7 +16,7 @@ numpy>=1.26.0
 scikit-learn>=1.4.0
 
 # VLM - Objective 2
-transformers>=4.45.0
+transformers>=4.40.0
 peft>=0.10.0
 bitsandbytes>=0.43.0
 trl>=0.8.0
