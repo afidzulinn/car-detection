@@ -1,0 +1,4898 @@
+[
+  {
+    "exp_id": "E1_ROI_A0_legacy_fixed",
+    "group": "P1-04_ROI",
+    "description": "PA-SCAN v1 with legacy fixed ROI (0.17, 0.19, 0.83, 0.62)",
+    "protocol": "T0",
+    "roi_policy": "legacy_fixed",
+    "seed": 42,
+    "epochs": 35,
+    "params": 7498591,
+    "params_m": 7.499,
+    "train_time_s": 288.21,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.5,
+      "front_right_door": 0.48,
+      "rear_left_door": 0.28,
+      "rear_right_door": 0.3,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.93542,
+      "macro_f1": 0.93663,
+      "macro_roc_auc": 0.95043,
+      "exact_match": 0.70833,
+      "worst_elevation_macro_f1": 0.84098,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05442,
+        "macro_brier_score": 0.05441,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01639,
+            "brier_score": 0.01136
+          },
+          "front_right_door": {
+            "ece": 0.08317,
+            "brier_score": 0.10634
+          },
+          "rear_left_door": {
+            "ece": 0.12893,
+            "brier_score": 0.13951
+          },
+          "rear_right_door": {
+            "ece": 0.02892,
+            "brier_score": 0.01461
+          },
+          "hood": {
+            "ece": 0.01468,
+            "brier_score": 0.00023
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.85,
+          "macro_f1": 0.84098,
+          "exact_match": 0.34375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98286,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97778,
+          "exact_match": 0.875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.88542,
+          "precision": 0.91111,
+          "recall": 0.85417,
+          "f1": 0.88172,
+          "roc_auc": 0.86762
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.83333,
+          "precision": 0.7963,
+          "recall": 0.89583,
+          "f1": 0.84314,
+          "roc_auc": 0.88715
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99913
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94167,
+      "macro_f1": 0.94364,
+      "macro_roc_auc": 0.95043,
+      "exact_match": 0.73958,
+      "worst_elevation_macro_f1": 0.86738,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05442,
+        "macro_brier_score": 0.05441,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01639,
+            "brier_score": 0.01136
+          },
+          "front_right_door": {
+            "ece": 0.08317,
+            "brier_score": 0.10634
+          },
+          "rear_left_door": {
+            "ece": 0.12893,
+            "brier_score": 0.13951
+          },
+          "rear_right_door": {
+            "ece": 0.02892,
+            "brier_score": 0.01461
+          },
+          "hood": {
+            "ece": 0.01468,
+            "brier_score": 0.00023
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.86875,
+          "macro_f1": 0.86738,
+          "exact_match": 0.4375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98286,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97778,
+          "exact_match": 0.875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.89583,
+          "precision": 0.91304,
+          "recall": 0.875,
+          "f1": 0.89362,
+          "roc_auc": 0.86762
+        },
+        "rear_left_door": {
+          "threshold": 0.28,
+          "accuracy": 0.85417,
+          "precision": 0.80357,
+          "recall": 0.9375,
+          "f1": 0.86538,
+          "roc_auc": 0.88715
+        },
+        "rear_right_door": {
+          "threshold": 0.3,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99913
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.9375,
+      "macro_f1": 0.93835,
+      "macro_roc_auc": 0.95503,
+      "exact_match": 0.70833,
+      "worst_elevation_macro_f1": 0.84585,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05421,
+        "macro_brier_score": 0.05216,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02476,
+            "brier_score": 0.01011
+          },
+          "front_right_door": {
+            "ece": 0.077,
+            "brier_score": 0.10061
+          },
+          "rear_left_door": {
+            "ece": 0.1204,
+            "brier_score": 0.13027
+          },
+          "rear_right_door": {
+            "ece": 0.03368,
+            "brier_score": 0.01958
+          },
+          "hood": {
+            "ece": 0.01523,
+            "brier_score": 0.00025
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.85625,
+          "macro_f1": 0.84585,
+          "exact_match": 0.34375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98286,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97778,
+          "exact_match": 0.875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.89583,
+          "precision": 0.91304,
+          "recall": 0.875,
+          "f1": 0.89362,
+          "roc_auc": 0.88108
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.83333,
+          "precision": 0.80769,
+          "recall": 0.875,
+          "f1": 0.84,
+          "roc_auc": 0.8967
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.97872,
+          "recall": 0.95833,
+          "f1": 0.96842,
+          "roc_auc": 0.9974
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.9375,
+      "macro_f1": 0.93954,
+      "macro_roc_auc": 0.95503,
+      "exact_match": 0.70833,
+      "worst_elevation_macro_f1": 0.85989,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05421,
+        "macro_brier_score": 0.05216,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02476,
+            "brier_score": 0.01011
+          },
+          "front_right_door": {
+            "ece": 0.077,
+            "brier_score": 0.10061
+          },
+          "rear_left_door": {
+            "ece": 0.1204,
+            "brier_score": 0.13027
+          },
+          "rear_right_door": {
+            "ece": 0.03368,
+            "brier_score": 0.01958
+          },
+          "hood": {
+            "ece": 0.01523,
+            "brier_score": 0.00025
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8625,
+          "macro_f1": 0.85989,
+          "exact_match": 0.375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97778,
+          "exact_match": 0.875
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97778,
+          "exact_match": 0.875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.89583,
+          "precision": 0.91304,
+          "recall": 0.875,
+          "f1": 0.89362,
+          "roc_auc": 0.88108
+        },
+        "rear_left_door": {
+          "threshold": 0.28,
+          "accuracy": 0.84375,
+          "precision": 0.8,
+          "recall": 0.91667,
+          "f1": 0.85437,
+          "roc_auc": 0.8967
+        },
+        "rear_right_door": {
+          "threshold": 0.3,
+          "accuracy": 0.95833,
+          "precision": 0.92308,
+          "recall": 1.0,
+          "f1": 0.96,
+          "roc_auc": 0.9974
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T10:55:17.934665+00:00"
+  },
+  {
+    "exp_id": "E1_ROI_A1_full_frame",
+    "group": "P1-04_ROI",
+    "description": "PA-SCAN v1 with uncropped full frame (0.00, 0.00, 1.00, 1.00)",
+    "protocol": "T0",
+    "roi_policy": "full_frame",
+    "seed": 42,
+    "epochs": 35,
+    "params": 7498591,
+    "params_m": 7.499,
+    "train_time_s": 264.48,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.44,
+      "front_right_door": 0.5,
+      "rear_left_door": 0.6,
+      "rear_right_door": 0.48,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.83958,
+      "macro_f1": 0.84612,
+      "macro_roc_auc": 0.83611,
+      "exact_match": 0.34375,
+      "worst_elevation_macro_f1": 0.75822,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.10186,
+        "macro_brier_score": 0.12825,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02989,
+            "brier_score": 0.01777
+          },
+          "front_right_door": {
+            "ece": 0.13598,
+            "brier_score": 0.13159
+          },
+          "rear_left_door": {
+            "ece": 0.24304,
+            "brier_score": 0.24898
+          },
+          "rear_right_door": {
+            "ece": 0.08506,
+            "brier_score": 0.24264
+          },
+          "hood": {
+            "ece": 0.01533,
+            "brier_score": 0.00027
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.76875,
+          "macro_f1": 0.75822,
+          "exact_match": 0.21875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.875,
+          "macro_f1": 0.88684,
+          "exact_match": 0.375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.875,
+          "macro_f1": 0.886,
+          "exact_match": 0.4375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.875,
+          "precision": 0.875,
+          "recall": 0.875,
+          "f1": 0.875,
+          "roc_auc": 0.84462
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.73958,
+          "precision": 0.73469,
+          "recall": 0.75,
+          "f1": 0.74227,
+          "roc_auc": 0.72483
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.60417,
+          "precision": 0.58929,
+          "recall": 0.6875,
+          "f1": 0.63462,
+          "roc_auc": 0.61285
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.83333,
+      "macro_f1": 0.85915,
+      "macro_roc_auc": 0.83611,
+      "exact_match": 0.32292,
+      "worst_elevation_macro_f1": 0.80277,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.10186,
+        "macro_brier_score": 0.12825,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02989,
+            "brier_score": 0.01777
+          },
+          "front_right_door": {
+            "ece": 0.13598,
+            "brier_score": 0.13159
+          },
+          "rear_left_door": {
+            "ece": 0.24304,
+            "brier_score": 0.24898
+          },
+          "rear_right_door": {
+            "ece": 0.08506,
+            "brier_score": 0.24264
+          },
+          "hood": {
+            "ece": 0.01533,
+            "brier_score": 0.00027
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.78125,
+          "macro_f1": 0.80277,
+          "exact_match": 0.21875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.85625,
+          "macro_f1": 0.88617,
+          "exact_match": 0.375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.8625,
+          "macro_f1": 0.88913,
+          "exact_match": 0.375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.44,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.875,
+          "precision": 0.875,
+          "recall": 0.875,
+          "f1": 0.875,
+          "roc_auc": 0.84462
+        },
+        "rear_left_door": {
+          "threshold": 0.6,
+          "accuracy": 0.75,
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75,
+          "roc_auc": 0.72483
+        },
+        "rear_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.5625,
+          "precision": 0.53409,
+          "recall": 0.97917,
+          "f1": 0.69118,
+          "roc_auc": 0.61285
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.81875,
+      "macro_f1": 0.82277,
+      "macro_roc_auc": 0.83568,
+      "exact_match": 0.30208,
+      "worst_elevation_macro_f1": 0.72949,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.08455,
+        "macro_brier_score": 0.12655,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.03287,
+            "brier_score": 0.01741
+          },
+          "front_right_door": {
+            "ece": 0.1116,
+            "brier_score": 0.13459
+          },
+          "rear_left_door": {
+            "ece": 0.23988,
+            "brier_score": 0.23725
+          },
+          "rear_right_door": {
+            "ece": 0.0229,
+            "brier_score": 0.2432
+          },
+          "hood": {
+            "ece": 0.01551,
+            "brier_score": 0.00032
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.75,
+          "macro_f1": 0.72949,
+          "exact_match": 0.1875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.8625,
+          "macro_f1": 0.87688,
+          "exact_match": 0.375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.84375,
+          "macro_f1": 0.85134,
+          "exact_match": 0.34375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 1.0,
+          "recall": 0.91667,
+          "f1": 0.95652,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.84375,
+          "precision": 0.86667,
+          "recall": 0.8125,
+          "f1": 0.83871,
+          "roc_auc": 0.85851
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.75,
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75,
+          "roc_auc": 0.72656
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.54167,
+          "precision": 0.53704,
+          "recall": 0.60417,
+          "f1": 0.56863,
+          "roc_auc": 0.59505
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.825,
+      "macro_f1": 0.85012,
+      "macro_roc_auc": 0.83568,
+      "exact_match": 0.3125,
+      "worst_elevation_macro_f1": 0.78196,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.08455,
+        "macro_brier_score": 0.12655,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.03287,
+            "brier_score": 0.01741
+          },
+          "front_right_door": {
+            "ece": 0.1116,
+            "brier_score": 0.13459
+          },
+          "rear_left_door": {
+            "ece": 0.23988,
+            "brier_score": 0.23725
+          },
+          "rear_right_door": {
+            "ece": 0.0229,
+            "brier_score": 0.2432
+          },
+          "hood": {
+            "ece": 0.01551,
+            "brier_score": 0.00032
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.76875,
+          "macro_f1": 0.78196,
+          "exact_match": 0.1875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.84375,
+          "macro_f1": 0.87688,
+          "exact_match": 0.375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.8625,
+          "macro_f1": 0.88913,
+          "exact_match": 0.375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.44,
+          "accuracy": 0.95833,
+          "precision": 0.95833,
+          "recall": 0.95833,
+          "f1": 0.95833,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.84375,
+          "precision": 0.86667,
+          "recall": 0.8125,
+          "f1": 0.83871,
+          "roc_auc": 0.85851
+        },
+        "rear_left_door": {
+          "threshold": 0.6,
+          "accuracy": 0.76042,
+          "precision": 0.76596,
+          "recall": 0.75,
+          "f1": 0.75789,
+          "roc_auc": 0.72656
+        },
+        "rear_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.5625,
+          "precision": 0.53333,
+          "recall": 1.0,
+          "f1": 0.69565,
+          "roc_auc": 0.59505
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T10:59:54.640376+00:00"
+  },
+  {
+    "exp_id": "E1_ROI_A2_full_vehicle",
+    "group": "P1-04_ROI",
+    "description": "PA-SCAN v1 with verified 100%-retention full-vehicle ROI (0.24, 0.08, 0.76, 0.92)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 7498591,
+    "params_m": 7.499,
+    "train_time_s": 287.74,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.5,
+      "front_right_door": 0.3,
+      "rear_left_door": 0.74,
+      "rear_right_door": 0.42,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94792,
+      "macro_f1": 0.94681,
+      "macro_roc_auc": 0.96163,
+      "exact_match": 0.76042,
+      "worst_elevation_macro_f1": 0.87873,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05083,
+        "macro_brier_score": 0.04587,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02943,
+            "brier_score": 0.00565
+          },
+          "front_right_door": {
+            "ece": 0.11486,
+            "brier_score": 0.12327
+          },
+          "rear_left_door": {
+            "ece": 0.04983,
+            "brier_score": 0.07563
+          },
+          "rear_right_door": {
+            "ece": 0.04271,
+            "brier_score": 0.02387
+          },
+          "hood": {
+            "ece": 0.01732,
+            "brier_score": 0.0009
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8875,
+          "macro_f1": 0.87873,
+          "exact_match": 0.5
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.9697,
+          "exact_match": 0.84375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98667,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.85417,
+          "precision": 0.90476,
+          "recall": 0.79167,
+          "f1": 0.84444,
+          "roc_auc": 0.86719
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.90625,
+          "precision": 0.86792,
+          "recall": 0.95833,
+          "f1": 0.91089,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99957
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95625,
+      "macro_f1": 0.95625,
+      "macro_roc_auc": 0.96163,
+      "exact_match": 0.80208,
+      "worst_elevation_macro_f1": 0.89505,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05083,
+        "macro_brier_score": 0.04587,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02943,
+            "brier_score": 0.00565
+          },
+          "front_right_door": {
+            "ece": 0.11486,
+            "brier_score": 0.12327
+          },
+          "rear_left_door": {
+            "ece": 0.04983,
+            "brier_score": 0.07563
+          },
+          "rear_right_door": {
+            "ece": 0.04271,
+            "brier_score": 0.02387
+          },
+          "hood": {
+            "ece": 0.01732,
+            "brier_score": 0.0009
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.89375,
+          "macro_f1": 0.89505,
+          "exact_match": 0.53125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98065,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.99375,
+          "macro_f1": 0.99355,
+          "exact_match": 0.96875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.3,
+          "accuracy": 0.875,
+          "precision": 0.8913,
+          "recall": 0.85417,
+          "f1": 0.87234,
+          "roc_auc": 0.86719
+        },
+        "rear_left_door": {
+          "threshold": 0.74,
+          "accuracy": 0.92708,
+          "precision": 0.90196,
+          "recall": 0.95833,
+          "f1": 0.92929,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.42,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99957
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94583,
+      "macro_f1": 0.94435,
+      "macro_roc_auc": 0.96146,
+      "exact_match": 0.76042,
+      "worst_elevation_macro_f1": 0.86992,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.03992,
+        "macro_brier_score": 0.04346,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02007,
+            "brier_score": 0.00935
+          },
+          "front_right_door": {
+            "ece": 0.07111,
+            "brier_score": 0.11187
+          },
+          "rear_left_door": {
+            "ece": 0.05174,
+            "brier_score": 0.06657
+          },
+          "rear_right_door": {
+            "ece": 0.04273,
+            "brier_score": 0.02931
+          },
+          "hood": {
+            "ece": 0.01396,
+            "brier_score": 0.0002
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.88125,
+          "macro_f1": 0.86992,
+          "exact_match": 0.5
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.9697,
+          "exact_match": 0.84375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98667,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 1.0,
+          "recall": 0.97917,
+          "f1": 0.98947,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.86458,
+          "precision": 0.92683,
+          "recall": 0.79167,
+          "f1": 0.85393,
+          "roc_auc": 0.87196
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.91667,
+          "precision": 0.88462,
+          "recall": 0.95833,
+          "f1": 0.92,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.95833,
+          "recall": 0.95833,
+          "f1": 0.95833,
+          "roc_auc": 0.99436
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94583,
+      "macro_f1": 0.94594,
+      "macro_roc_auc": 0.96146,
+      "exact_match": 0.76042,
+      "worst_elevation_macro_f1": 0.87687,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.03992,
+        "macro_brier_score": 0.04346,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02007,
+            "brier_score": 0.00935
+          },
+          "front_right_door": {
+            "ece": 0.07111,
+            "brier_score": 0.11187
+          },
+          "rear_left_door": {
+            "ece": 0.05174,
+            "brier_score": 0.06657
+          },
+          "rear_right_door": {
+            "ece": 0.04273,
+            "brier_score": 0.02931
+          },
+          "hood": {
+            "ece": 0.01396,
+            "brier_score": 0.0002
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.875,
+          "macro_f1": 0.87687,
+          "exact_match": 0.46875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.96774,
+          "exact_match": 0.84375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.99375,
+          "macro_f1": 0.99355,
+          "exact_match": 0.96875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 1.0,
+          "recall": 0.97917,
+          "f1": 0.98947,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.3,
+          "accuracy": 0.875,
+          "precision": 0.8913,
+          "recall": 0.85417,
+          "f1": 0.87234,
+          "roc_auc": 0.87196
+        },
+        "rear_left_door": {
+          "threshold": 0.74,
+          "accuracy": 0.91667,
+          "precision": 0.9,
+          "recall": 0.9375,
+          "f1": 0.91837,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.42,
+          "accuracy": 0.94792,
+          "precision": 0.92157,
+          "recall": 0.97917,
+          "f1": 0.94949,
+          "roc_auc": 0.99436
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:04:53.802038+00:00"
+  },
+  {
+    "exp_id": "B1_PlainCNN_GAP",
+    "group": "P1-05_Baselines",
+    "description": "5-stage Plain Conv-BN-ReLU-MaxPool + GlobalAvgPool from scratch",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 1817253,
+    "params_m": 1.817,
+    "train_time_s": 286.16,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.46,
+      "front_right_door": 0.28,
+      "rear_left_door": 0.34,
+      "rear_right_door": 0.44,
+      "hood": 0.6
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.65833,
+      "macro_f1": 0.66584,
+      "macro_roc_auc": 0.67708,
+      "exact_match": 0.08333,
+      "worst_elevation_macro_f1": 0.64393,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.12586,
+        "macro_brier_score": 0.20733,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0844,
+            "brier_score": 0.23342
+          },
+          "front_right_door": {
+            "ece": 0.24051,
+            "brier_score": 0.31221
+          },
+          "rear_left_door": {
+            "ece": 0.09864,
+            "brier_score": 0.20668
+          },
+          "rear_right_door": {
+            "ece": 0.10313,
+            "brier_score": 0.24443
+          },
+          "hood": {
+            "ece": 0.10262,
+            "brier_score": 0.0399
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.64375,
+          "macro_f1": 0.64393,
+          "exact_match": 0.0625
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.675,
+          "macro_f1": 0.68068,
+          "exact_match": 0.125
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.65625,
+          "macro_f1": 0.66857,
+          "exact_match": 0.0625
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.63542,
+          "precision": 0.62745,
+          "recall": 0.66667,
+          "f1": 0.64646,
+          "roc_auc": 0.69618
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.40625,
+          "precision": 0.41176,
+          "recall": 0.4375,
+          "f1": 0.42424,
+          "roc_auc": 0.31727
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.66667,
+          "precision": 0.66667,
+          "recall": 0.66667,
+          "f1": 0.66667,
+          "roc_auc": 0.74045
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.625,
+          "precision": 0.62,
+          "recall": 0.64583,
+          "f1": 0.63265,
+          "roc_auc": 0.63455
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.94,
+          "recall": 0.97917,
+          "f1": 0.95918,
+          "roc_auc": 0.99696
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.675,
+      "macro_f1": 0.75915,
+      "macro_roc_auc": 0.67708,
+      "exact_match": 0.08333,
+      "worst_elevation_macro_f1": 0.73934,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.12586,
+        "macro_brier_score": 0.20733,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0844,
+            "brier_score": 0.23342
+          },
+          "front_right_door": {
+            "ece": 0.24051,
+            "brier_score": 0.31221
+          },
+          "rear_left_door": {
+            "ece": 0.09864,
+            "brier_score": 0.20668
+          },
+          "rear_right_door": {
+            "ece": 0.10313,
+            "brier_score": 0.24443
+          },
+          "hood": {
+            "ece": 0.10262,
+            "brier_score": 0.0399
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.7,
+          "macro_f1": 0.7776,
+          "exact_match": 0.125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.65625,
+          "macro_f1": 0.73934,
+          "exact_match": 0.0625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.66875,
+          "macro_f1": 0.75888,
+          "exact_match": 0.0625
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.46,
+          "accuracy": 0.61458,
+          "precision": 0.57534,
+          "recall": 0.875,
+          "f1": 0.69421,
+          "roc_auc": 0.69618
+        },
+        "front_right_door": {
+          "threshold": 0.28,
+          "accuracy": 0.52083,
+          "precision": 0.51064,
+          "recall": 1.0,
+          "f1": 0.67606,
+          "roc_auc": 0.31727
+        },
+        "rear_left_door": {
+          "threshold": 0.34,
+          "accuracy": 0.71875,
+          "precision": 0.66154,
+          "recall": 0.89583,
+          "f1": 0.76106,
+          "roc_auc": 0.74045
+        },
+        "rear_right_door": {
+          "threshold": 0.44,
+          "accuracy": 0.54167,
+          "precision": 0.52174,
+          "recall": 1.0,
+          "f1": 0.68571,
+          "roc_auc": 0.63455
+        },
+        "hood": {
+          "threshold": 0.6,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99696
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.64167,
+      "macro_f1": 0.64251,
+      "macro_roc_auc": 0.66892,
+      "exact_match": 0.08333,
+      "worst_elevation_macro_f1": 0.60533,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.13492,
+        "macro_brier_score": 0.20965,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0768,
+            "brier_score": 0.23487
+          },
+          "front_right_door": {
+            "ece": 0.21866,
+            "brier_score": 0.31303
+          },
+          "rear_left_door": {
+            "ece": 0.18474,
+            "brier_score": 0.21026
+          },
+          "rear_right_door": {
+            "ece": 0.10462,
+            "brier_score": 0.24446
+          },
+          "hood": {
+            "ece": 0.08977,
+            "brier_score": 0.04565
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.64375,
+          "macro_f1": 0.63952,
+          "exact_match": 0.09375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.66875,
+          "macro_f1": 0.68096,
+          "exact_match": 0.09375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.6125,
+          "macro_f1": 0.60533,
+          "exact_match": 0.0625
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.625,
+          "precision": 0.60714,
+          "recall": 0.70833,
+          "f1": 0.65385,
+          "roc_auc": 0.67014
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.38542,
+          "precision": 0.37778,
+          "recall": 0.35417,
+          "f1": 0.36559,
+          "roc_auc": 0.30165
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.61458,
+          "precision": 0.62222,
+          "recall": 0.58333,
+          "f1": 0.60215,
+          "roc_auc": 0.73047
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.625,
+          "precision": 0.62,
+          "recall": 0.64583,
+          "f1": 0.63265,
+          "roc_auc": 0.64887
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.95833,
+          "recall": 0.95833,
+          "f1": 0.95833,
+          "roc_auc": 0.99349
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.65208,
+      "macro_f1": 0.7354,
+      "macro_roc_auc": 0.66892,
+      "exact_match": 0.0625,
+      "worst_elevation_macro_f1": 0.72034,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.13492,
+        "macro_brier_score": 0.20965,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0768,
+            "brier_score": 0.23487
+          },
+          "front_right_door": {
+            "ece": 0.21866,
+            "brier_score": 0.31303
+          },
+          "rear_left_door": {
+            "ece": 0.18474,
+            "brier_score": 0.21026
+          },
+          "rear_right_door": {
+            "ece": 0.10462,
+            "brier_score": 0.24446
+          },
+          "hood": {
+            "ece": 0.08977,
+            "brier_score": 0.04565
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.64375,
+          "macro_f1": 0.72034,
+          "exact_match": 0.03125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.66875,
+          "macro_f1": 0.74382,
+          "exact_match": 0.09375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.64375,
+          "macro_f1": 0.74054,
+          "exact_match": 0.0625
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.46,
+          "accuracy": 0.59375,
+          "precision": 0.56338,
+          "recall": 0.83333,
+          "f1": 0.67227,
+          "roc_auc": 0.67014
+        },
+        "front_right_door": {
+          "threshold": 0.28,
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "recall": 0.95833,
+          "f1": 0.65714,
+          "roc_auc": 0.30165
+        },
+        "rear_left_door": {
+          "threshold": 0.34,
+          "accuracy": 0.72917,
+          "precision": 0.67188,
+          "recall": 0.89583,
+          "f1": 0.76786,
+          "roc_auc": 0.73047
+        },
+        "rear_right_door": {
+          "threshold": 0.44,
+          "accuracy": 0.52083,
+          "precision": 0.51111,
+          "recall": 0.95833,
+          "f1": 0.66667,
+          "roc_auc": 0.64887
+        },
+        "hood": {
+          "threshold": 0.6,
+          "accuracy": 0.91667,
+          "precision": 0.95455,
+          "recall": 0.875,
+          "f1": 0.91304,
+          "roc_auc": 0.99349
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:09:51.183044+00:00"
+  },
+  {
+    "exp_id": "B2_ResidualCNN_GAP",
+    "group": "P1-05_Baselines",
+    "description": "5-stage Strided Residual Conv + GlobalAvgPool from scratch",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 5138053,
+    "params_m": 5.138,
+    "train_time_s": 269.18,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.5,
+      "front_right_door": 0.5,
+      "rear_left_door": 0.26,
+      "rear_right_door": 0.5,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95417,
+      "macro_f1": 0.95472,
+      "macro_roc_auc": 0.97943,
+      "exact_match": 0.80208,
+      "worst_elevation_macro_f1": 0.86723,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.04745,
+        "macro_brier_score": 0.04422,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01524,
+            "brier_score": 0.00035
+          },
+          "front_right_door": {
+            "ece": 0.12521,
+            "brier_score": 0.12949
+          },
+          "rear_left_door": {
+            "ece": 0.03587,
+            "brier_score": 0.04803
+          },
+          "rear_right_door": {
+            "ece": 0.0577,
+            "brier_score": 0.03314
+          },
+          "hood": {
+            "ece": 0.00324,
+            "brier_score": 0.01012
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8625,
+          "macro_f1": 0.86723,
+          "exact_match": 0.40625
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.86458,
+          "precision": 0.85714,
+          "recall": 0.875,
+          "f1": 0.86598,
+          "roc_auc": 0.93446
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.94792,
+          "precision": 0.92157,
+          "recall": 0.97917,
+          "f1": 0.94949,
+          "roc_auc": 0.96962
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.97872,
+          "recall": 0.95833,
+          "f1": 0.96842,
+          "roc_auc": 0.99306
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95625,
+      "macro_f1": 0.95682,
+      "macro_roc_auc": 0.97943,
+      "exact_match": 0.8125,
+      "worst_elevation_macro_f1": 0.87357,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.04745,
+        "macro_brier_score": 0.04422,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01524,
+            "brier_score": 0.00035
+          },
+          "front_right_door": {
+            "ece": 0.12521,
+            "brier_score": 0.12949
+          },
+          "rear_left_door": {
+            "ece": 0.03587,
+            "brier_score": 0.04803
+          },
+          "rear_right_door": {
+            "ece": 0.0577,
+            "brier_score": 0.03314
+          },
+          "hood": {
+            "ece": 0.00324,
+            "brier_score": 0.01012
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.86875,
+          "macro_f1": 0.87357,
+          "exact_match": 0.4375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.86458,
+          "precision": 0.85714,
+          "recall": 0.875,
+          "f1": 0.86598,
+          "roc_auc": 0.93446
+        },
+        "rear_left_door": {
+          "threshold": 0.26,
+          "accuracy": 0.95833,
+          "precision": 0.92308,
+          "recall": 1.0,
+          "f1": 0.96,
+          "roc_auc": 0.96962
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.97872,
+          "recall": 0.95833,
+          "f1": 0.96842,
+          "roc_auc": 0.99306
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94792,
+      "macro_f1": 0.94821,
+      "macro_roc_auc": 0.97951,
+      "exact_match": 0.78125,
+      "worst_elevation_macro_f1": 0.84584,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.04379,
+        "macro_brier_score": 0.04235,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0164,
+            "brier_score": 0.00098
+          },
+          "front_right_door": {
+            "ece": 0.12511,
+            "brier_score": 0.13149
+          },
+          "rear_left_door": {
+            "ece": 0.02547,
+            "brier_score": 0.03717
+          },
+          "rear_right_door": {
+            "ece": 0.03868,
+            "brier_score": 0.04195
+          },
+          "hood": {
+            "ece": 0.01329,
+            "brier_score": 0.00018
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.84375,
+          "macro_f1": 0.84584,
+          "exact_match": 0.34375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.85417,
+          "precision": 0.84,
+          "recall": 0.875,
+          "f1": 0.85714,
+          "roc_auc": 0.9401
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.94,
+          "recall": 0.97917,
+          "f1": 0.95918,
+          "roc_auc": 0.96745
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.92708,
+          "precision": 0.95556,
+          "recall": 0.89583,
+          "f1": 0.92473,
+          "roc_auc": 0.99002
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95,
+      "macro_f1": 0.95031,
+      "macro_roc_auc": 0.97951,
+      "exact_match": 0.79167,
+      "worst_elevation_macro_f1": 0.85223,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.04379,
+        "macro_brier_score": 0.04235,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0164,
+            "brier_score": 0.00098
+          },
+          "front_right_door": {
+            "ece": 0.12511,
+            "brier_score": 0.13149
+          },
+          "rear_left_door": {
+            "ece": 0.02547,
+            "brier_score": 0.03717
+          },
+          "rear_right_door": {
+            "ece": 0.03868,
+            "brier_score": 0.04195
+          },
+          "hood": {
+            "ece": 0.01329,
+            "brier_score": 0.00018
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.85,
+          "macro_f1": 0.85223,
+          "exact_match": 0.375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.85417,
+          "precision": 0.84,
+          "recall": 0.875,
+          "f1": 0.85714,
+          "roc_auc": 0.9401
+        },
+        "rear_left_door": {
+          "threshold": 0.26,
+          "accuracy": 0.96875,
+          "precision": 0.94118,
+          "recall": 1.0,
+          "f1": 0.9697,
+          "roc_auc": 0.96745
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.92708,
+          "precision": 0.95556,
+          "recall": 0.89583,
+          "f1": 0.92473,
+          "roc_auc": 0.99002
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:14:31.149080+00:00"
+  },
+  {
+    "exp_id": "B3_MobileNetV3Small_Scratch",
+    "group": "P1-05_Baselines",
+    "description": "MobileNetV3-Small trained from scratch (weights=None)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 1522981,
+    "params_m": 1.523,
+    "train_time_s": 287.7,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.34,
+      "front_right_door": 0.6,
+      "rear_left_door": 0.28,
+      "rear_right_door": 0.48,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.88333,
+      "macro_f1": 0.8855,
+      "macro_roc_auc": 0.90208,
+      "exact_match": 0.5,
+      "worst_elevation_macro_f1": 0.83218,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.03743,
+        "macro_brier_score": 0.07456,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01886,
+            "brier_score": 0.01178
+          },
+          "front_right_door": {
+            "ece": 0.03576,
+            "brier_score": 0.0453
+          },
+          "rear_left_door": {
+            "ece": 0.05895,
+            "brier_score": 0.06821
+          },
+          "rear_right_door": {
+            "ece": 0.06017,
+            "brier_score": 0.24733
+          },
+          "hood": {
+            "ece": 0.01343,
+            "brier_score": 0.00019
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.81875,
+          "macro_f1": 0.83218,
+          "exact_match": 0.34375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9125,
+          "macro_f1": 0.9,
+          "exact_match": 0.5625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.91875,
+          "macro_f1": 0.91613,
+          "exact_match": 0.59375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99913
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.94792,
+          "precision": 0.97778,
+          "recall": 0.91667,
+          "f1": 0.94624,
+          "roc_auc": 0.94965
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.91667,
+          "precision": 0.91667,
+          "recall": 0.91667,
+          "f1": 0.91667,
+          "roc_auc": 0.97483
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.57292,
+          "precision": 0.56863,
+          "recall": 0.60417,
+          "f1": 0.58586,
+          "roc_auc": 0.58681
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.88333,
+      "macro_f1": 0.90931,
+      "macro_roc_auc": 0.90208,
+      "exact_match": 0.48958,
+      "worst_elevation_macro_f1": 0.86659,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.03743,
+        "macro_brier_score": 0.07456,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01886,
+            "brier_score": 0.01178
+          },
+          "front_right_door": {
+            "ece": 0.03576,
+            "brier_score": 0.0453
+          },
+          "rear_left_door": {
+            "ece": 0.05895,
+            "brier_score": 0.06821
+          },
+          "rear_right_door": {
+            "ece": 0.06017,
+            "brier_score": 0.24733
+          },
+          "hood": {
+            "ece": 0.01343,
+            "brier_score": 0.00019
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.84375,
+          "macro_f1": 0.86659,
+          "exact_match": 0.4375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.90625,
+          "macro_f1": 0.93023,
+          "exact_match": 0.53125
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9,
+          "macro_f1": 0.93043,
+          "exact_match": 0.5
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.34,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99913
+        },
+        "front_right_door": {
+          "threshold": 0.6,
+          "accuracy": 0.95833,
+          "precision": 1.0,
+          "recall": 0.91667,
+          "f1": 0.95652,
+          "roc_auc": 0.94965
+        },
+        "rear_left_door": {
+          "threshold": 0.28,
+          "accuracy": 0.9375,
+          "precision": 0.92,
+          "recall": 0.95833,
+          "f1": 0.93878,
+          "roc_auc": 0.97483
+        },
+        "rear_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.54167,
+          "precision": 0.52326,
+          "recall": 0.9375,
+          "f1": 0.67164,
+          "roc_auc": 0.58681
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.87708,
+      "macro_f1": 0.87552,
+      "macro_roc_auc": 0.90807,
+      "exact_match": 0.46875,
+      "worst_elevation_macro_f1": 0.82281,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.02753,
+        "macro_brier_score": 0.0721,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01879,
+            "brier_score": 0.0106
+          },
+          "front_right_door": {
+            "ece": 0.03692,
+            "brier_score": 0.04357
+          },
+          "rear_left_door": {
+            "ece": 0.05019,
+            "brier_score": 0.05823
+          },
+          "rear_right_door": {
+            "ece": 0.01848,
+            "brier_score": 0.24793
+          },
+          "hood": {
+            "ece": 0.01326,
+            "brier_score": 0.00018
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8125,
+          "macro_f1": 0.82281,
+          "exact_match": 0.3125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9,
+          "macro_f1": 0.88571,
+          "exact_match": 0.5
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.91875,
+          "macro_f1": 0.91034,
+          "exact_match": 0.59375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.94792,
+          "precision": 0.97778,
+          "recall": 0.91667,
+          "f1": 0.94624,
+          "roc_auc": 0.97569
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.92708,
+          "precision": 0.93617,
+          "recall": 0.91667,
+          "f1": 0.92632,
+          "roc_auc": 0.98655
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.53125,
+          "precision": 0.53191,
+          "recall": 0.52083,
+          "f1": 0.52632,
+          "roc_auc": 0.57856
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.87708,
+      "macro_f1": 0.90633,
+      "macro_roc_auc": 0.90807,
+      "exact_match": 0.44792,
+      "worst_elevation_macro_f1": 0.8598,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.02753,
+        "macro_brier_score": 0.0721,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01879,
+            "brier_score": 0.0106
+          },
+          "front_right_door": {
+            "ece": 0.03692,
+            "brier_score": 0.04357
+          },
+          "rear_left_door": {
+            "ece": 0.05019,
+            "brier_score": 0.05823
+          },
+          "rear_right_door": {
+            "ece": 0.01848,
+            "brier_score": 0.24793
+          },
+          "hood": {
+            "ece": 0.01326,
+            "brier_score": 0.00018
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.83125,
+          "macro_f1": 0.8598,
+          "exact_match": 0.34375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9,
+          "macro_f1": 0.92727,
+          "exact_match": 0.5
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9,
+          "macro_f1": 0.93043,
+          "exact_match": 0.5
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.34,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.6,
+          "accuracy": 0.95833,
+          "precision": 1.0,
+          "recall": 0.91667,
+          "f1": 0.95652,
+          "roc_auc": 0.97569
+        },
+        "rear_left_door": {
+          "threshold": 0.28,
+          "accuracy": 0.94792,
+          "precision": 0.93878,
+          "recall": 0.95833,
+          "f1": 0.94845,
+          "roc_auc": 0.98655
+        },
+        "rear_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "recall": 0.91667,
+          "f1": 0.64706,
+          "roc_auc": 0.57856
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:19:29.923249+00:00"
+  },
+  {
+    "exp_id": "B4_ResNet18_Scratch",
+    "group": "P1-05_Baselines",
+    "description": "ResNet-18 trained from scratch (weights=None)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 11179077,
+    "params_m": 11.179,
+    "train_time_s": 261.47,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.5,
+      "front_right_door": 0.54,
+      "rear_left_door": 0.5,
+      "rear_right_door": 0.46,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.96875,
+      "macro_f1": 0.96902,
+      "macro_roc_auc": 0.98047,
+      "exact_match": 0.84375,
+      "worst_elevation_macro_f1": 0.90837,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.02876,
+        "macro_brier_score": 0.02859,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.03824,
+            "brier_score": 0.01146
+          },
+          "front_right_door": {
+            "ece": 0.05013,
+            "brier_score": 0.06249
+          },
+          "rear_left_door": {
+            "ece": 0.03568,
+            "brier_score": 0.04372
+          },
+          "rear_right_door": {
+            "ece": 0.01695,
+            "brier_score": 0.01561
+          },
+          "hood": {
+            "ece": 0.00281,
+            "brier_score": 0.00964
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.90625,
+          "macro_f1": 0.90837,
+          "exact_match": 0.53125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.92708,
+          "precision": 0.93617,
+          "recall": 0.91667,
+          "f1": 0.92632,
+          "roc_auc": 0.94401
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.92308,
+          "recall": 1.0,
+          "f1": 0.96,
+          "roc_auc": 0.95964
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.95918,
+          "recall": 0.97917,
+          "f1": 0.96907,
+          "roc_auc": 0.9987
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.97292,
+      "macro_f1": 0.97309,
+      "macro_roc_auc": 0.98047,
+      "exact_match": 0.86458,
+      "worst_elevation_macro_f1": 0.91995,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.02876,
+        "macro_brier_score": 0.02859,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.03824,
+            "brier_score": 0.01146
+          },
+          "front_right_door": {
+            "ece": 0.05013,
+            "brier_score": 0.06249
+          },
+          "rear_left_door": {
+            "ece": 0.03568,
+            "brier_score": 0.04372
+          },
+          "rear_right_door": {
+            "ece": 0.01695,
+            "brier_score": 0.01561
+          },
+          "hood": {
+            "ece": 0.00281,
+            "brier_score": 0.00964
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.91875,
+          "macro_f1": 0.91995,
+          "exact_match": 0.59375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.54,
+          "accuracy": 0.9375,
+          "precision": 0.95652,
+          "recall": 0.91667,
+          "f1": 0.93617,
+          "roc_auc": 0.94401
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.92308,
+          "recall": 1.0,
+          "f1": 0.96,
+          "roc_auc": 0.95964
+        },
+        "rear_right_door": {
+          "threshold": 0.46,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.9987
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.97083,
+      "macro_f1": 0.97082,
+      "macro_roc_auc": 0.98411,
+      "exact_match": 0.86458,
+      "worst_elevation_macro_f1": 0.91218,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.0245,
+        "macro_brier_score": 0.02477,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01892,
+            "brier_score": 0.01193
+          },
+          "front_right_door": {
+            "ece": 0.04938,
+            "brier_score": 0.05981
+          },
+          "rear_left_door": {
+            "ece": 0.0248,
+            "brier_score": 0.03327
+          },
+          "rear_right_door": {
+            "ece": 0.01639,
+            "brier_score": 0.01855
+          },
+          "hood": {
+            "ece": 0.01301,
+            "brier_score": 0.0003
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.9125,
+          "macro_f1": 0.91218,
+          "exact_match": 0.59375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.97917,
+          "recall": 0.97917,
+          "f1": 0.97917,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.9375,
+          "precision": 0.95652,
+          "recall": 0.91667,
+          "f1": 0.93617,
+          "roc_auc": 0.94835
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.94118,
+          "recall": 1.0,
+          "f1": 0.9697,
+          "roc_auc": 0.97483
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.95918,
+          "recall": 0.97917,
+          "f1": 0.96907,
+          "roc_auc": 0.99783
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.96875,
+      "macro_f1": 0.96884,
+      "macro_roc_auc": 0.98411,
+      "exact_match": 0.85417,
+      "worst_elevation_macro_f1": 0.90683,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.0245,
+        "macro_brier_score": 0.02477,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01892,
+            "brier_score": 0.01193
+          },
+          "front_right_door": {
+            "ece": 0.04938,
+            "brier_score": 0.05981
+          },
+          "rear_left_door": {
+            "ece": 0.0248,
+            "brier_score": 0.03327
+          },
+          "rear_right_door": {
+            "ece": 0.01639,
+            "brier_score": 0.01855
+          },
+          "hood": {
+            "ece": 0.01301,
+            "brier_score": 0.0003
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.90625,
+          "macro_f1": 0.90683,
+          "exact_match": 0.5625
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.97917,
+          "recall": 0.97917,
+          "f1": 0.97917,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.54,
+          "accuracy": 0.9375,
+          "precision": 0.95652,
+          "recall": 0.91667,
+          "f1": 0.93617,
+          "roc_auc": 0.94835
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.94118,
+          "recall": 1.0,
+          "f1": 0.9697,
+          "roc_auc": 0.97483
+        },
+        "rear_right_door": {
+          "threshold": 0.46,
+          "accuracy": 0.95833,
+          "precision": 0.94,
+          "recall": 0.97917,
+          "f1": 0.95918,
+          "roc_auc": 0.99783
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:24:03.016202+00:00"
+  },
+  {
+    "exp_id": "Abl1_ResNet_Grid6x6",
+    "group": "P1-06_Isolated_Ablation",
+    "description": "Residual Backbone + 6x6 Hybrid Grid (CoordConv=OFF, MultiScale=OFF, CBAM=OFF, FiLM=OFF)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 6031109,
+    "params_m": 6.031,
+    "train_time_s": 271.71,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.7,
+      "front_right_door": 0.78,
+      "rear_left_door": 0.32,
+      "rear_right_door": 0.44,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95208,
+      "macro_f1": 0.95175,
+      "macro_roc_auc": 0.96016,
+      "exact_match": 0.78125,
+      "worst_elevation_macro_f1": 0.881,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.0412,
+        "macro_brier_score": 0.04205,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0268,
+            "brier_score": 0.02044
+          },
+          "front_right_door": {
+            "ece": 0.07964,
+            "brier_score": 0.08771
+          },
+          "rear_left_door": {
+            "ece": 0.07477,
+            "brier_score": 0.07978
+          },
+          "rear_right_door": {
+            "ece": 0.00834,
+            "brier_score": 0.02185
+          },
+          "hood": {
+            "ece": 0.01642,
+            "brier_score": 0.00048
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.88125,
+          "macro_f1": 0.881,
+          "exact_match": 0.46875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97143,
+          "exact_match": 0.875
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.97872,
+          "recall": 0.95833,
+          "f1": 0.96842,
+          "roc_auc": 0.99653
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.90625,
+          "precision": 0.91489,
+          "recall": 0.89583,
+          "f1": 0.90526,
+          "roc_auc": 0.90972
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.91667,
+          "precision": 0.91667,
+          "recall": 0.91667,
+          "f1": 0.91667,
+          "roc_auc": 0.90929
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.97872,
+          "recall": 0.95833,
+          "f1": 0.96842,
+          "roc_auc": 0.98524
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.96042,
+      "macro_f1": 0.95984,
+      "macro_roc_auc": 0.96016,
+      "exact_match": 0.80208,
+      "worst_elevation_macro_f1": 0.89554,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.0412,
+        "macro_brier_score": 0.04205,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.0268,
+            "brier_score": 0.02044
+          },
+          "front_right_door": {
+            "ece": 0.07964,
+            "brier_score": 0.08771
+          },
+          "rear_left_door": {
+            "ece": 0.07477,
+            "brier_score": 0.07978
+          },
+          "rear_right_door": {
+            "ece": 0.00834,
+            "brier_score": 0.02185
+          },
+          "hood": {
+            "ece": 0.01642,
+            "brier_score": 0.00048
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.9,
+          "macro_f1": 0.89554,
+          "exact_match": 0.5
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.97931,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.7,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99653
+        },
+        "front_right_door": {
+          "threshold": 0.78,
+          "accuracy": 0.91667,
+          "precision": 0.95455,
+          "recall": 0.875,
+          "f1": 0.91304,
+          "roc_auc": 0.90972
+        },
+        "rear_left_door": {
+          "threshold": 0.32,
+          "accuracy": 0.92708,
+          "precision": 0.91837,
+          "recall": 0.9375,
+          "f1": 0.92784,
+          "roc_auc": 0.90929
+        },
+        "rear_right_door": {
+          "threshold": 0.44,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.98524
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95833,
+      "macro_f1": 0.95781,
+      "macro_roc_auc": 0.96762,
+      "exact_match": 0.80208,
+      "worst_elevation_macro_f1": 0.89813,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.03172,
+        "macro_brier_score": 0.03565,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02231,
+            "brier_score": 0.01177
+          },
+          "front_right_door": {
+            "ece": 0.04945,
+            "brier_score": 0.08199
+          },
+          "rear_left_door": {
+            "ece": 0.05162,
+            "brier_score": 0.0693
+          },
+          "rear_right_door": {
+            "ece": 0.02027,
+            "brier_score": 0.01497
+          },
+          "hood": {
+            "ece": 0.01495,
+            "brier_score": 0.00023
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.9,
+          "macro_f1": 0.89813,
+          "exact_match": 0.53125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97143,
+          "exact_match": 0.875
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.90625,
+          "precision": 0.91489,
+          "recall": 0.89583,
+          "f1": 0.90526,
+          "roc_auc": 0.91797
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.92708,
+          "precision": 0.93617,
+          "recall": 0.91667,
+          "f1": 0.92632,
+          "roc_auc": 0.92187
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99826
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95208,
+      "macro_f1": 0.95129,
+      "macro_roc_auc": 0.96762,
+      "exact_match": 0.79167,
+      "worst_elevation_macro_f1": 0.87657,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.03172,
+        "macro_brier_score": 0.03565,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02231,
+            "brier_score": 0.01177
+          },
+          "front_right_door": {
+            "ece": 0.04945,
+            "brier_score": 0.08199
+          },
+          "rear_left_door": {
+            "ece": 0.05162,
+            "brier_score": 0.0693
+          },
+          "rear_right_door": {
+            "ece": 0.02027,
+            "brier_score": 0.01497
+          },
+          "hood": {
+            "ece": 0.01495,
+            "brier_score": 0.00023
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.88125,
+          "macro_f1": 0.87657,
+          "exact_match": 0.5
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97143,
+          "exact_match": 0.875
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.7,
+          "accuracy": 0.96875,
+          "precision": 1.0,
+          "recall": 0.9375,
+          "f1": 0.96774,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.78,
+          "accuracy": 0.90625,
+          "precision": 0.93333,
+          "recall": 0.875,
+          "f1": 0.90323,
+          "roc_auc": 0.91797
+        },
+        "rear_left_door": {
+          "threshold": 0.32,
+          "accuracy": 0.92708,
+          "precision": 0.93617,
+          "recall": 0.91667,
+          "f1": 0.92632,
+          "roc_auc": 0.92187
+        },
+        "rear_right_door": {
+          "threshold": 0.44,
+          "accuracy": 0.95833,
+          "precision": 0.94,
+          "recall": 0.97917,
+          "f1": 0.95918,
+          "roc_auc": 0.99826
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:28:45.261306+00:00"
+  },
+  {
+    "exp_id": "Abl2_Plus_MultiScale",
+    "group": "P1-06_Isolated_Ablation",
+    "description": "Residual + 6x6 Grid + Stage-4/5 Multi-Scale Fusion (CoordConv=OFF, CBAM=OFF, FiLM=OFF)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 6047493,
+    "params_m": 6.047,
+    "train_time_s": 209.0,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.5,
+      "front_right_door": 0.7,
+      "rear_left_door": 0.66,
+      "rear_right_door": 0.54,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.92917,
+      "macro_f1": 0.9324,
+      "macro_roc_auc": 0.95564,
+      "exact_match": 0.67708,
+      "worst_elevation_macro_f1": 0.84668,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.05429,
+        "macro_brier_score": 0.06039,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01888,
+            "brier_score": 0.00131
+          },
+          "front_right_door": {
+            "ece": 0.10314,
+            "brier_score": 0.11081
+          },
+          "rear_left_door": {
+            "ece": 0.12037,
+            "brier_score": 0.1301
+          },
+          "rear_right_door": {
+            "ece": 0.02481,
+            "brier_score": 0.04975
+          },
+          "hood": {
+            "ece": 0.00424,
+            "brier_score": 0.00995
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8375,
+          "macro_f1": 0.84668,
+          "exact_match": 0.28125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98061,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.97297,
+          "exact_match": 0.84375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.875,
+          "precision": 0.875,
+          "recall": 0.875,
+          "f1": 0.875,
+          "roc_auc": 0.88238
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.84375,
+          "precision": 0.77966,
+          "recall": 0.95833,
+          "f1": 0.85981,
+          "roc_auc": 0.90972
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.9375,
+          "precision": 0.9375,
+          "recall": 0.9375,
+          "f1": 0.9375,
+          "roc_auc": 0.98611
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.93958,
+      "macro_f1": 0.94089,
+      "macro_roc_auc": 0.95564,
+      "exact_match": 0.71875,
+      "worst_elevation_macro_f1": 0.85501,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.05429,
+        "macro_brier_score": 0.06039,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01888,
+            "brier_score": 0.00131
+          },
+          "front_right_door": {
+            "ece": 0.10314,
+            "brier_score": 0.11081
+          },
+          "rear_left_door": {
+            "ece": 0.12037,
+            "brier_score": 0.1301
+          },
+          "rear_right_door": {
+            "ece": 0.02481,
+            "brier_score": 0.04975
+          },
+          "hood": {
+            "ece": 0.00424,
+            "brier_score": 0.00995
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.85,
+          "macro_f1": 0.85501,
+          "exact_match": 0.3125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.97931,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98824,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.7,
+          "accuracy": 0.89583,
+          "precision": 0.91304,
+          "recall": 0.875,
+          "f1": 0.89362,
+          "roc_auc": 0.88238
+        },
+        "rear_left_door": {
+          "threshold": 0.66,
+          "accuracy": 0.86458,
+          "precision": 0.81818,
+          "recall": 0.9375,
+          "f1": 0.87379,
+          "roc_auc": 0.90972
+        },
+        "rear_right_door": {
+          "threshold": 0.54,
+          "accuracy": 0.94792,
+          "precision": 0.95745,
+          "recall": 0.9375,
+          "f1": 0.94737,
+          "roc_auc": 0.98611
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.93333,
+      "macro_f1": 0.9363,
+      "macro_roc_auc": 0.9572,
+      "exact_match": 0.6875,
+      "worst_elevation_macro_f1": 0.85677,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.0551,
+        "macro_brier_score": 0.05633,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01606,
+            "brier_score": 0.00038
+          },
+          "front_right_door": {
+            "ece": 0.0859,
+            "brier_score": 0.1079
+          },
+          "rear_left_door": {
+            "ece": 0.1246,
+            "brier_score": 0.13138
+          },
+          "rear_right_door": {
+            "ece": 0.03232,
+            "brier_score": 0.04121
+          },
+          "hood": {
+            "ece": 0.0166,
+            "brier_score": 0.00076
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.85,
+          "macro_f1": 0.85677,
+          "exact_match": 0.3125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98061,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.97297,
+          "exact_match": 0.84375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.88542,
+          "precision": 0.89362,
+          "recall": 0.875,
+          "f1": 0.88421,
+          "roc_auc": 0.87326
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.84375,
+          "precision": 0.77966,
+          "recall": 0.95833,
+          "f1": 0.85981,
+          "roc_auc": 0.92144
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.9375,
+          "precision": 0.9375,
+          "recall": 0.9375,
+          "f1": 0.9375,
+          "roc_auc": 0.99132
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.93333,
+      "macro_f1": 0.93519,
+      "macro_roc_auc": 0.9572,
+      "exact_match": 0.69792,
+      "worst_elevation_macro_f1": 0.84414,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.0551,
+        "macro_brier_score": 0.05633,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01606,
+            "brier_score": 0.00038
+          },
+          "front_right_door": {
+            "ece": 0.0859,
+            "brier_score": 0.1079
+          },
+          "rear_left_door": {
+            "ece": 0.1246,
+            "brier_score": 0.13138
+          },
+          "rear_right_door": {
+            "ece": 0.03232,
+            "brier_score": 0.04121
+          },
+          "hood": {
+            "ece": 0.0166,
+            "brier_score": 0.00076
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.84375,
+          "macro_f1": 0.84414,
+          "exact_match": 0.3125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98061,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97778,
+          "exact_match": 0.875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.7,
+          "accuracy": 0.88542,
+          "precision": 0.91111,
+          "recall": 0.85417,
+          "f1": 0.88172,
+          "roc_auc": 0.87326
+        },
+        "rear_left_door": {
+          "threshold": 0.66,
+          "accuracy": 0.85417,
+          "precision": 0.7931,
+          "recall": 0.95833,
+          "f1": 0.86792,
+          "roc_auc": 0.92144
+        },
+        "rear_right_door": {
+          "threshold": 0.54,
+          "accuracy": 0.92708,
+          "precision": 0.93617,
+          "recall": 0.91667,
+          "f1": 0.92632,
+          "roc_auc": 0.99132
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:32:23.784383+00:00"
+  },
+  {
+    "exp_id": "Abl3_Plus_CoordConv",
+    "group": "P1-06_Isolated_Ablation",
+    "description": "Residual + 6x6 Grid + Multi-Scale + 5-Ch CoordConv (CBAM=OFF, FiLM=OFF)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 6048133,
+    "params_m": 6.048,
+    "train_time_s": 104.14,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.5,
+      "front_right_door": 0.76,
+      "rear_left_door": 0.72,
+      "rear_right_door": 0.44,
+      "hood": 0.64
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.92083,
+      "macro_f1": 0.92206,
+      "macro_roc_auc": 0.95729,
+      "exact_match": 0.65625,
+      "worst_elevation_macro_f1": 0.82531,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.05663,
+        "macro_brier_score": 0.06418,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02575,
+            "brier_score": 0.01659
+          },
+          "front_right_door": {
+            "ece": 0.10275,
+            "brier_score": 0.13666
+          },
+          "rear_left_door": {
+            "ece": 0.1272,
+            "brier_score": 0.136
+          },
+          "rear_right_door": {
+            "ece": 0.00653,
+            "brier_score": 0.02725
+          },
+          "hood": {
+            "ece": 0.02093,
+            "brier_score": 0.00439
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.81875,
+          "macro_f1": 0.82531,
+          "exact_match": 0.25
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.95625,
+          "macro_f1": 0.95484,
+          "exact_match": 0.78125
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98824,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.9987
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.84375,
+          "precision": 0.82353,
+          "recall": 0.875,
+          "f1": 0.84848,
+          "roc_auc": 0.88194
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.83333,
+          "precision": 0.83333,
+          "recall": 0.83333,
+          "f1": 0.83333,
+          "roc_auc": 0.92057
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.94,
+          "recall": 0.97917,
+          "f1": 0.95918,
+          "roc_auc": 0.98524
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.93333,
+      "macro_f1": 0.9327,
+      "macro_roc_auc": 0.95729,
+      "exact_match": 0.70833,
+      "worst_elevation_macro_f1": 0.83722,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.05663,
+        "macro_brier_score": 0.06418,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02575,
+            "brier_score": 0.01659
+          },
+          "front_right_door": {
+            "ece": 0.10275,
+            "brier_score": 0.13666
+          },
+          "rear_left_door": {
+            "ece": 0.1272,
+            "brier_score": 0.136
+          },
+          "rear_right_door": {
+            "ece": 0.00653,
+            "brier_score": 0.02725
+          },
+          "hood": {
+            "ece": 0.02093,
+            "brier_score": 0.00439
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8375,
+          "macro_f1": 0.83722,
+          "exact_match": 0.3125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9625,
+          "macro_f1": 0.96,
+          "exact_match": 0.8125
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.9987
+        },
+        "front_right_door": {
+          "threshold": 0.76,
+          "accuracy": 0.86458,
+          "precision": 0.87234,
+          "recall": 0.85417,
+          "f1": 0.86316,
+          "roc_auc": 0.88194
+        },
+        "rear_left_door": {
+          "threshold": 0.72,
+          "accuracy": 0.85417,
+          "precision": 0.86957,
+          "recall": 0.83333,
+          "f1": 0.85106,
+          "roc_auc": 0.92057
+        },
+        "rear_right_door": {
+          "threshold": 0.44,
+          "accuracy": 0.96875,
+          "precision": 0.94118,
+          "recall": 1.0,
+          "f1": 0.9697,
+          "roc_auc": 0.98524
+        },
+        "hood": {
+          "threshold": 0.64,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.91667,
+      "macro_f1": 0.91861,
+      "macro_roc_auc": 0.96085,
+      "exact_match": 0.64583,
+      "worst_elevation_macro_f1": 0.81338,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.06164,
+        "macro_brier_score": 0.06267,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01431,
+            "brier_score": 0.0153
+          },
+          "front_right_door": {
+            "ece": 0.1238,
+            "brier_score": 0.15099
+          },
+          "rear_left_door": {
+            "ece": 0.11926,
+            "brier_score": 0.127
+          },
+          "rear_right_door": {
+            "ece": 0.03586,
+            "brier_score": 0.0198
+          },
+          "hood": {
+            "ece": 0.01497,
+            "brier_score": 0.00025
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8,
+          "macro_f1": 0.81338,
+          "exact_match": 0.1875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9625,
+          "macro_f1": 0.96,
+          "exact_match": 0.8125
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98824,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.95918,
+          "recall": 0.97917,
+          "f1": 0.96907,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.8125,
+          "precision": 0.77778,
+          "recall": 0.875,
+          "f1": 0.82353,
+          "roc_auc": 0.8776
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.84375,
+          "precision": 0.85106,
+          "recall": 0.83333,
+          "f1": 0.84211,
+          "roc_auc": 0.93099
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.95833,
+          "recall": 0.95833,
+          "f1": 0.95833,
+          "roc_auc": 0.9974
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.92917,
+      "macro_f1": 0.92875,
+      "macro_roc_auc": 0.96085,
+      "exact_match": 0.69792,
+      "worst_elevation_macro_f1": 0.83716,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.06164,
+        "macro_brier_score": 0.06267,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.01431,
+            "brier_score": 0.0153
+          },
+          "front_right_door": {
+            "ece": 0.1238,
+            "brier_score": 0.15099
+          },
+          "rear_left_door": {
+            "ece": 0.11926,
+            "brier_score": 0.127
+          },
+          "rear_right_door": {
+            "ece": 0.03586,
+            "brier_score": 0.0198
+          },
+          "hood": {
+            "ece": 0.01497,
+            "brier_score": 0.00025
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.83125,
+          "macro_f1": 0.83716,
+          "exact_match": 0.3125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9625,
+          "macro_f1": 0.96,
+          "exact_match": 0.8125
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.99375,
+          "macro_f1": 0.99355,
+          "exact_match": 0.96875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.96875,
+          "precision": 0.95918,
+          "recall": 0.97917,
+          "f1": 0.96907,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.76,
+          "accuracy": 0.85417,
+          "precision": 0.84,
+          "recall": 0.875,
+          "f1": 0.85714,
+          "roc_auc": 0.8776
+        },
+        "rear_left_door": {
+          "threshold": 0.72,
+          "accuracy": 0.85417,
+          "precision": 0.88636,
+          "recall": 0.8125,
+          "f1": 0.84783,
+          "roc_auc": 0.93099
+        },
+        "rear_right_door": {
+          "threshold": 0.44,
+          "accuracy": 0.96875,
+          "precision": 0.94118,
+          "recall": 1.0,
+          "f1": 0.9697,
+          "roc_auc": 0.9974
+        },
+        "hood": {
+          "threshold": 0.64,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:34:12.771924+00:00"
+  },
+  {
+    "exp_id": "Abl4_Plus_CBAM",
+    "group": "P1-06_Isolated_Ablation",
+    "description": "Residual + 6x6 Grid + Multi-Scale + CoordConv + Unit-Centered CBAM (FiLM=OFF)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 6114263,
+    "params_m": 6.114,
+    "train_time_s": 105.08,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.78,
+      "front_right_door": 0.2,
+      "rear_left_door": 0.8,
+      "rear_right_door": 0.5,
+      "hood": 0.56
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.91042,
+      "macro_f1": 0.91108,
+      "macro_roc_auc": 0.96441,
+      "exact_match": 0.64583,
+      "worst_elevation_macro_f1": 0.79142,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.06779,
+        "macro_brier_score": 0.06909,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.03245,
+            "brier_score": 0.02201
+          },
+          "front_right_door": {
+            "ece": 0.07992,
+            "brier_score": 0.11758
+          },
+          "rear_left_door": {
+            "ece": 0.15793,
+            "brier_score": 0.1634
+          },
+          "rear_right_door": {
+            "ece": 0.04852,
+            "brier_score": 0.03907
+          },
+          "hood": {
+            "ece": 0.02015,
+            "brier_score": 0.00342
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.7875,
+          "macro_f1": 0.79142,
+          "exact_match": 0.21875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.95,
+          "macro_f1": 0.95,
+          "exact_match": 0.75
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.99375,
+          "macro_f1": 0.99355,
+          "exact_match": 0.96875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.94,
+          "recall": 0.97917,
+          "f1": 0.95918,
+          "roc_auc": 0.99783
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.85417,
+          "precision": 0.86957,
+          "recall": 0.83333,
+          "f1": 0.85106,
+          "roc_auc": 0.91319
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.80208,
+          "precision": 0.78431,
+          "recall": 0.83333,
+          "f1": 0.80808,
+          "roc_auc": 0.92014
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.94792,
+          "precision": 0.95745,
+          "recall": 0.9375,
+          "f1": 0.94737,
+          "roc_auc": 0.99089
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.925,
+      "macro_f1": 0.92617,
+      "macro_roc_auc": 0.96441,
+      "exact_match": 0.6875,
+      "worst_elevation_macro_f1": 0.84104,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.06779,
+        "macro_brier_score": 0.06909,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.03245,
+            "brier_score": 0.02201
+          },
+          "front_right_door": {
+            "ece": 0.07992,
+            "brier_score": 0.11758
+          },
+          "rear_left_door": {
+            "ece": 0.15793,
+            "brier_score": 0.1634
+          },
+          "rear_right_door": {
+            "ece": 0.04852,
+            "brier_score": 0.03907
+          },
+          "hood": {
+            "ece": 0.02015,
+            "brier_score": 0.00342
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8375,
+          "macro_f1": 0.84104,
+          "exact_match": 0.375
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9375,
+          "macro_f1": 0.93824,
+          "exact_match": 0.6875
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.78,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99783
+        },
+        "front_right_door": {
+          "threshold": 0.2,
+          "accuracy": 0.875,
+          "precision": 0.84615,
+          "recall": 0.91667,
+          "f1": 0.88,
+          "roc_auc": 0.91319
+        },
+        "rear_left_door": {
+          "threshold": 0.8,
+          "accuracy": 0.82292,
+          "precision": 0.81633,
+          "recall": 0.83333,
+          "f1": 0.82474,
+          "roc_auc": 0.92014
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.94792,
+          "precision": 0.95745,
+          "recall": 0.9375,
+          "f1": 0.94737,
+          "roc_auc": 0.99089
+        },
+        "hood": {
+          "threshold": 0.56,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.91875,
+      "macro_f1": 0.91925,
+      "macro_roc_auc": 0.95981,
+      "exact_match": 0.66667,
+      "worst_elevation_macro_f1": 0.81754,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.06648,
+        "macro_brier_score": 0.06664,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02257,
+            "brier_score": 0.01539
+          },
+          "front_right_door": {
+            "ece": 0.10732,
+            "brier_score": 0.11554
+          },
+          "rear_left_door": {
+            "ece": 0.15587,
+            "brier_score": 0.1567
+          },
+          "rear_right_door": {
+            "ece": 0.03198,
+            "brier_score": 0.04532
+          },
+          "hood": {
+            "ece": 0.01466,
+            "brier_score": 0.00024
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8125,
+          "macro_f1": 0.81754,
+          "exact_match": 0.28125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.95,
+          "macro_f1": 0.95,
+          "exact_match": 0.75
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.99375,
+          "macro_f1": 0.99355,
+          "exact_match": 0.96875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.97917,
+          "recall": 0.97917,
+          "f1": 0.97917,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.875,
+          "precision": 0.8913,
+          "recall": 0.85417,
+          "f1": 0.87234,
+          "roc_auc": 0.88802
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.82292,
+          "precision": 0.81633,
+          "recall": 0.83333,
+          "f1": 0.82474,
+          "roc_auc": 0.92491
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.91667,
+          "precision": 0.88462,
+          "recall": 0.95833,
+          "f1": 0.92,
+          "roc_auc": 0.98785
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.90625,
+      "macro_f1": 0.90825,
+      "macro_roc_auc": 0.95981,
+      "exact_match": 0.625,
+      "worst_elevation_macro_f1": 0.79744,
+      "pose_azimuth_accuracy": 0.125,
+      "calibration": {
+        "macro_ece": 0.06648,
+        "macro_brier_score": 0.06664,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02257,
+            "brier_score": 0.01539
+          },
+          "front_right_door": {
+            "ece": 0.10732,
+            "brier_score": 0.11554
+          },
+          "rear_left_door": {
+            "ece": 0.15587,
+            "brier_score": 0.1567
+          },
+          "rear_right_door": {
+            "ece": 0.03198,
+            "brier_score": 0.04532
+          },
+          "hood": {
+            "ece": 0.01466,
+            "brier_score": 0.00024
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.79375,
+          "macro_f1": 0.79744,
+          "exact_match": 0.25
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.9375,
+          "macro_f1": 0.93824,
+          "exact_match": 0.6875
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98824,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.78,
+          "accuracy": 0.95833,
+          "precision": 1.0,
+          "recall": 0.91667,
+          "f1": 0.95652,
+          "roc_auc": 0.99826
+        },
+        "front_right_door": {
+          "threshold": 0.2,
+          "accuracy": 0.83333,
+          "precision": 0.80769,
+          "recall": 0.875,
+          "f1": 0.84,
+          "roc_auc": 0.88802
+        },
+        "rear_left_door": {
+          "threshold": 0.8,
+          "accuracy": 0.82292,
+          "precision": 0.81633,
+          "recall": 0.83333,
+          "f1": 0.82474,
+          "roc_auc": 0.92491
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.91667,
+          "precision": 0.88462,
+          "recall": 0.95833,
+          "f1": 0.92,
+          "roc_auc": 0.98785
+        },
+        "hood": {
+          "threshold": 0.56,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:36:02.754430+00:00"
+  },
+  {
+    "exp_id": "Abl5_Full_PASCAN_v1",
+    "group": "P1-06_Isolated_Ablation",
+    "description": "Full PA-SCAN v1 (+ Pose-Conditioned FiLM on full_vehicle ROI)",
+    "protocol": "T0",
+    "roi_policy": "full_vehicle",
+    "seed": 42,
+    "epochs": 35,
+    "params": 7498591,
+    "params_m": 7.499,
+    "train_time_s": 287.74,
+    "frozen_val_thresholds": {
+      "front_left_door": 0.5,
+      "front_right_door": 0.3,
+      "rear_left_door": 0.74,
+      "rear_right_door": 0.42,
+      "hood": 0.5
+    },
+    "val_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94792,
+      "macro_f1": 0.94681,
+      "macro_roc_auc": 0.96163,
+      "exact_match": 0.76042,
+      "worst_elevation_macro_f1": 0.87873,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05083,
+        "macro_brier_score": 0.04587,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02943,
+            "brier_score": 0.00565
+          },
+          "front_right_door": {
+            "ece": 0.11486,
+            "brier_score": 0.12327
+          },
+          "rear_left_door": {
+            "ece": 0.04983,
+            "brier_score": 0.07563
+          },
+          "rear_right_door": {
+            "ece": 0.04271,
+            "brier_score": 0.02387
+          },
+          "hood": {
+            "ece": 0.01732,
+            "brier_score": 0.0009
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.8875,
+          "macro_f1": 0.87873,
+          "exact_match": 0.5
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.9697,
+          "exact_match": 0.84375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98667,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.85417,
+          "precision": 0.90476,
+          "recall": 0.79167,
+          "f1": 0.84444,
+          "roc_auc": 0.86719
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.90625,
+          "precision": 0.86792,
+          "recall": 0.95833,
+          "f1": 0.91089,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 1.0,
+          "recall": 0.95833,
+          "f1": 0.97872,
+          "roc_auc": 0.99957
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "val_at_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.95625,
+      "macro_f1": 0.95625,
+      "macro_roc_auc": 0.96163,
+      "exact_match": 0.80208,
+      "worst_elevation_macro_f1": 0.89505,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.05083,
+        "macro_brier_score": 0.04587,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02943,
+            "brier_score": 0.00565
+          },
+          "front_right_door": {
+            "ece": 0.11486,
+            "brier_score": 0.12327
+          },
+          "rear_left_door": {
+            "ece": 0.04983,
+            "brier_score": 0.07563
+          },
+          "rear_right_door": {
+            "ece": 0.04271,
+            "brier_score": 0.02387
+          },
+          "hood": {
+            "ece": 0.01732,
+            "brier_score": 0.0009
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.89375,
+          "macro_f1": 0.89505,
+          "exact_match": 0.53125
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98065,
+          "exact_match": 0.90625
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.99375,
+          "macro_f1": 0.99355,
+          "exact_match": 0.96875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.3,
+          "accuracy": 0.875,
+          "precision": 0.8913,
+          "recall": 0.85417,
+          "f1": 0.87234,
+          "roc_auc": 0.86719
+        },
+        "rear_left_door": {
+          "threshold": 0.74,
+          "accuracy": 0.92708,
+          "precision": 0.90196,
+          "recall": 0.95833,
+          "f1": 0.92929,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.42,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99957
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94583,
+      "macro_f1": 0.94435,
+      "macro_roc_auc": 0.96146,
+      "exact_match": 0.76042,
+      "worst_elevation_macro_f1": 0.86992,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.03992,
+        "macro_brier_score": 0.04346,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02007,
+            "brier_score": 0.00935
+          },
+          "front_right_door": {
+            "ece": 0.07111,
+            "brier_score": 0.11187
+          },
+          "rear_left_door": {
+            "ece": 0.05174,
+            "brier_score": 0.06657
+          },
+          "rear_right_door": {
+            "ece": 0.04273,
+            "brier_score": 0.02931
+          },
+          "hood": {
+            "ece": 0.01396,
+            "brier_score": 0.0002
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.88125,
+          "macro_f1": 0.86992,
+          "exact_match": 0.5
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.9697,
+          "exact_match": 0.84375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.9875,
+          "macro_f1": 0.98667,
+          "exact_match": 0.9375
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 1.0,
+          "recall": 0.97917,
+          "f1": 0.98947,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.86458,
+          "precision": 0.92683,
+          "recall": 0.79167,
+          "f1": 0.85393,
+          "roc_auc": 0.87196
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.91667,
+          "precision": 0.88462,
+          "recall": 0.95833,
+          "f1": 0.92,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.95833,
+          "precision": 0.95833,
+          "recall": 0.95833,
+          "f1": 0.95833,
+          "roc_auc": 0.99436
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "test_at_frozen_val_thr": {
+      "n_samples": 96,
+      "mean_accuracy": 0.94583,
+      "macro_f1": 0.94594,
+      "macro_roc_auc": 0.96146,
+      "exact_match": 0.76042,
+      "worst_elevation_macro_f1": 0.87687,
+      "pose_azimuth_accuracy": 0.98958,
+      "calibration": {
+        "macro_ece": 0.03992,
+        "macro_brier_score": 0.04346,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.02007,
+            "brier_score": 0.00935
+          },
+          "front_right_door": {
+            "ece": 0.07111,
+            "brier_score": 0.11187
+          },
+          "rear_left_door": {
+            "ece": 0.05174,
+            "brier_score": 0.06657
+          },
+          "rear_right_door": {
+            "ece": 0.04273,
+            "brier_score": 0.02931
+          },
+          "hood": {
+            "ece": 0.01396,
+            "brier_score": 0.0002
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.875,
+          "macro_f1": 0.87687,
+          "exact_match": 0.46875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 0.96875,
+          "macro_f1": 0.96774,
+          "exact_match": 0.84375
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 0.99375,
+          "macro_f1": 0.99355,
+          "exact_match": 0.96875
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 1.0,
+          "recall": 0.97917,
+          "f1": 0.98947,
+          "roc_auc": 0.99957
+        },
+        "front_right_door": {
+          "threshold": 0.3,
+          "accuracy": 0.875,
+          "precision": 0.8913,
+          "recall": 0.85417,
+          "f1": 0.87234,
+          "roc_auc": 0.87196
+        },
+        "rear_left_door": {
+          "threshold": 0.74,
+          "accuracy": 0.91667,
+          "precision": 0.9,
+          "recall": 0.9375,
+          "f1": 0.91837,
+          "roc_auc": 0.94141
+        },
+        "rear_right_door": {
+          "threshold": 0.42,
+          "accuracy": 0.94792,
+          "precision": 0.92157,
+          "recall": 0.97917,
+          "f1": 0.94949,
+          "roc_auc": 0.99436
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "timestamp_utc": "2026-11-21T11:04:53.802038+00:00"
+  }
+]

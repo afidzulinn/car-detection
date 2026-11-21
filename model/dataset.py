@@ -1,17 +1,11 @@
 """
-CarDataset with:
-  1. Cross-platform support for Windows (nt / spawn) and Ubuntu/Linux (posix / fork),
-     including path separator normalization, Copy-on-Write RAM cache preloading,
-     and persistent DataLoader workers on Ubuntu.
-  2. Automatic filtering of corrupted legacy elevations (elevtop undercarriage &
-     elevlow center-click raycast bugs) while supporting clean 'mid'/'high'/'top'.
-  3. Ground-truth label repair for the 2 legacy Combo-0 resize artifacts
-     (sample_00013_angle225_elevmid.jpg & sample_00014_angle270_elevmid.jpg).
-  4. Paired Angle-Stratified Split across foreground states so that mutual information
-     between camera pose/other doors and rear_right_door on the training set is 0
-     (preventing 4-bit hypercube lookup leakage while testing unseen angles).
-  5. Deterministic Car ROI cropping (crop_car_roi) providing a 3.52x increase
-     in effective 2D spatial resolution on the car body and removing the top UI bar.
+CarDataset (P0-01, P0-02, P0-03, P0-05, P1-02):
+  1. Canonical elevation normalization ('mid', 'high', 'top') with zero silent drops.
+  2. Zero silent label mutation in __getitem__ or loader (P0-02).
+  3. Explicit 3-way split support: split in {'train', 'val', 'test'} loaded from
+     verified disjoint split manifests (T0, T1, T2). Unknown split names raise ValueError (P0-03).
+  4. Configurable ROI policy ('legacy_fixed', 'full_vehicle', 'full_frame', 'adaptive_fg') (P0-06, P1-04).
+  5. Optional pose supervision targets: return_angle (8-class azimuth) and return_elevation (3-class elevation).
 """
 
 import json
@@ -21,18 +15,31 @@ import random
 import sys
 from collections import defaultdict
 from pathlib import Path
+from typing import Optional
 
 import torch
 from PIL import Image
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
-# Ensure local imports work regardless of current working directory on Windows or Ubuntu
 MODEL_DIR = Path(__file__).resolve().parent
-if str(MODEL_DIR) not in sys.path:
-    sys.path.insert(0, str(MODEL_DIR))
+ROOT_DIR = MODEL_DIR.parent
+DATA_COLLECTION_DIR = ROOT_DIR / "data_collection"
+for p in (MODEL_DIR, DATA_COLLECTION_DIR):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 from architecture import LABELS, crop_car_roi
+from audit_dataset import normalize_elevation, source_group_key
+from splits import build_all_split_manifests
+
+ELEVATION_TO_INDEX = {"mid": 0, "high": 1, "top": 2}
+VALID_SPLITS = ("train", "val", "test")
+PROTOCOL_FILES = {
+    "T0": "t0_within_grid.json",
+    "T1": "t1_global_heldout_azimuth.json",
+    "T2": "t2_leave_top_elevation_out.json",
+}
 
 
 class CarDataset(Dataset):
@@ -46,141 +53,113 @@ class CarDataset(Dataset):
         val_ratio: float = 0.25,
         clean_only: bool = True,
         return_angle: bool = False,
-        max_aug_per_sample: int = None,
+        return_elevation: bool = False,
+        max_aug_per_sample: Optional[int] = None,
         preload_cache: bool = True,
+        protocol: str = "T0",
+        roi_policy: str = "legacy_fixed",
+        two_way_compat: bool = False,
     ):
+        """
+        Args:
+            split: Must be one of {'train', 'val', 'test'}. Raises ValueError otherwise (P0-03).
+            protocol: 'T0' (within-grid 3-way 576/96/96), 'T1' (global held-out azimuth),
+                      or 'T2' (leave-top-elevation-out).
+            roi_policy: 'legacy_fixed' | 'full_vehicle' | 'full_frame' | 'adaptive_fg'.
+            two_way_compat: If True, merges 'val' + 'test' (N=192) when split=='val' for legacy
+                            comparison against historical 576/192 runs. Default is False (strict 3-way).
+        """
+        if split not in VALID_SPLITS:
+            raise ValueError(
+                f"Invalid split '{split}'. Expected one of {VALID_SPLITS} (P0-03)."
+            )
+
         self.root = Path(root_dir).resolve()
         self.split = split
+        self.protocol = protocol.upper()
+        self.roi_policy = roi_policy
         self.return_angle = return_angle
+        self.return_elevation = return_elevation
+        self.two_way_compat = two_way_compat
         self._img_cache = {}
 
         ann_path = self.root / "annotations.json"
         with open(ann_path, encoding="utf-8") as f:
             all_data = json.load(f)
 
-        self.data = self._split(
-            all_data, split, val_ratio, seed,
+        self.data = self._load_from_manifest_or_split(
+            all_data=all_data,
+            split=split,
+            seed=seed,
             clean_only=clean_only,
             max_aug_per_sample=max_aug_per_sample,
         )
         self.transform = transform or self._default_transform(split)
 
-        # Preload ROI-cropped 224x224 images into RAM before DataLoader forks workers.
-        # On Ubuntu (fork), all worker processes share this cache via Copy-on-Write (0 disk I/O).
-        # On Windows (num_workers=0), the main process reuses this cache across all epochs.
         if preload_cache:
             for item in self.data:
                 self._load_roi_image(item["file"])
 
-    # ── Helpers ──────────────────────────────────────────────────────────────
+    def _ensure_protocol_manifest(self, seed: int) -> dict:
+        if self.protocol not in PROTOCOL_FILES:
+            raise ValueError(f"Unknown protocol '{self.protocol}'. Expected one of {list(PROTOCOL_FILES)}.")
+        manifest_path = ROOT_DIR / "results" / "manifests" / "splits" / PROTOCOL_FILES[self.protocol]
+        if not manifest_path.exists():
+            build_all_split_manifests(seed=seed)
+        with open(manifest_path, encoding="utf-8") as f:
+            return json.load(f)
 
-    @staticmethod
-    def _combo_key(item: dict) -> tuple:
-        return tuple(item["labels"][l] for l in LABELS)
-
-    @staticmethod
-    def _angle_sig(item: dict) -> tuple:
-        """Unique signature of the original sample an augmented item came from."""
-        return (
-            tuple(item["labels"][l] for l in LABELS),
-            item.get("angle"),
-            item.get("elevation", "mid"),
-        )
-
-    @staticmethod
-    def _is_legacy_combo0_fl_open(item: dict) -> bool:
-        """
-        In the legacy capture, sample_00013 (angle 225) and sample_00014 (angle 270)
-        in Combo 0 (all closed) had front_left_door accidentally clicked open while
-        the browser window was being resized.
-        """
-        is_all_zero = all(item["labels"][l] == 0 for l in LABELS)
-        return (
-            is_all_zero
-            and item.get("elevation", "mid") == "mid"
-            and item.get("angle") in (225, 270)
-        )
-
-    @classmethod
-    def _repair_item(cls, item: dict) -> dict:
-        if cls._is_legacy_combo0_fl_open(item):
-            repaired = dict(item)
-            repaired["labels"] = dict(item["labels"])
-            repaired["labels"]["front_left_door"] = 1
-            return repaired
-        return item
-
-    def _split(
+    def _load_from_manifest_or_split(
         self,
-        all_data,
-        split,
-        val_ratio,
-        seed,
+        all_data: list,
+        split: str,
+        seed: int,
         clean_only: bool = True,
-        max_aug_per_sample: int = None,
-    ):
-        if clean_only:
-            valid_elevs = {"mid", "high", "Slightly High", "Top-Down"}
-            filtered = [
-                d for d in all_data
-                if d.get("elevation", "mid") in valid_elevs
-            ]
-            if filtered:
-                all_data = filtered
+        max_aug_per_sample: Optional[int] = None,
+    ) -> list:
+        manifest = self._ensure_protocol_manifest(seed=seed)
+        splits_dict = manifest["splits"]
+        train_ids = set(splits_dict["train_source_ids"])
+        val_ids = set(splits_dict["val_source_ids"])
+        test_ids = set(splits_dict["test_source_ids"])
 
-        originals = [d for d in all_data if "augmentation" not in d]
-        augmented = [d for d in all_data if "augmentation" in d]
+        if self.two_way_compat and self.protocol == "T0":
+            val_ids = val_ids | test_ids
 
-        rng = random.Random(seed)
+        # Canonicalize elevation & group records by source_id without mutating labels (P0-01, P0-02)
+        originals_by_sid = {}
+        aug_by_sid = defaultdict(list)
 
-        groups = defaultdict(list)
-        for item in originals:
-            groups[self._combo_key(item)].append(item)
+        for d in all_data:
+            canon_elev, _ = normalize_elevation(d.get("elevation"))
+            if canon_elev is None:
+                if clean_only:
+                    continue
+                canon_elev = "mid"
 
-        val_items = []
-        train_orig = []
-        val_sigs = set()
+            rec = dict(d)
+            rec["elevation"] = canon_elev
+            rec["labels"] = {l: int(d["labels"][l]) for l in LABELS}
+            sid = source_group_key(rec, canon_elev)
+            rec["source_id"] = sid
 
-        # Pair combos across rear_right_door (index 3) so that for any given
-        # foreground state (FL, FR, RL, Hood) and training angle, BOTH RR=0 and
-        # RR=1 are present in train (eliminating spurious 4-bit complement leakage
-        # while keeping 2 unseen validation angles per combo and exact 50/50 balance).
-        fg_groups = defaultdict(dict)
-        for key, items in groups.items():
-            fg_key = (key[0], key[1], key[2], key[4])
-            fg_groups[fg_key][key[3]] = items
-
-        for fg_key in sorted(fg_groups.keys()):
-            pair_dict = fg_groups[fg_key]
-            ref_items = list(next(iter(pair_dict.values())))
-            slots = [(it.get("elevation", "mid"), it.get("angle")) for it in ref_items]
-            rng.shuffle(slots)
-            if fg_key == (0, 0, 0, 0):
-                slots.sort(key=lambda s: 1 if (s[0] == "mid" and s[1] in (225, 270)) else 0)
-            n_val = max(1, int(len(slots) * val_ratio))
-            val_slot_set = set(slots[:n_val])
-
-            for rr_val, items in pair_dict.items():
-                for item in items:
-                    slot = (item.get("elevation", "mid"), item.get("angle"))
-                    if slot in val_slot_set:
-                        val_items.append(self._repair_item(item))
-                        val_sigs.add(self._angle_sig(item))
-                    else:
-                        train_orig.append(self._repair_item(item))
+            is_aug = "augmentation" in d and d["augmentation"] not in (None, "none", "")
+            if is_aug:
+                aug_by_sid[sid].append(rec)
+            else:
+                originals_by_sid[sid] = rec
 
         if split == "val":
-            return val_items
+            return [originals_by_sid[sid] for sid in sorted(val_ids) if sid in originals_by_sid]
 
-        # Training set: train originals + augmented copies of TRAIN originals only.
-        train_aug_by_sig = defaultdict(list)
-        for d in augmented:
-            sig = self._angle_sig(d)
-            if sig not in val_sigs:
-                train_aug_by_sig[sig].append(self._repair_item(d))
+        if split == "test":
+            return [originals_by_sid[sid] for sid in sorted(test_ids) if sid in originals_by_sid]
 
+        # split == "train": include train originals + augmented derivatives of TRAIN originals ONLY
+        train_orig = [originals_by_sid[sid] for sid in sorted(train_ids) if sid in originals_by_sid]
         train_aug = []
-        for sig, aug_list in train_aug_by_sig.items():
+        for sid in sorted(train_ids):
+            aug_list = aug_by_sid.get(sid, [])
             if max_aug_per_sample is not None:
                 train_aug.extend(aug_list[:max_aug_per_sample])
             else:
@@ -188,10 +167,8 @@ class CarDataset(Dataset):
 
         return train_orig + train_aug
 
-    # ── Transforms ───────────────────────────────────────────────────────────
-
     @staticmethod
-    def _default_transform(split):
+    def _default_transform(split: str):
         if split == "train":
             return transforms.Compose([
                 transforms.ColorJitter(
@@ -211,22 +188,25 @@ class CarDataset(Dataset):
             ),
         ])
 
-    # ── Dataset interface ────────────────────────────────────────────────────
-
     def __len__(self):
         return len(self.data)
 
     def _load_roi_image(self, rel_file: str) -> Image.Image:
-        # Normalize path separators across Windows ('\') and Ubuntu/Linux ('/')
         norm_rel = rel_file.replace("\\", "/")
-        cached = self._img_cache.get(norm_rel)
+        cache_key = f"{self.roi_policy}:{norm_rel}"
+        cached = self._img_cache.get(cache_key)
         if cached is not None:
             return cached
         full_path = self.root / Path(norm_rel)
+        if not full_path.exists():
+            # Fallback to raw directory if loading raw file from augmented root
+            alt_path = ROOT_DIR / "dataset" / "raw" / Path(norm_rel).name
+            if alt_path.exists():
+                full_path = alt_path
         with Image.open(full_path) as raw_img:
             img = raw_img.convert("RGB")
-            img = crop_car_roi(img).resize((224, 224), Image.BILINEAR)
-        self._img_cache[norm_rel] = img
+            img = crop_car_roi(img, policy=self.roi_policy).resize((224, 224), Image.BILINEAR)
+        self._img_cache[cache_key] = img
         return img
 
     def __getitem__(self, idx):
@@ -236,21 +216,20 @@ class CarDataset(Dataset):
         label = torch.tensor(
             [item["labels"][l] for l in LABELS], dtype=torch.float32
         )
+        angle_deg = int(item.get("angle", 0)) % 360
+        angle_idx = torch.tensor(angle_deg // 45, dtype=torch.long)
+        elev_idx = torch.tensor(ELEVATION_TO_INDEX.get(item.get("elevation", "mid"), 0), dtype=torch.long)
+
+        if self.return_angle and self.return_elevation:
+            return img, label, angle_idx, elev_idx
         if self.return_angle:
-            angle_deg = int(item.get("angle", 0)) % 360
-            angle_idx = torch.tensor(angle_deg // 45, dtype=torch.long)
             return img, label, angle_idx
+        if self.return_elevation:
+            return img, label, elev_idx
         return img, label
 
 
-def resolve_num_workers(requested_workers: int = None) -> int:
-    """
-    Select optimal DataLoader worker count for Windows vs Ubuntu/Linux.
-    - Windows ('nt') uses 'spawn', where num_workers=0 avoids process-spawn overhead
-      and shares the in-memory PIL cache directly.
-    - Ubuntu/Linux ('posix') uses 'fork' with Copy-on-Write memory sharing, so 2-4
-      workers parallelize online ColorJitter/ToTensor transforms efficiently.
-    """
+def resolve_num_workers(requested_workers: Optional[int] = None) -> int:
     if requested_workers is not None:
         return max(0, int(requested_workers))
     if os.name == "nt" or platform.system().lower().startswith("win"):
@@ -262,9 +241,14 @@ def resolve_num_workers(requested_workers: int = None) -> int:
 def get_dataloaders(
     root_dir: str,
     batch_size: int = 32,
-    num_workers: int = None,
+    num_workers: Optional[int] = None,
     return_angle_train: bool = False,
-    max_aug_per_sample: int = None,
+    return_elevation_train: bool = False,
+    max_aug_per_sample: Optional[int] = None,
+    protocol: str = "T0",
+    roi_policy: str = "legacy_fixed",
+    include_test: bool = False,
+    two_way_compat: bool = False,
 ):
     workers = resolve_num_workers(num_workers)
     use_pin_memory = torch.cuda.is_available()
@@ -272,37 +256,70 @@ def get_dataloaders(
 
     train_ds = CarDataset(
         root_dir,
-        "train",
+        split="train",
         return_angle=return_angle_train,
+        return_elevation=return_elevation_train,
         max_aug_per_sample=max_aug_per_sample,
         preload_cache=True,
+        protocol=protocol,
+        roi_policy=roi_policy,
+        two_way_compat=two_way_compat,
     )
     val_ds = CarDataset(
         root_dir,
-        "val",
+        split="val",
         return_angle=False,
         preload_cache=True,
+        protocol=protocol,
+        roi_policy=roi_policy,
+        two_way_compat=two_way_compat,
     )
-    print(
-        f"Dataset → train: {len(train_ds)} | val: {len(val_ds)} "
-        f"| workers: {workers} ({platform.system()}) "
-        f"(val is angle-stratified, clean ROI, 50/50 per-label)"
+
+    train_dl = DataLoader(
+        train_ds,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=workers,
+        pin_memory=use_pin_memory,
+        persistent_workers=use_persistent,
     )
-    return (
-        DataLoader(
-            train_ds,
-            batch_size=batch_size,
-            shuffle=True,
-            num_workers=workers,
-            pin_memory=use_pin_memory,
-            persistent_workers=use_persistent,
-        ),
-        DataLoader(
-            val_ds,
+    val_dl = DataLoader(
+        val_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=workers,
+        pin_memory=use_pin_memory,
+        persistent_workers=use_persistent,
+    )
+
+    if include_test:
+        test_ds = CarDataset(
+            root_dir,
+            split="test",
+            return_angle=False,
+            preload_cache=True,
+            protocol=protocol,
+            roi_policy=roi_policy,
+            two_way_compat=False,
+        )
+        test_dl = DataLoader(
+            test_ds,
             batch_size=batch_size,
             shuffle=False,
             num_workers=workers,
             pin_memory=use_pin_memory,
             persistent_workers=use_persistent,
-        ),
+        )
+        print(
+            f"Dataset [{protocol} | ROI={roi_policy}] -> "
+            f"train: {len(train_ds)} | val: {len(val_ds)} | test: {len(test_ds)} "
+            f"| workers: {workers} ({platform.system()})"
+        )
+        return train_dl, val_dl, test_dl
+
+    print(
+        f"Dataset [{protocol} | ROI={roi_policy}] -> "
+        f"train: {len(train_ds)} | val: {len(val_ds)} "
+        f"| workers: {workers} ({platform.system()})"
     )
+    return train_dl, val_dl

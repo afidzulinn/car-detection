@@ -1,188 +1,638 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VLM Car Descriptor — Objective 2</title>
+  <title>VLM Vehicle State Descriptor: Objective 2 Telemetry</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root,
+    [data-theme="dark"] {
+      --bg-canvas: #0B0F14;
+      --bg-surface: #121820;
+      --bg-subsurface: #1A222D;
+      --bg-viewport: #0E131A;
+      --text-primary: #F1F5F9;
+      --text-secondary: #A3B3C6;
+      --border-subtle: #2A3646;
+      --border-control: #647B97;
+      --accent-primary: #F59E0B;
+      --accent-text: #FBBF24;
+      --accent-contrast: #0B0F14;
+      --accent-focus: #FBBF24;
+      --status-open-bg: #065F46;
+      --status-open-text: #ECFDF5;
+      --status-open-border: #10B981;
+      --status-err-bg: #7F1D1D;
+      --status-err-text: #FEE2E2;
+      --status-err-border: #F87171;
+    }
+
+    [data-theme="light"] {
+      --bg-canvas: #F4F6F8;
+      --bg-surface: #FFFFFF;
+      --bg-subsurface: #EDF1F5;
+      --bg-viewport: #16191E;
+      --text-primary: #0F172A;
+      --text-secondary: #334155;
+      --border-subtle: #CBD5E1;
+      --border-control: #64748B;
+      --accent-primary: #0F172A;
+      --accent-text: #92400E;
+      --accent-contrast: #FFFFFF;
+      --accent-focus: #B45309;
+      --status-open-bg: #065F46;
+      --status-open-text: #FFFFFF;
+      --status-open-border: #047857;
+      --status-err-bg: #991B1B;
+      --status-err-text: #FFFFFF;
+      --status-err-border: #B91C1C;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f172a; color: #e2e8f0;
-      min-height: 100vh; display: flex;
-      flex-direction: column; align-items: center;
-      padding: 40px 20px; gap: 24px;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
     }
-    h1 { color: #a78bfa; font-size: 1.8rem; }
-    .subtitle { color: #64748b; font-size: 0.9rem; }
-    .card {
-      background: #1e293b; border-radius: 16px;
-      padding: 24px; width: 100%; max-width: 560px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+
+    a[href],
+    button:not(:disabled),
+    select:not(:disabled),
+    label[for] {
+      cursor: pointer;
     }
-    .card-title {
-      font-size: 1rem; font-weight: 700; color: #cbd5e1;
-      margin-bottom: 20px; border-bottom: 1px solid #334155;
-      padding-bottom: 12px;
+
+    button:disabled,
+    select:disabled,
+    input:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
     }
-    .capture-btn {
-      width: 100%; padding: 14px;
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
-      color: white; font-size: 1rem; font-weight: 700;
-      border: none; border-radius: 10px; cursor: pointer;
-      transition: opacity 0.2s; letter-spacing: 0.02em;
+
+    :focus-visible {
+      outline: 2px solid var(--accent-focus);
+      outline-offset: 2px;
     }
-    .capture-btn:hover   { opacity: 0.85; }
-    .capture-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .loading {
-      margin-top: 20px; text-align: center;
-      color: #94a3b8; font-size: 0.9rem; display: none;
+
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 16px;
+      background: var(--accent-primary);
+      color: var(--accent-contrast);
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-decoration: none;
+      z-index: 1000;
     }
-    .spinner {
-      display: inline-block; width: 20px; height: 20px;
-      border: 3px solid #334155; border-top-color: #a78bfa;
-      border-radius: 50%; animation: spin 0.8s linear infinite;
-      vertical-align: middle; margin-right: 8px;
+
+    .skip-link:focus-visible {
+      top: 12px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .preview { margin-top: 20px; display: none; }
-    .preview img {
-      width: 100%; border-radius: 10px;
-      border: 1px solid #334155;
+
+    .tabular {
+      font-family: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+      font-variant-numeric: tabular-nums;
     }
-    .preview-label {
-      font-size: 0.75rem; color: #64748b;
-      margin-bottom: 8px;
+
+    .site-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 24px;
     }
-    .description-box {
-      margin-top: 16px; padding: 18px;
-      background: #0f172a; border-radius: 10px;
-      border-left: 4px solid #7c3aed;
-      font-size: 0.95rem; line-height: 1.75;
-      color: #cbd5e1; display: none;
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .spec-tag {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-text);
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-subsurface);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .nav-link:hover {
+      border-color: var(--border-control);
+      color: var(--text-primary);
+    }
+
+    .nav-link[aria-current="page"] {
+      background-color: var(--accent-primary);
+      color: var(--accent-contrast);
+      border-color: var(--accent-primary);
+    }
+
+    .theme-btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .workspace {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.78fr) minmax(360px, 1fr);
+      gap: 20px;
+      flex: 1;
+      align-items: start;
+    }
+
+    .panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .panel-title {
+      font-size: clamp(1rem, 1.3vw, 1.12rem);
+      font-weight: 700;
+    }
+
+    .toolbar-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.84rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--accent-focus);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-primary);
+      color: var(--accent-contrast);
+      border-color: var(--accent-primary);
+      font-weight: 700;
+    }
+
+    .select-input,
+    .text-input {
+      min-height: 44px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .viewport-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 420px;
+      background-color: var(--bg-viewport);
+      border: 1px solid var(--border-control);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewport-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    .viewport-img.is-visible {
+      display: block;
+    }
+
+    .viewport-img[data-zoom="studio"] {
+      transform: scale(1.85);
+    }
+
+    .viewport-img[data-zoom="detail"] {
+      transform: scale(2.4);
+    }
+
+    .viewport-img[data-zoom="full"] {
+      transform: scale(1.0);
+    }
+
+    .state-panel {
+      max-width: 440px;
+      padding: 24px;
+      text-align: center;
+      color: #F1F5F9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .output-box {
+      background-color: var(--bg-subsurface);
+      border: 1px solid var(--border-control);
+      border-radius: 6px;
+      padding: 16px;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      min-height: 140px;
       white-space: pre-wrap;
     }
-    .instructions {
-      background: #1e293b; border-radius: 12px;
-      padding: 16px; width: 100%; max-width: 560px;
-      font-size: 0.85rem; color: #64748b;
-      line-height: 1.6; border: 1px solid #334155;
+
+    .error-box {
+      background-color: var(--status-err-bg);
+      color: var(--status-err-text);
+      border: 1px solid var(--status-err-border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+      display: none;
     }
-    .instructions strong { color: #94a3b8; }
-    .ext-id-input {
-      margin-top: 16px; width: 100%;
-      padding: 10px 14px; background: #0f172a;
-      border: 1px solid #334155; border-radius: 8px;
-      color: #e2e8f0; font-size: 0.85rem; outline: none;
+
+    .error-box.is-visible {
+      display: block;
     }
-    .ext-id-input:focus { border-color: #7c3aed; }
-    .input-label { font-size: 0.78rem; color: #64748b; margin-bottom: 4px; }
+
+    .ext-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .site-footer {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 14px 24px 24px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 1079px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 679px) {
+      .site-header { padding: 12px 16px; }
+      .workspace { padding: 14px 16px; }
+      .panel { padding: 14px; }
+      .viewport-stage { min-height: 260px; aspect-ratio: 4 / 3; }
+      .toolbar-grid { flex-direction: column; align-items: stretch; }
+      .control-group, .btn, .select-input, .text-input { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main workspace</a>
 
-  <h1>🔍 VLM Car Descriptor</h1>
-  <p class="subtitle">Objective #2 — Fine-tuned Vision Language Model</p>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-title-row">
+          <h1>VLM Vehicle State Descriptor</h1>
+          <span class="spec-tag tabular">Objective 2 · PaliGemma-3B LoRA / Structured Synthesis</span>
+        </div>
+        <p class="subtitle">Natural-language multi-component status synthesis from 3D vehicle inspection frames</p>
+      </div>
 
-  <div class="instructions">
-    <strong>How to use:</strong> Navigate to the 3D car model page in another tab,
-    set the component states you want to analyze, then return here and click
-    "Capture & Describe". The VLM will analyze the screenshot and describe
-    each component's open/closed status in natural language.
-  </div>
-
-  <div class="card">
-    <div class="card-title">Configuration</div>
-    <p class="input-label">Chrome Extension ID (from chrome://extensions)</p>
-    <input
-      type="text"
-      class="ext-id-input"
-      id="extIdInput"
-      placeholder="e.g. abcdefghijklmnopqrstuvwxyz123456"
-    >
-  </div>
-
-  <div class="card">
-    <div class="card-title">Capture & Describe</div>
-
-    <button class="capture-btn" id="captureBtn">
-      📸 Capture Current 3D View & Describe
-    </button>
-
-    <div class="loading" id="loading">
-      <span class="spinner"></span>
-      Analyzing car components with VLM...
+      <div class="header-controls">
+        <nav class="nav-bar" aria-label="Research objectives">
+          <a href="index.html" class="nav-link">1. PA-SCAN Detection</a>
+          <a href="vlm.html" class="nav-link" aria-current="page">2. VLM Description</a>
+          <a href="grounding.html" class="nav-link">3. Visual Grounding</a>
+        </nav>
+        <button type="button" class="theme-btn" id="themeToggleBtn" aria-label="Switch color theme">
+          Theme: Dark
+        </button>
+      </div>
     </div>
+  </header>
 
-    <div class="preview" id="preview">
-      <p class="preview-label">Captured Screenshot:</p>
-      <img id="previewImg" src="" alt="Captured screenshot">
-    </div>
+  <main id="main-content" class="workspace">
+    <!-- Left Column: Large 3D Car Viewport -->
+    <section class="panel" aria-labelledby="vlm-viewport-heading">
+      <div class="panel-header">
+        <h2 class="panel-title" id="vlm-viewport-heading">3D Vehicle Frame Input</h2>
+        <span class="spec-tag tabular" id="sampleMetaBadge">Sample: Standby</span>
+      </div>
 
-    <div class="description-box" id="descBox"></div>
-  </div>
+      <div class="toolbar-grid">
+        <div class="control-group">
+          <label class="control-label" for="sampleDescribeBtn">Dataset Simulator</label>
+          <button type="button" class="btn btn-primary" id="sampleDescribeBtn">
+            Sample &amp; Describe Next 3D Car
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="zoomSelect">Optical Viewport Zoom</label>
+          <select id="zoomSelect" class="select-input">
+            <option value="studio" selected>1.85x Studio Close-Up</option>
+            <option value="detail">2.40x Detail Zoom</option>
+            <option value="full">1.00x Raw Frame</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="viewport-stage">
+        <div class="state-panel" id="emptyState">
+          <strong style="font-size:1rem;">No 3D Frame Loaded</strong>
+          <p style="font-size:0.86rem; color:#CBD5E1;">
+            Select "Sample &amp; Describe Next 3D Car" to evaluate a 3D vehicle frame from the dataset, or capture a live tab via the Chrome Extension.
+          </p>
+        </div>
+        <img
+          id="previewImg"
+          class="viewport-img"
+          data-zoom="studio"
+          src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+          width="1264"
+          height="625"
+          fetchpriority="high"
+          alt="Captured 3D vehicle frame for VLM natural-language description"
+        >
+      </div>
+    </section>
+
+    <!-- Right Column: Natural Language Output & Extension Capture -->
+    <section class="panel" aria-labelledby="vlm-output-heading">
+      <div class="panel-header">
+        <h2 class="panel-title" id="vlm-output-heading">Synthesized Vehicle State Report</h2>
+        <span class="spec-tag tabular" id="vlmStatusTag">Idle</span>
+      </div>
+
+      <div class="error-box" id="errorBox" role="alert"></div>
+
+      <div class="output-box" id="descBox" aria-live="polite">Select "Sample &amp; Describe Next 3D Car" on the left to generate a natural-language inspection report for all five vehicle closures.</div>
+
+      <div class="ext-section">
+        <label class="control-label" for="extIdInput">Optional: Chrome Extension ID (from chrome://extensions for external tab capture)</label>
+        <input
+          type="text"
+          class="text-input tabular"
+          id="extIdInput"
+          placeholder="e.g. abcdefghijklmnopqrstuvwxyz123456"
+        >
+        <button type="button" class="btn" id="captureExtBtn">
+          Capture External Tab via Chrome Extension
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Objective 2: Vision-Language Model Vehicle Component State Description</span>
+    <span class="tabular">Endpoint: POST /api/vlm/describe</span>
+  </footer>
 
   <script>
-    const API = "http://localhost:8000";
+    const htmlEl = document.documentElement;
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const savedTheme = localStorage.getItem("pascan_theme") || "dark";
+    applyTheme(savedTheme);
 
-    document.getElementById("captureBtn").onclick = async () => {
-      const btn     = document.getElementById("captureBtn");
-      const loading = document.getElementById("loading");
-      const preview = document.getElementById("preview");
-      const descBox = document.getElementById("descBox");
-      const prevImg = document.getElementById("previewImg");
-      const extId   = document.getElementById("extIdInput").value.trim();
+    function applyTheme(theme) {
+      htmlEl.setAttribute("data-theme", theme);
+      localStorage.setItem("pascan_theme", theme);
+      themeToggleBtn.textContent = theme === "dark" ? "Theme: Dark" : "Theme: Light";
+    }
 
+    themeToggleBtn.addEventListener("click", () => {
+      const current = htmlEl.getAttribute("data-theme") === "light" ? "light" : "dark";
+      applyTheme(current === "dark" ? "light" : "dark");
+    });
+
+    const previewImg = document.getElementById("previewImg");
+    const emptyState = document.getElementById("emptyState");
+    const zoomSelect = document.getElementById("zoomSelect");
+    const descBox = document.getElementById("descBox");
+    const errorBox = document.getElementById("errorBox");
+    const vlmStatusTag = document.getElementById("vlmStatusTag");
+    const sampleMetaBadge = document.getElementById("sampleMetaBadge");
+    const sampleDescribeBtn = document.getElementById("sampleDescribeBtn");
+    const captureExtBtn = document.getElementById("captureExtBtn");
+
+    zoomSelect.addEventListener("change", () => {
+      previewImg.setAttribute("data-zoom", zoomSelect.value);
+    });
+
+    async function describeBase64Image(b64Image, labelText) {
+      errorBox.classList.remove("is-visible");
+      vlmStatusTag.textContent = "Running VLM...";
+      descBox.textContent = "Generating natural-language component state description...";
+
+      emptyState.style.display = "none";
+      previewImg.src = b64Image;
+      previewImg.classList.add("is-visible");
+      sampleMetaBadge.textContent = labelText;
+
+      const res = await fetch("/api/vlm/describe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_b64: b64Image })
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.description || "VLM inference failed.");
+      }
+      descBox.textContent = data.description;
+      vlmStatusTag.textContent = "Completed";
+    }
+
+    sampleDescribeBtn.addEventListener("click", async () => {
+      sampleDescribeBtn.disabled = true;
+      errorBox.classList.remove("is-visible");
+      vlmStatusTag.textContent = "Loading Sample...";
+      try {
+        const res = await fetch("/api/demo/sample", { method: "POST" });
+        const sample = await res.json();
+        if (!sample.success) {
+          throw new Error(sample.error || "Could not load sample.");
+        }
+        const metaStr = `${sample.sample_file} (${sample.angle}° · ${String(sample.elevation).toUpperCase()})`;
+        await describeBase64Image(sample.image_b64, metaStr);
+      } catch (err) {
+        errorBox.textContent = `Request failed: ${err.message}`;
+        errorBox.classList.add("is-visible");
+        vlmStatusTag.textContent = "Error";
+      } finally {
+        sampleDescribeBtn.disabled = false;
+      }
+    });
+
+    captureExtBtn.addEventListener("click", async () => {
+      const extId = document.getElementById("extIdInput").value.trim();
+      errorBox.classList.remove("is-visible");
       if (!extId) {
-        alert("Please enter your Chrome Extension ID first.");
+        errorBox.textContent = "Enter a valid Chrome Extension ID in the input field above, or use 'Sample & Describe Next 3D Car' to test directly.";
+        errorBox.classList.add("is-visible");
         return;
       }
 
-      btn.disabled = true;
-      loading.style.display = "block";
-      preview.style.display = "none";
-      descBox.style.display = "none";
-
+      captureExtBtn.disabled = true;
       try {
-        const b64Image = await captureViaExtension(extId);
-        prevImg.src = b64Image;
-        preview.style.display = "block";
-
-        const res = await fetch(`${API}/api/vlm/describe`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_b64: b64Image })
+        const b64Image = await new Promise((resolve, reject) => {
+          if (!window.chrome || !window.chrome.runtime) {
+            reject(new Error("Chrome extension runtime API is not available in this tab."));
+            return;
+          }
+          chrome.runtime.sendMessage(extId, { action: "CAPTURE_ONCE" }, (response) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+            } else if (response && response.image) {
+              resolve(response.image);
+            } else {
+              reject(new Error("No frame returned by extension."));
+            }
+          });
         });
-
-        const data = await res.json();
-        descBox.textContent = data.success ? data.description : "Error: " + data.description;
-        descBox.style.display = "block";
-
+        await describeBase64Image(b64Image, "Chrome Extension Capture");
       } catch (err) {
-        descBox.textContent = "Failed: " + err.message;
-        descBox.style.display = "block";
+        errorBox.textContent = `Extension capture failed: ${err.message}`;
+        errorBox.classList.add("is-visible");
+        vlmStatusTag.textContent = "Error";
       } finally {
-        loading.style.display = "none";
-        btn.disabled = false;
+        captureExtBtn.disabled = false;
       }
-    };
-
-    function captureViaExtension(extId) {
-      return new Promise((resolve, reject) => {
-        if (!window.chrome?.runtime) {
-          reject(new Error("Chrome extension API not available. Open this page in Chrome."));
-          return;
-        }
-        chrome.runtime.sendMessage(extId, { action: "CAPTURE_ONCE" }, (response) => {
-          if (chrome.runtime.lastError)
-            reject(new Error(chrome.runtime.lastError.message));
-          else if (response?.image)
-            resolve(response.image);
-          else
-            reject(new Error("No image returned: " + (response?.error || "unknown")));
-        });
-      });
-    }
+    });
   </script>
 </body>
 </html>

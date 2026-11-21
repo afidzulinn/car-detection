@@ -13,14 +13,44 @@ function connectWS() {
   ws.onerror = (e) => console.error("WS error:", e);
 }
 
+let targetTabId = null;
+
 async function captureAndSend() {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) return;
+    // If targetTabId was set when Start was clicked, find that window
+    let windowId = null;
+    if (targetTabId) {
+      try {
+        const targetTab = await chrome.tabs.get(targetTabId);
+        // If the target tab is active in its window, capture that window
+        if (targetTab && targetTab.active) {
+          windowId = targetTab.windowId;
+        }
+      } catch (err) {
+        targetTabId = null; // Tab might have been closed
+      }
+    }
 
-    const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, {
+    // Otherwise, find the active tab that is NOT the dashboard (localhost:8000)
+    if (!windowId) {
+      const tabs = await chrome.tabs.query({ active: true });
+      const carTab = tabs.find(t => t.url && !t.url.includes("localhost:8000") && !t.url.includes("127.0.0.1:8000"));
+      if (carTab) {
+        windowId = carTab.windowId;
+      } else if (tabs.length > 0) {
+        // Fallback: don't capture if user is solely looking at localhost:8000 dashboard to prevent infinite mirroring loop
+        if (tabs[0].url && (tabs[0].url.includes("localhost:8000") || tabs[0].url.includes("127.0.0.1:8000"))) {
+          return;
+        }
+        windowId = tabs[0].windowId;
+      }
+    }
+
+    if (!windowId) return;
+
+    const dataUrl = await chrome.tabs.captureVisibleTab(windowId, {
       format: "jpeg",
-      quality: 80
+      quality: 85
     });
 
     if (ws?.readyState === WebSocket.OPEN) {
@@ -31,13 +61,21 @@ async function captureAndSend() {
   }
 }
 
-chrome.runtime.onMessage.addListener((msg) => {
+chrome.runtime.onMessage.addListener(async (msg) => {
   if (msg.action === "START") {
+    // Capture the tab where user clicked Start
+    const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (currentTab && !currentTab.url?.includes("localhost:8000")) {
+      targetTabId = currentTab.id;
+    }
     connectWS();
+    if (captureInterval) clearInterval(captureInterval);
     captureInterval = setInterval(captureAndSend, 1000); // 1 FPS
   }
   if (msg.action === "STOP") {
-    clearInterval(captureInterval);
+    if (captureInterval) clearInterval(captureInterval);
+    captureInterval = null;
+    targetTabId = null;
     ws?.close();
   }
 });

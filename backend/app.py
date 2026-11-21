@@ -3,6 +3,7 @@ from pathlib import Path
 from PIL import Image
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from torchvision import transforms
 import numpy as np
@@ -11,8 +12,9 @@ import sys
 ROOT_DIR = Path(__file__).resolve().parents[1]
 MODEL_DIR = ROOT_DIR / "model"
 sys.path.insert(0, str(MODEL_DIR))
-from architecture import CarComponentCNN, LABELS, crop_car_roi
+from architecture import CarComponentCNN, LABELS, crop_car_roi, ROI_BOX_NORM
 from change_detector import ChangeDetectorWrapper
+from decision_policy import confidence_of_predicted_class, predict_from_prob
 
 # ── Setup ────────────────────────────────────────────────────
 app = FastAPI(title="Car Component Detector API")
@@ -23,14 +25,32 @@ app.add_middleware(
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Load CNN model
+# Load CNN model & track mtime for live hot-reload
 cnn_model = CarComponentCNN().to(DEVICE)
 ckpt = ROOT_DIR / "checkpoints" / "best_model.pt"
-if ckpt.exists():
-    cnn_model.load_state_dict(torch.load(ckpt, map_location=DEVICE, weights_only=True))
-    print(f"Model loaded from {ckpt}")
-else:
-    print("WARNING: No checkpoint found. Model weights are random.")
+thr_file = ROOT_DIR / "checkpoints" / "thresholds.json"
+_ckpt_mtime = 0.0
+_thr_mtime = 0.0
+_opt_thresholds = [0.5] * len(LABELS)
+
+def _ensure_latest_weights():
+    global _ckpt_mtime, _thr_mtime, _opt_thresholds
+    if ckpt.exists():
+        mtime = ckpt.stat().st_mtime
+        if mtime > _ckpt_mtime:
+            cnn_model.load_state_dict(torch.load(ckpt, map_location=DEVICE, weights_only=True))
+            cnn_model.eval()
+            _ckpt_mtime = mtime
+            print(f"Model loaded from {ckpt}")
+    if thr_file.exists():
+        t_mtime = thr_file.stat().st_mtime
+        if t_mtime > _thr_mtime:
+            with open(thr_file, encoding="utf-8") as f:
+                t_map = json.load(f)
+            _opt_thresholds = [float(t_map.get(l, 0.5)) for l in LABELS]
+            _thr_mtime = t_mtime
+
+_ensure_latest_weights()
 cnn_model.eval()
 
 preprocess = transforms.Compose([
@@ -54,14 +74,22 @@ def decode_image(b64_str: str) -> Image.Image:
 def image_to_tensor(img: Image.Image) -> torch.Tensor:
     return preprocess(crop_car_roi(img)).unsqueeze(0).to(DEVICE)
 
-def run_cnn_inference(img: Image.Image, threshold=0.5) -> dict:
+def run_cnn_inference(img: Image.Image, threshold=None) -> dict:
+    _ensure_latest_weights()
     tensor = image_to_tensor(img)
     with torch.no_grad():
         logits = cnn_model(tensor)
         probs  = torch.sigmoid(logits).squeeze().cpu().numpy()
-    preds = (probs > threshold).astype(int)
+    thrs = [threshold] * len(LABELS) if threshold is not None else _opt_thresholds
+    preds = [predict_from_prob(float(probs[i]), thrs[i]) for i in range(len(LABELS))]
     return {
-        LABELS[i]: {"status": "open" if preds[i] else "closed", "confidence": float(probs[i])}
+        LABELS[i]: {
+            "status": "open" if preds[i] else "closed",
+            "confidence": float(probs[i]),
+            "prob_open": float(probs[i]),
+            "class_confidence": confidence_of_predicted_class(float(probs[i]), preds[i]),
+            "threshold": float(thrs[i]),
+        }
         for i in range(len(LABELS))
     }
 
@@ -109,13 +137,19 @@ async def extension_ws(ws: WebSocket):
         while True:
             b64_frame = await ws.receive_text()
             img = decode_image(b64_frame)
+            t0 = asyncio.get_event_loop().time()
             new_pred, changed = run_smoothed_inference(img)
+            infer_ms = round((asyncio.get_event_loop().time() - t0) * 1000.0, 2)
             previous_prediction = {**latest_prediction}
             latest_prediction = new_pred
+            img_src = b64_frame if b64_frame.startswith("data:") else f"data:image/jpeg;base64,{b64_frame}"
             payload = {
                 "predictions": new_pred,
                 "changed_components": changed,
-                "timestamp": asyncio.get_event_loop().time()
+                "timestamp": asyncio.get_event_loop().time(),
+                "inference_ms": infer_ms,
+                "source": "extension",
+                "image_b64": img_src,
             }
             await broadcast_to_dashboards(payload)
     except WebSocketDisconnect:
@@ -137,6 +171,55 @@ async def dashboard_ws(ws: WebSocket):
     except (WebSocketDisconnect, Exception):
         if ws in dashboard_clients:
             dashboard_clients.remove(ws)
+
+
+# ── Objective 1: Direct Image Inspection Endpoint ─────────────
+class InspectRequest(BaseModel):
+    image_b64: str
+    filename: str = ""
+
+@app.post("/api/cnn/predict")
+async def cnn_predict(req: InspectRequest):
+    global latest_prediction, previous_prediction
+    try:
+        img = decode_image(req.image_b64)
+        t0 = asyncio.get_event_loop().time()
+        pred = run_cnn_inference(img)
+        infer_ms = round((asyncio.get_event_loop().time() - t0) * 1000.0, 2)
+        changed = detect_changes(latest_prediction, pred)
+        previous_prediction = {**latest_prediction}
+        latest_prediction = pred
+
+        # Match ground truth if filename exists in annotations.json
+        gt = None
+        angle = None
+        elevation = None
+        if req.filename:
+            ann_file = ROOT_DIR / "dataset" / "raw" / "annotations.json"
+            if ann_file.exists():
+                with open(ann_file, encoding="utf-8") as f:
+                    anns = json.load(f)
+                fname_only = Path(req.filename).name
+                for item in anns:
+                    if Path(item["file"]).name == fname_only:
+                        gt = item["labels"]
+                        angle = item.get("angle", 0)
+                        elevation = item.get("elevation", "mid")
+                        break
+
+        return {
+            "success": True,
+            "sample_file": req.filename or "uploaded_frame.jpg",
+            "angle": angle,
+            "elevation": elevation,
+            "ground_truth": gt,
+            "predictions": pred,
+            "changed_components": changed,
+            "inference_ms": infer_ms,
+            "roi_norm": list(ROI_BOX_NORM),
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 # ── Objective 2: VLM Endpoint ─────────────────────────────────
@@ -233,7 +316,7 @@ def run_grounding_inference(img: Image.Image, prompt: str):
     return b64, boxes.tolist(), phrases
 
 
-# ── Health Check ──────────────────────────────────────────────
+# ── Health Check & Live Demo Simulator ───────────────────────
 @app.get("/health")
 def health():
     return {
@@ -242,3 +325,80 @@ def health():
         "dashboard_clients": len(dashboard_clients),
         "model_loaded": ckpt.exists()
     }
+
+
+_demo_cursor = 0
+
+@app.post("/api/demo/sample")
+async def demo_sample(direction: str = "next", elevation: str = "all"):
+    """
+    Feeds a real 3D car sample from dataset/raw through the PA-SCAN pipeline,
+    broadcasts the prediction over /ws/dashboard, and returns high-clarity preview + ground truth.
+    Supports optional query params: direction ('next' | 'prev') and elevation ('all' | 'mid' | 'high' | 'top').
+    """
+    global _demo_cursor, latest_prediction, previous_prediction
+    raw_dir = ROOT_DIR / "dataset" / "raw"
+    ann_file = raw_dir / "annotations.json"
+    if not ann_file.exists():
+        return {"success": False, "error": "dataset/raw/annotations.json not found"}
+
+    with open(ann_file, encoding="utf-8") as f:
+        anns = json.load(f)
+
+    elev_filter = elevation.strip().lower()
+    if elev_filter in ("mid", "high", "top"):
+        filtered = [a for a in anns if str(a.get("elevation", "mid")).lower() == elev_filter]
+        if filtered:
+            anns = filtered
+
+    step = -1 if direction.strip().lower() == "prev" else 1
+    idx = (_demo_cursor * 19) % len(anns)
+    _demo_cursor = (_demo_cursor + step) % max(len(anns), 1)
+    item = anns[idx]
+    img_path = raw_dir / Path(item["file"]).name
+    img = Image.open(img_path).convert("RGB")
+
+    # Single-frame inference + latency measurement
+    t0 = asyncio.get_event_loop().time()
+    pred = run_cnn_inference(img)
+    infer_ms = round((asyncio.get_event_loop().time() - t0) * 1000.0, 2)
+    changed = detect_changes(latest_prediction, pred)
+    previous_prediction = {**latest_prediction}
+    latest_prediction = pred
+
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=95)
+    b64_img = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    payload = {
+        "predictions": pred,
+        "changed_components": changed,
+        "timestamp": asyncio.get_event_loop().time(),
+        "inference_ms": infer_ms,
+        "source": "simulator",
+        "sample_file": Path(item["file"]).name,
+        "angle": item.get("angle", 0),
+        "elevation": item.get("elevation", "mid"),
+        "ground_truth": item["labels"],
+    }
+    await broadcast_to_dashboards(payload)
+
+    return {
+        "success": True,
+        "sample_file": Path(item["file"]).name,
+        "angle": item.get("angle", 0),
+        "elevation": item.get("elevation", "mid"),
+        "ground_truth": item["labels"],
+        "predictions": pred,
+        "changed_components": changed,
+        "inference_ms": infer_ms,
+        "roi_norm": list(ROI_BOX_NORM),
+        "image_b64": b64_img,
+    }
+
+
+# Serve frontend static files at root (must be declared after API routes)
+FRONTEND_DIR = ROOT_DIR / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+

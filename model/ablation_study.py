@@ -344,7 +344,7 @@ def generate_latex_ablation_table(results: list[dict]) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Run Automated Ablation Study for Paper 1")
     parser.add_argument("--data-dir", type=str, default=DEFAULT_DATA)
-    parser.add_argument("--epochs", type=int, default=40)
+    parser.add_argument("--epochs", type=int, default=45)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--lr", type=float, default=2.5e-3)
     parser.add_argument("--retrain-all", action="store_true", help="Force retraining Variant 4 from scratch")

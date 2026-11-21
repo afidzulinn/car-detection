@@ -1,0 +1,269 @@
+{
+  "overall": {
+    "count": 192,
+    "mean_acc": 0.9802083333333333,
+    "macro_f1": 0.9802778879196404,
+    "exact_match": 0.9010416666666666,
+    "per_label_acc": {
+      "front_left_door": 0.9479166666666666,
+      "front_right_door": 0.984375,
+      "rear_left_door": 0.9791666666666666,
+      "rear_right_door": 0.9895833333333334,
+      "hood": 1.0
+    }
+  },
+  "by_elevation": {
+    "mid": {
+      "count": 64,
+      "mean_acc": 0.940625,
+      "macro_f1": 0.941234170058797,
+      "exact_match": 0.703125,
+      "per_label_acc": {
+        "front_left_door": 0.84375,
+        "front_right_door": 0.953125,
+        "rear_left_door": 0.9375,
+        "rear_right_door": 0.96875,
+        "hood": 1.0
+      }
+    },
+    "high": {
+      "count": 64,
+      "mean_acc": 1.0,
+      "macro_f1": 1.0,
+      "exact_match": 1.0,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    },
+    "top": {
+      "count": 64,
+      "mean_acc": 1.0,
+      "macro_f1": 1.0,
+      "exact_match": 1.0,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    }
+  },
+  "by_angle": {
+    "0": {
+      "count": 20,
+      "mean_acc": 0.98,
+      "macro_f1": 0.9818181818181818,
+      "exact_match": 0.9,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 0.9,
+        "hood": 1.0
+      }
+    },
+    "45": {
+      "count": 22,
+      "mean_acc": 1.0,
+      "macro_f1": 1.0,
+      "exact_match": 1.0,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    },
+    "90": {
+      "count": 26,
+      "mean_acc": 1.0,
+      "macro_f1": 1.0,
+      "exact_match": 1.0,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    },
+    "135": {
+      "count": 32,
+      "mean_acc": 0.94375,
+      "macro_f1": 0.9280000000000002,
+      "exact_match": 0.71875,
+      "per_label_acc": {
+        "front_left_door": 0.71875,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    },
+    "180": {
+      "count": 28,
+      "mean_acc": 0.9642857142857143,
+      "macro_f1": 0.9675925925925926,
+      "exact_match": 0.8214285714285714,
+      "per_label_acc": {
+        "front_left_door": 0.9642857142857143,
+        "front_right_door": 1.0,
+        "rear_left_door": 0.8571428571428571,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    },
+    "225": {
+      "count": 28,
+      "mean_acc": 1.0,
+      "macro_f1": 1.0,
+      "exact_match": 1.0,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    },
+    "270": {
+      "count": 14,
+      "mean_acc": 1.0,
+      "macro_f1": 1.0,
+      "exact_match": 1.0,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 1.0,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    },
+    "315": {
+      "count": 22,
+      "mean_acc": 0.9727272727272728,
+      "macro_f1": 0.9777777777777779,
+      "exact_match": 0.8636363636363636,
+      "per_label_acc": {
+        "front_left_door": 1.0,
+        "front_right_door": 0.8636363636363636,
+        "rear_left_door": 1.0,
+        "rear_right_door": 1.0,
+        "hood": 1.0
+      }
+    }
+  },
+  "robustness": [
+    {
+      "count": 192,
+      "mean_acc": 0.9802083333333333,
+      "macro_f1": 0.9802778879196404,
+      "exact_match": 0.9010416666666666,
+      "per_label_acc": {
+        "front_left_door": 0.9479166666666666,
+        "front_right_door": 0.984375,
+        "rear_left_door": 0.9791666666666666,
+        "rear_right_door": 0.9895833333333334,
+        "hood": 1.0
+      },
+      "condition": "Clean Baseline",
+      "delta_mean_acc": 0.0
+    },
+    {
+      "count": 192,
+      "mean_acc": 0.9791666666666666,
+      "macro_f1": 0.979230935299588,
+      "exact_match": 0.8958333333333334,
+      "per_label_acc": {
+        "front_left_door": 0.9479166666666666,
+        "front_right_door": 0.984375,
+        "rear_left_door": 0.9791666666666666,
+        "rear_right_door": 0.984375,
+        "hood": 1.0
+      },
+      "condition": "Gaussian Noise (\u03c3=0.03)",
+      "delta_mean_acc": -0.0010416666666667185
+    },
+    {
+      "count": 192,
+      "mean_acc": 0.9802083333333333,
+      "macro_f1": 0.9803534492322484,
+      "exact_match": 0.9010416666666666,
+      "per_label_acc": {
+        "front_left_door": 0.953125,
+        "front_right_door": 0.984375,
+        "rear_left_door": 0.9739583333333334,
+        "rear_right_door": 0.9895833333333334,
+        "hood": 1.0
+      },
+      "condition": "Gaussian Noise (\u03c3=0.05)",
+      "delta_mean_acc": 0.0
+    },
+    {
+      "count": 192,
+      "mean_acc": 0.9760416666666667,
+      "macro_f1": 0.97610030855868,
+      "exact_match": 0.8802083333333334,
+      "per_label_acc": {
+        "front_left_door": 0.9479166666666666,
+        "front_right_door": 0.9791666666666666,
+        "rear_left_door": 0.9739583333333334,
+        "rear_right_door": 0.9791666666666666,
+        "hood": 1.0
+      },
+      "condition": "Gaussian Noise (\u03c3=0.08)",
+      "delta_mean_acc": -0.004166666666666652
+    },
+    {
+      "count": 192,
+      "mean_acc": 0.9729166666666667,
+      "macro_f1": 0.9726328734940015,
+      "exact_match": 0.875,
+      "per_label_acc": {
+        "front_left_door": 0.921875,
+        "front_right_door": 0.984375,
+        "rear_left_door": 0.96875,
+        "rear_right_door": 0.9895833333333334,
+        "hood": 1.0
+      },
+      "condition": "Low-Light Dimming (0.75x)",
+      "delta_mean_acc": -0.007291666666666696
+    },
+    {
+      "count": 192,
+      "mean_acc": 0.9791666666666666,
+      "macro_f1": 0.9792190069088231,
+      "exact_match": 0.8958333333333334,
+      "per_label_acc": {
+        "front_left_door": 0.953125,
+        "front_right_door": 0.984375,
+        "rear_left_door": 0.96875,
+        "rear_right_door": 0.9895833333333334,
+        "hood": 1.0
+      },
+      "condition": "Overexposure Glare (1.25x)",
+      "delta_mean_acc": -0.0010416666666667185
+    },
+    {
+      "count": 192,
+      "mean_acc": 0.975,
+      "macro_f1": 0.9749190404860508,
+      "exact_match": 0.8854166666666666,
+      "per_label_acc": {
+        "front_left_door": 0.9322916666666666,
+        "front_right_door": 0.984375,
+        "rear_left_door": 0.96875,
+        "rear_right_door": 0.9895833333333334,
+        "hood": 1.0
+      },
+      "condition": "Low Contrast Haze (0.75x)",
+      "delta_mean_acc": -0.00520833333333337
+    }
+  ]
+}

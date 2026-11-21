@@ -8,10 +8,10 @@
 \hline
 \textbf{Architecture Variant} & \textbf{CoordConv} & \textbf{CBAM} & \textbf{FiLM} & \textbf{Params} & \textbf{FL} & \textbf{FR} & \textbf{RL} & \textbf{RR} & \textbf{Hood} & \textbf{Mean Acc ($\Delta$)} & \textbf{Macro F1} & \textbf{ROC-AUC} & \textbf{Exact Match} \\
 \hline
-Baseline Standard CNN & -- & -- & -- & 1.82\,M & 67.2\% & 58.6\% & 68.0\% & 50.0\% & 95.3\% & \textbf{67.81\%} (---) & 0.7627 & 0.7406 & 11.72\% \\
-CNN + CoordConv & \checkmark & -- & -- & 6.05\,M & 95.3\% & 93.0\% & 95.3\% & 82.0\% & 100.0\% & \textbf{93.12\%} (+25.31\%) & 0.9374 & 0.9707 & 67.97\% \\
-CNN + CoordConv + CBAM & \checkmark & \checkmark & -- & 6.11\,M & 94.5\% & 91.4\% & 89.8\% & 93.0\% & 100.0\% & \textbf{93.75\%} (+25.94\%) & 0.9402 & 0.9797 & 69.53\% \\
-Full PA-SCAN (+ FiLM) & \checkmark & \checkmark & \checkmark & 7.50\,M & 95.3\% & 93.0\% & 93.0\% & 95.3\% & 100.0\% & \textbf{95.31\%} (+27.50\%) & 0.9545 & 0.9743 & 76.56\% \\
+Baseline Standard CNN & -- & -- & -- & 1.82\,M & 92.7\% & 50.5\% & 94.3\% & 50.5\% & 72.4\% & \textbf{72.08\%} (---) & 0.7866 & 0.7745 & 14.58\% \\
+CNN + CoordConv & \checkmark & -- & -- & 6.05\,M & 94.3\% & 98.4\% & 97.4\% & 97.9\% & 100.0\% & \textbf{97.60\%} (+25.52\%) & 0.9762 & 0.9889 & 89.06\% \\
+CNN + CoordConv + CBAM & \checkmark & \checkmark & -- & 6.11\,M & 95.8\% & 97.4\% & 96.4\% & 98.4\% & 100.0\% & \textbf{97.60\%} (+25.52\%) & 0.9760 & 0.9941 & 88.54\% \\
+Full PA-SCAN (+ FiLM) & \checkmark & \checkmark & \checkmark & 7.50\,M & 94.8\% & 98.4\% & 97.9\% & 99.0\% & 100.0\% & \textbf{98.02\%} (+25.94\%) & 0.9803 & 0.9932 & 90.10\% \\
 \hline
 \end{tabular}%
 }

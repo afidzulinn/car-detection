@@ -1,0 +1,84 @@
+{
+  "dataset_version": "dataset_v2.0_canonical",
+  "generated_at_utc": "2026-11-21T10:39:39.894272+00:00",
+  "raw_dataset": {
+    "total_records_in_json": 768,
+    "valid_canonical_records": 768,
+    "dropped_records_count": 0,
+    "dropped_records": [],
+    "missing_files": [],
+    "duplicate_sha256_count": 0,
+    "duplicate_sha256_pairs": [],
+    "resolutions": {
+      "1264x625": 768
+    },
+    "elevation_counts": {
+      "mid": 256,
+      "high": 256,
+      "top": 256
+    },
+    "elevation_normalization_reasons": {
+      "CANONICAL_DIRECT": 768
+    },
+    "azimuth_angle_counts": {
+      "0": 96,
+      "45": 96,
+      "90": 96,
+      "135": 96,
+      "180": 96,
+      "225": 96,
+      "270": 96,
+      "315": 96
+    },
+    "expected_32x3x8_slots": 768,
+    "missing_slots_count": 0,
+    "duplicate_slots_count": 0,
+    "label_balance": {
+      "front_left_door": {
+        "open_count": 384,
+        "closed_count": 384,
+        "open_ratio": 0.5
+      },
+      "front_right_door": {
+        "open_count": 384,
+        "closed_count": 384,
+        "open_ratio": 0.5
+      },
+      "rear_left_door": {
+        "open_count": 384,
+        "closed_count": 384,
+        "open_ratio": 0.5
+      },
+      "rear_right_door": {
+        "open_count": 384,
+        "closed_count": 384,
+        "open_ratio": 0.5
+      },
+      "hood": {
+        "open_count": 384,
+        "closed_count": 384,
+        "open_ratio": 0.5
+      }
+    },
+    "silent_label_mutations_in_loader": 0
+  },
+  "augmented_dataset": {
+    "total_records_in_json": 6144,
+    "valid_canonical_records": 6144,
+    "original_renders_in_augmented_dir": 768,
+    "augmented_derivatives_count": 5376,
+    "dropped_records_count": 0,
+    "augmentation_types": {
+      "original": 768,
+      "brightness_high": 768,
+      "brightness_low": 768,
+      "motion_blur": 768,
+      "gaussian_noise": 768,
+      "hue_shift": 768,
+      "perspective": 768,
+      "jpeg_compress": 768
+    },
+    "min_aug_per_source": 7,
+    "max_aug_per_source": 7
+  }
+}

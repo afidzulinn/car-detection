@@ -1,31 +1,31 @@
 [
   {
-    "mean_acc_05": 0.671875,
-    "exact_05": 0.109375,
+    "mean_acc_05": 0.7333333333333333,
+    "exact_05": 0.16145833333333334,
     "per_label_acc_05": {
-      "front_left_door": 0.609375,
-      "front_right_door": 0.625,
-      "rear_left_door": 0.578125,
-      "rear_right_door": 0.59375,
-      "hood": 0.953125
+      "front_left_door": 0.9270833333333334,
+      "front_right_door": 0.5208333333333334,
+      "rear_left_door": 0.9270833333333334,
+      "rear_right_door": 0.5625,
+      "hood": 0.7291666666666666
     },
-    "mean_acc_opt": 0.678125,
-    "exact_opt": 0.1171875,
-    "macro_f1_opt": 0.7626814717956588,
-    "macro_auc": 0.740576171875,
+    "mean_acc_opt": 0.7208333333333333,
+    "exact_opt": 0.14583333333333334,
+    "macro_f1_opt": 0.786639390949378,
+    "macro_auc": 0.7744791666666666,
     "per_label_acc_opt": {
-      "front_left_door": 0.671875,
-      "front_right_door": 0.5859375,
-      "rear_left_door": 0.6796875,
-      "rear_right_door": 0.5,
-      "hood": 0.953125
+      "front_left_door": 0.9270833333333334,
+      "front_right_door": 0.5052083333333334,
+      "rear_left_door": 0.9427083333333334,
+      "rear_right_door": 0.5052083333333334,
+      "hood": 0.7239583333333334
     },
     "per_label_auc": {
-      "front_left_door": 0.72216796875,
-      "front_right_door": 0.640869140625,
-      "rear_left_door": 0.713134765625,
-      "rear_right_door": 0.63525390625,
-      "hood": 0.991455078125
+      "front_left_door": 0.9793836805555556,
+      "front_right_door": 0.5563151041666666,
+      "rear_left_door": 0.9890407986111112,
+      "rear_right_door": 0.5721571180555555,
+      "hood": 0.7754991319444444
     },
     "id": "v1_baseline_cnn",
     "name": "Baseline Standard CNN",
@@ -35,31 +35,31 @@
     "use_film": false
   },
   {
-    "mean_acc_05": 0.928125,
-    "exact_05": 0.6875,
+    "mean_acc_05": 0.971875,
+    "exact_05": 0.8697916666666666,
     "per_label_acc_05": {
-      "front_left_door": 0.9375,
-      "front_right_door": 0.9296875,
-      "rear_left_door": 0.953125,
-      "rear_right_door": 0.8203125,
-      "hood": 1.0
+      "front_left_door": 0.9427083333333334,
+      "front_right_door": 0.984375,
+      "rear_left_door": 0.96875,
+      "rear_right_door": 0.9791666666666666,
+      "hood": 0.984375
     },
-    "mean_acc_opt": 0.93125,
-    "exact_opt": 0.6796875,
-    "macro_f1_opt": 0.9373501186620536,
-    "macro_auc": 0.970654296875,
+    "mean_acc_opt": 0.9760416666666667,
+    "exact_opt": 0.890625,
+    "macro_f1_opt": 0.9762469775307062,
+    "macro_auc": 0.9889322916666666,
     "per_label_acc_opt": {
-      "front_left_door": 0.953125,
-      "front_right_door": 0.9296875,
-      "rear_left_door": 0.953125,
-      "rear_right_door": 0.8203125,
+      "front_left_door": 0.9427083333333334,
+      "front_right_door": 0.984375,
+      "rear_left_door": 0.9739583333333334,
+      "rear_right_door": 0.9791666666666666,
       "hood": 1.0
     },
     "per_label_auc": {
-      "front_left_door": 0.98779296875,
-      "front_right_door": 0.94091796875,
-      "rear_left_door": 0.991455078125,
-      "rear_right_door": 0.93310546875,
+      "front_left_door": 0.9478081597222221,
+      "front_right_door": 0.9995659722222222,
+      "rear_left_door": 0.9981553819444444,
+      "rear_right_door": 0.9991319444444444,
       "hood": 1.0
     },
     "id": "v2_cnn_coordconv",
@@ -70,31 +70,31 @@
     "use_film": false
   },
   {
-    "mean_acc_05": 0.9296875,
-    "exact_05": 0.671875,
+    "mean_acc_05": 0.96875,
+    "exact_05": 0.859375,
     "per_label_acc_05": {
-      "front_left_door": 0.9296875,
-      "front_right_door": 0.9140625,
-      "rear_left_door": 0.875,
-      "rear_right_door": 0.9296875,
+      "front_left_door": 0.9427083333333334,
+      "front_right_door": 0.9739583333333334,
+      "rear_left_door": 0.9479166666666666,
+      "rear_right_door": 0.9791666666666666,
       "hood": 1.0
     },
-    "mean_acc_opt": 0.9375,
-    "exact_opt": 0.6953125,
-    "macro_f1_opt": 0.9401634322135711,
-    "macro_auc": 0.9796875,
+    "mean_acc_opt": 0.9760416666666667,
+    "exact_opt": 0.8854166666666666,
+    "macro_f1_opt": 0.976014115327926,
+    "macro_auc": 0.9941189236111111,
     "per_label_acc_opt": {
-      "front_left_door": 0.9453125,
-      "front_right_door": 0.9140625,
-      "rear_left_door": 0.8984375,
-      "rear_right_door": 0.9296875,
+      "front_left_door": 0.9583333333333334,
+      "front_right_door": 0.9739583333333334,
+      "rear_left_door": 0.9635416666666666,
+      "rear_right_door": 0.984375,
       "hood": 1.0
     },
     "per_label_auc": {
-      "front_left_door": 0.988525390625,
-      "front_right_door": 0.9521484375,
-      "rear_left_door": 0.971923828125,
-      "rear_right_door": 0.98583984375,
+      "front_left_door": 0.9779730902777778,
+      "front_right_door": 0.9981553819444444,
+      "rear_left_door": 0.9953342013888888,
+      "rear_right_door": 0.9991319444444444,
       "hood": 1.0
     },
     "id": "v3_cnn_coordconv_cbam",
@@ -105,31 +105,31 @@
     "use_film": false
   },
   {
-    "mean_acc_05": 0.95,
-    "exact_05": 0.75,
+    "mean_acc_05": 0.9760416666666667,
+    "exact_05": 0.8854166666666666,
     "per_label_acc_05": {
-      "front_left_door": 0.953125,
-      "front_right_door": 0.9296875,
-      "rear_left_door": 0.9140625,
-      "rear_right_door": 0.953125,
+      "front_left_door": 0.9375,
+      "front_right_door": 0.984375,
+      "rear_left_door": 0.9739583333333334,
+      "rear_right_door": 0.984375,
       "hood": 1.0
     },
-    "mean_acc_opt": 0.953125,
-    "exact_opt": 0.765625,
-    "macro_f1_opt": 0.9545061372386273,
-    "macro_auc": 0.974267578125,
+    "mean_acc_opt": 0.9802083333333333,
+    "exact_opt": 0.9010416666666666,
+    "macro_f1_opt": 0.9802778879196404,
+    "macro_auc": 0.9932074652777778,
     "per_label_acc_opt": {
-      "front_left_door": 0.953125,
-      "front_right_door": 0.9296875,
-      "rear_left_door": 0.9296875,
-      "rear_right_door": 0.953125,
+      "front_left_door": 0.9479166666666666,
+      "front_right_door": 0.984375,
+      "rear_left_door": 0.9791666666666666,
+      "rear_right_door": 0.9895833333333334,
       "hood": 1.0
     },
     "per_label_auc": {
-      "front_left_door": 0.9970703125,
-      "front_right_door": 0.912109375,
-      "rear_left_door": 0.97509765625,
-      "rear_right_door": 0.987060546875,
+      "front_left_door": 0.9708116319444445,
+      "front_right_door": 0.9972873263888888,
+      "rear_left_door": 0.9982638888888888,
+      "rear_right_door": 0.9996744791666666,
       "hood": 1.0
     },
     "id": "v4_full_pascan",

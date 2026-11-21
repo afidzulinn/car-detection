@@ -1,0 +1,107 @@
+{
+  "legacy_fixed": {
+    "box_norm": [
+      0.17,
+      0.19,
+      0.83,
+      0.62
+    ],
+    "area_fraction": 0.2838,
+    "spatial_density_gain": 3.52,
+    "overall_mean_retention_pct": 88.11,
+    "overall_min_retention_pct": 50.58,
+    "per_elevation": {
+      "mid": {
+        "samples": 256,
+        "mean_retention_pct": 100.0,
+        "min_retention_pct": 100.0,
+        "truncated_samples_gt_1pct_loss": 0,
+        "truncation_rate_pct": 0.0
+      },
+      "high": {
+        "samples": 256,
+        "mean_retention_pct": 88.96,
+        "min_retention_pct": 68.7,
+        "truncated_samples_gt_1pct_loss": 192,
+        "truncation_rate_pct": 75.0
+      },
+      "top": {
+        "samples": 256,
+        "mean_retention_pct": 75.36,
+        "min_retention_pct": 50.58,
+        "truncated_samples_gt_1pct_loss": 256,
+        "truncation_rate_pct": 100.0
+      }
+    }
+  },
+  "full_frame": {
+    "box_norm": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "area_fraction": 1.0,
+    "spatial_density_gain": 1.0,
+    "overall_mean_retention_pct": 100.0,
+    "overall_min_retention_pct": 100.0,
+    "per_elevation": {
+      "mid": {
+        "samples": 256,
+        "mean_retention_pct": 100.0,
+        "min_retention_pct": 100.0,
+        "truncated_samples_gt_1pct_loss": 0,
+        "truncation_rate_pct": 0.0
+      },
+      "high": {
+        "samples": 256,
+        "mean_retention_pct": 100.0,
+        "min_retention_pct": 100.0,
+        "truncated_samples_gt_1pct_loss": 0,
+        "truncation_rate_pct": 0.0
+      },
+      "top": {
+        "samples": 256,
+        "mean_retention_pct": 100.0,
+        "min_retention_pct": 100.0,
+        "truncated_samples_gt_1pct_loss": 0,
+        "truncation_rate_pct": 0.0
+      }
+    }
+  },
+  "full_vehicle": {
+    "box_norm": [
+      0.24,
+      0.08,
+      0.76,
+      0.92
+    ],
+    "area_fraction": 0.4368,
+    "spatial_density_gain": 2.29,
+    "overall_mean_retention_pct": 100.0,
+    "overall_min_retention_pct": 100.0,
+    "per_elevation": {
+      "mid": {
+        "samples": 256,
+        "mean_retention_pct": 100.0,
+        "min_retention_pct": 100.0,
+        "truncated_samples_gt_1pct_loss": 0,
+        "truncation_rate_pct": 0.0
+      },
+      "high": {
+        "samples": 256,
+        "mean_retention_pct": 100.0,
+        "min_retention_pct": 100.0,
+        "truncated_samples_gt_1pct_loss": 0,
+        "truncation_rate_pct": 0.0
+      },
+      "top": {
+        "samples": 256,
+        "mean_retention_pct": 100.0,
+        "min_retention_pct": 100.0,
+        "truncated_samples_gt_1pct_loss": 0,
+        "truncation_rate_pct": 0.0
+      }
+    }
+  }
+}

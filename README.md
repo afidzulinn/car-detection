@@ -1,8 +1,18 @@
-# Car Component AI Detector
+# Car Component AI Detector (PA-SCAN Telemetry Workstation)
 
 Real-time deep learning system that detects open/closed states of 5 car components
 (`front_left_door`, `front_right_door`, `rear_left_door`, `rear_right_door`, `hood`)
 by capturing the user's currently active browser tab showing a 3D car web interface.
+
+> 📖 **Panduan Menjalankan:** Silakan baca panduan lengkap langkah-demi-langkah di [PANDUAN_MENJALANKAN_PROGRAM.md](file:///e:/car-detection/PANDUAN_MENJALANKAN_PROGRAM.md).
+
+### Quick Start
+Jalankan di terminal:
+```powershell
+.\start.bat
+# atau: uv run uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
+```
+Buka browser di: **http://localhost:8000**
 
 ---
 

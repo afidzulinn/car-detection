@@ -1,0 +1,503 @@
+{
+  "protocol": "T0",
+  "roi_policy": "legacy_fixed",
+  "checkpoint_path": "E:\\car-detection\\checkpoints\\best_model.pt",
+  "checkpoint_sha256_prefix": "3a0661ac262ae392",
+  "evaluated_at_utc": "2026-11-21T10:47:06.664401+00:00",
+  "frozen_val_thresholds": {
+    "front_left_door": 0.5,
+    "front_right_door": 0.5,
+    "rear_left_door": 0.5,
+    "rear_right_door": 0.48,
+    "hood": 0.5
+  },
+  "validation_split_n96": {
+    "at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.99375,
+      "macro_f1": 0.99381,
+      "macro_roc_auc": 1.0,
+      "exact_match": 0.96875,
+      "worst_elevation_macro_f1": 0.98178,
+      "pose_azimuth_accuracy": 1.0,
+      "calibration": {
+        "macro_ece": 0.01936,
+        "macro_brier_score": 0.00816,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.00629,
+            "brier_score": 0.01979
+          },
+          "front_right_door": {
+            "ece": 0.03296,
+            "brier_score": 0.00921
+          },
+          "rear_left_door": {
+            "ece": 0.02534,
+            "brier_score": 0.00497
+          },
+          "rear_right_door": {
+            "ece": 0.01772,
+            "brier_score": 0.00662
+          },
+          "hood": {
+            "ece": 0.01448,
+            "brier_score": 0.00022
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98178,
+          "exact_match": 0.90625
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.98958,
+          "precision": 1.0,
+          "recall": 0.97917,
+          "f1": 0.98947,
+          "roc_auc": 1.0
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "at_val_tuned": {
+      "n_samples": 96,
+      "mean_accuracy": 0.99375,
+      "macro_f1": 0.99386,
+      "macro_roc_auc": 1.0,
+      "exact_match": 0.96875,
+      "worst_elevation_macro_f1": 0.98217,
+      "pose_azimuth_accuracy": 1.0,
+      "calibration": {
+        "macro_ece": 0.01936,
+        "macro_brier_score": 0.00816,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.00629,
+            "brier_score": 0.01979
+          },
+          "front_right_door": {
+            "ece": 0.03296,
+            "brier_score": 0.00921
+          },
+          "rear_left_door": {
+            "ece": 0.02534,
+            "brier_score": 0.00497
+          },
+          "rear_right_door": {
+            "ece": 0.01772,
+            "brier_score": 0.00662
+          },
+          "hood": {
+            "ece": 0.01448,
+            "brier_score": 0.00022
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.98125,
+          "macro_f1": 0.98217,
+          "exact_match": 0.90625
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 1.0
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.98958,
+          "precision": 0.97959,
+          "recall": 1.0,
+          "f1": 0.98969,
+          "roc_auc": 1.0
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    }
+  },
+  "independent_test_split_n96": {
+    "at_050": {
+      "n_samples": 96,
+      "mean_accuracy": 0.99167,
+      "macro_f1": 0.99184,
+      "macro_roc_auc": 0.99878,
+      "exact_match": 0.95833,
+      "worst_elevation_macro_f1": 0.97647,
+      "pose_azimuth_accuracy": 1.0,
+      "calibration": {
+        "macro_ece": 0.01758,
+        "macro_brier_score": 0.00835,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.00706,
+            "brier_score": 0.01997
+          },
+          "front_right_door": {
+            "ece": 0.0241,
+            "brier_score": 0.00521
+          },
+          "rear_left_door": {
+            "ece": 0.02576,
+            "brier_score": 0.00548
+          },
+          "rear_right_door": {
+            "ece": 0.0163,
+            "brier_score": 0.01087
+          },
+          "hood": {
+            "ece": 0.01467,
+            "brier_score": 0.00023
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97647,
+          "exact_match": 0.875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99436
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_right_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99957
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    },
+    "at_frozen_val_thresholds": {
+      "n_samples": 96,
+      "mean_accuracy": 0.99167,
+      "macro_f1": 0.99184,
+      "macro_roc_auc": 0.99878,
+      "exact_match": 0.95833,
+      "worst_elevation_macro_f1": 0.97647,
+      "pose_azimuth_accuracy": 1.0,
+      "calibration": {
+        "macro_ece": 0.01758,
+        "macro_brier_score": 0.00835,
+        "per_label": {
+          "front_left_door": {
+            "ece": 0.00706,
+            "brier_score": 0.01997
+          },
+          "front_right_door": {
+            "ece": 0.0241,
+            "brier_score": 0.00521
+          },
+          "rear_left_door": {
+            "ece": 0.02576,
+            "brier_score": 0.00548
+          },
+          "rear_right_door": {
+            "ece": 0.0163,
+            "brier_score": 0.01087
+          },
+          "hood": {
+            "ece": 0.01467,
+            "brier_score": 0.00023
+          }
+        }
+      },
+      "by_elevation": {
+        "mid": {
+          "n": 32,
+          "mean_accuracy": 0.975,
+          "macro_f1": 0.97647,
+          "exact_match": 0.875
+        },
+        "high": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        },
+        "top": {
+          "n": 32,
+          "mean_accuracy": 1.0,
+          "macro_f1": 1.0,
+          "exact_match": 1.0
+        }
+      },
+      "per_label": {
+        "front_left_door": {
+          "threshold": 0.5,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99436
+        },
+        "front_right_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_left_door": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        },
+        "rear_right_door": {
+          "threshold": 0.48,
+          "accuracy": 0.97917,
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1": 0.97959,
+          "roc_auc": 0.99957
+        },
+        "hood": {
+          "threshold": 0.5,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0
+        }
+      }
+    }
+  },
+  "historical_combined_n192_at_050": {
+    "n_samples": 192,
+    "mean_accuracy": 0.99271,
+    "macro_f1": 0.99281,
+    "macro_roc_auc": 0.99939,
+    "exact_match": 0.96354,
+    "worst_elevation_macro_f1": 0.979,
+    "pose_azimuth_accuracy": 1.0,
+    "calibration": {
+      "macro_ece": 0.01847,
+      "macro_brier_score": 0.00826,
+      "per_label": {
+        "front_left_door": {
+          "ece": 0.00667,
+          "brier_score": 0.01988
+        },
+        "front_right_door": {
+          "ece": 0.02853,
+          "brier_score": 0.00721
+        },
+        "rear_left_door": {
+          "ece": 0.02555,
+          "brier_score": 0.00522
+        },
+        "rear_right_door": {
+          "ece": 0.01701,
+          "brier_score": 0.00875
+        },
+        "hood": {
+          "ece": 0.01457,
+          "brier_score": 0.00023
+        }
+      }
+    },
+    "by_elevation": {
+      "mid": {
+        "n": 64,
+        "mean_accuracy": 0.97813,
+        "macro_f1": 0.979,
+        "exact_match": 0.89062
+      },
+      "high": {
+        "n": 64,
+        "mean_accuracy": 1.0,
+        "macro_f1": 1.0,
+        "exact_match": 1.0
+      },
+      "top": {
+        "n": 64,
+        "mean_accuracy": 1.0,
+        "macro_f1": 1.0,
+        "exact_match": 1.0
+      }
+    },
+    "per_label": {
+      "front_left_door": {
+        "threshold": 0.5,
+        "accuracy": 0.97917,
+        "precision": 0.96,
+        "recall": 1.0,
+        "f1": 0.97959,
+        "roc_auc": 0.99729
+      },
+      "front_right_door": {
+        "threshold": 0.5,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      },
+      "rear_left_door": {
+        "threshold": 0.5,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      },
+      "rear_right_door": {
+        "threshold": 0.5,
+        "accuracy": 0.98438,
+        "precision": 0.97938,
+        "recall": 0.98958,
+        "f1": 0.98446,
+        "roc_auc": 0.99967
+      },
+      "hood": {
+        "threshold": 0.5,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+      }
+    }
+  }
+}

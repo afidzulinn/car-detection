@@ -5,7 +5,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      width: 220px; padding: 16px;
+      width: 250px; padding: 16px;
       font-family: 'Segoe UI', sans-serif;
       background: #0f172a; color: #e2e8f0;
     }
@@ -18,17 +18,20 @@
     button:hover { opacity: 0.85; }
     #start { background: #22c55e; color: white; }
     #stop  { background: #ef4444; color: white; }
-    .hint { margin-top: 12px; font-size: 0.75rem; color: #64748b; line-height: 1.5; }
+    #status { margin-top: 8px; font-size: 0.78rem; color: #94a3b8; font-weight: 600; }
+    .hint { margin-top: 10px; font-size: 0.75rem; color: #64748b; line-height: 1.5; }
   </style>
 </head>
 <body>
-  <h3>🚗 Car Detector</h3>
-  <button id="start">▶ Start Detection</button>
-  <button id="stop">⏹ Stop Detection</button>
-  <div class="hint">Backend must be running on<br><strong style="color:#94a3b8">localhost:8000</strong></div>
-  <script>
-    document.getElementById("start").onclick = () => chrome.runtime.sendMessage({ action: "START" });
-    document.getElementById("stop").onclick  = () => chrome.runtime.sendMessage({ action: "STOP" });
-  </script>
+  <h3>🚗 Car Detector Streamer</h3>
+  <button id="start">▶ Start Streaming</button>
+  <button id="stop">⏹ Stop Streaming</button>
+  <div id="status">Status: Idle</div>
+  <div class="hint">
+    <strong>Petunjuk:</strong><br>
+    Buka tab yang menampilkan <strong>Model Mobil 3D</strong>, lalu klik <strong>Start Streaming</strong> pada tab tersebut.<br><br>
+    Ekstensi secara otomatis mengabaikan tab <em>localhost:8000</em> agar tidak terjadi rekursi (mirroring loop).
+  </div>
+  <script src="popup.js"></script>
 </body>
 </html>

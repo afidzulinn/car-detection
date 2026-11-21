@@ -1,239 +1,731 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visual Grounding — Objective 3</title>
+  <title>Visual Grounding Locator: Objective 3 Telemetry</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root,
+    [data-theme="dark"] {
+      --bg-canvas: #0B0F14;
+      --bg-surface: #121820;
+      --bg-subsurface: #1A222D;
+      --bg-viewport: #0E131A;
+      --text-primary: #F1F5F9;
+      --text-secondary: #A3B3C6;
+      --border-subtle: #2A3646;
+      --border-control: #647B97;
+      --accent-primary: #F59E0B;
+      --accent-text: #FBBF24;
+      --accent-contrast: #0B0F14;
+      --accent-focus: #FBBF24;
+      --status-open-bg: #065F46;
+      --status-open-text: #ECFDF5;
+      --status-open-border: #10B981;
+      --status-err-bg: #7F1D1D;
+      --status-err-text: #FEE2E2;
+      --status-err-border: #F87171;
+    }
+
+    [data-theme="light"] {
+      --bg-canvas: #F4F6F8;
+      --bg-surface: #FFFFFF;
+      --bg-subsurface: #EDF1F5;
+      --bg-viewport: #16191E;
+      --text-primary: #0F172A;
+      --text-secondary: #334155;
+      --border-subtle: #CBD5E1;
+      --border-control: #64748B;
+      --accent-primary: #0F172A;
+      --accent-text: #92400E;
+      --accent-contrast: #FFFFFF;
+      --accent-focus: #B45309;
+      --status-open-bg: #065F46;
+      --status-open-text: #FFFFFF;
+      --status-open-border: #047857;
+      --status-err-bg: #991B1B;
+      --status-err-text: #FFFFFF;
+      --status-err-border: #B91C1C;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f172a; color: #e2e8f0;
-      min-height: 100vh; display: flex;
-      flex-direction: column; align-items: center;
-      padding: 40px 20px; gap: 24px;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
     }
-    h1 { color: #f59e0b; font-size: 1.8rem; }
-    .subtitle { color: #64748b; font-size: 0.9rem; }
-    .card {
-      background: #1e293b; border-radius: 16px;
-      padding: 24px; width: 100%; max-width: 600px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+
+    a[href],
+    button:not(:disabled),
+    select:not(:disabled),
+    label[for] {
+      cursor: pointer;
     }
-    .card-title {
-      font-size: 1rem; font-weight: 700; color: #cbd5e1;
-      margin-bottom: 20px; border-bottom: 1px solid #334155;
-      padding-bottom: 12px;
+
+    button:disabled,
+    select:disabled,
+    input:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
     }
-    .input-row { display: flex; gap: 10px; align-items: stretch; }
-    .prompt-input {
-      flex: 1; padding: 12px 16px;
-      background: #0f172a; border: 1px solid #334155;
-      border-radius: 8px; color: #e2e8f0; font-size: 0.95rem;
-      outline: none; transition: border-color 0.2s;
+
+    :focus-visible {
+      outline: 2px solid var(--accent-focus);
+      outline-offset: 2px;
     }
-    .prompt-input:focus { border-color: #f59e0b; }
-    .ground-btn {
-      padding: 12px 20px; background: #f59e0b;
-      color: #0f172a; font-weight: 700; border: none;
-      border-radius: 8px; cursor: pointer; white-space: nowrap;
-      transition: opacity 0.2s; font-size: 0.9rem;
+
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 16px;
+      background: var(--accent-primary);
+      color: var(--accent-contrast);
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-decoration: none;
+      z-index: 1000;
     }
-    .ground-btn:hover { opacity: 0.85; }
-    .ground-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .suggestions {
-      margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;
+
+    .skip-link:focus-visible {
+      top: 12px;
     }
-    .chip {
-      padding: 5px 14px; background: #0f172a;
-      border: 1px solid #475569; border-radius: 999px;
-      font-size: 0.8rem; cursor: pointer; color: #94a3b8;
-      transition: all 0.2s;
+
+    .tabular {
+      font-family: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+      font-variant-numeric: tabular-nums;
     }
-    .chip:hover { border-color: #f59e0b; color: #f59e0b; }
-    .loading {
-      margin-top: 20px; text-align: center;
-      color: #94a3b8; font-size: 0.9rem; display: none;
+
+    .site-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 24px;
     }
-    .spinner {
-      display: inline-block; width: 20px; height: 20px;
-      border: 3px solid #334155; border-top-color: #f59e0b;
-      border-radius: 50%; animation: spin 0.8s linear infinite;
-      vertical-align: middle; margin-right: 8px;
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .output-area { margin-top: 20px; display: none; }
-    .output-label { font-size: 0.75rem; color: #64748b; margin-bottom: 8px; }
-    .output-area img {
-      width: 100%; border-radius: 10px;
-      border: 1px solid #334155; display: block;
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-    .detected-labels {
-      margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;
+
+    .brand-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .det-chip {
-      padding: 5px 14px; background: #78350f;
-      border: 1px solid #f59e0b; border-radius: 999px;
-      font-size: 0.8rem; color: #fef3c7; font-weight: 600;
+
+    h1 {
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }
-    .box-count {
-      margin-top: 8px; font-size: 0.82rem; color: #64748b;
+
+    .spec-tag {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-text);
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      padding: 2px 8px;
+      border-radius: 4px;
     }
-    .no-result {
-      margin-top: 16px; color: #94a3b8; font-size: 0.9rem;
-      text-align: center; padding: 16px;
-      background: #0f172a; border-radius: 8px;
+
+    .subtitle {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-subsurface);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .nav-link:hover {
+      border-color: var(--border-control);
+      color: var(--text-primary);
+    }
+
+    .nav-link[aria-current="page"] {
+      background-color: var(--accent-primary);
+      color: var(--accent-contrast);
+      border-color: var(--accent-primary);
+    }
+
+    .theme-btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .workspace {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.78fr) minmax(360px, 1fr);
+      gap: 20px;
+      flex: 1;
+      align-items: start;
+    }
+
+    .panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .panel-title {
+      font-size: clamp(1rem, 1.3vw, 1.12rem);
+      font-weight: 700;
+    }
+
+    .toolbar-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.84rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--accent-focus);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-primary);
+      color: var(--accent-contrast);
+      border-color: var(--accent-primary);
+      font-weight: 700;
+    }
+
+    .select-input,
+    .text-input {
+      min-height: 44px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      width: 100%;
+    }
+
+    .viewport-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 420px;
+      background-color: var(--bg-viewport);
+      border: 1px solid var(--border-control);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewport-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       display: none;
     }
-    .ext-id-input {
-      width: 100%; padding: 10px 14px;
-      background: #0f172a; border: 1px solid #334155;
-      border-radius: 8px; color: #e2e8f0;
-      font-size: 0.85rem; outline: none;
-    }
-    .ext-id-input:focus { border-color: #f59e0b; }
-    .input-label { font-size: 0.78rem; color: #64748b; margin-bottom: 6px; }
-  </style>
-</head>
-<body>
 
-  <h1>🎯 Visual Grounding</h1>
-  <p class="subtitle">Objective #3 — Text-prompted Object Localization</p>
-
-  <div class="card">
-    <div class="card-title">Configuration</div>
-    <p class="input-label">Chrome Extension ID (from chrome://extensions)</p>
-    <input
-      type="text" class="ext-id-input" id="extIdInput"
-      placeholder="e.g. abcdefghijklmnopqrstuvwxyz123456"
-    >
-  </div>
-
-  <div class="card">
-    <div class="card-title">Text Input → Image Output</div>
-
-    <div class="input-row">
-      <input
-        type="text" class="prompt-input" id="promptInput"
-        placeholder="e.g. Locate the open front left door"
-      >
-      <button class="ground-btn" id="groundBtn">Generate Grounding</button>
-    </div>
-
-    <div class="suggestions">
-      <span class="chip" onclick="setPrompt('open doors')">Open doors</span>
-      <span class="chip" onclick="setPrompt('front left door')">Front left door</span>
-      <span class="chip" onclick="setPrompt('front right door')">Front right door</span>
-      <span class="chip" onclick="setPrompt('rear left door')">Rear left door</span>
-      <span class="chip" onclick="setPrompt('rear right door')">Rear right door</span>
-      <span class="chip" onclick="setPrompt('hood')">Hood</span>
-      <span class="chip" onclick="setPrompt('all open components')">All open</span>
-    </div>
-
-    <div class="loading" id="loading">
-      <span class="spinner"></span> Localizing objects with Grounding DINO...
-    </div>
-
-    <div class="output-area" id="outputArea">
-      <p class="output-label">Grounding Result (bounding boxes shown in red):</p>
-      <img id="resultImg" src="" alt="Grounding result with bounding boxes">
-      <div class="detected-labels" id="detectedLabels"></div>
-      <p class="box-count" id="boxCount"></p>
-    </div>
-
-    <div class="no-result" id="noResult">
-      No objects detected for this prompt. Try a different description.
-    </div>
-  </div>
-
-  <script>
-    const API = "http://localhost:8000";
-
-    function setPrompt(text) {
-      document.getElementById("promptInput").value = text;
-      document.getElementById("promptInput").focus();
+    .viewport-img.is-visible {
+      display: block;
     }
 
-    document.getElementById("groundBtn").onclick = runGrounding;
-    document.getElementById("promptInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") runGrounding();
-    });
+    .viewport-img[data-zoom="studio"] {
+      transform: scale(1.85);
+    }
 
-    async function runGrounding() {
-      const prompt   = document.getElementById("promptInput").value.trim();
-      const extId    = document.getElementById("extIdInput").value.trim();
-      const btn      = document.getElementById("groundBtn");
-      const loading  = document.getElementById("loading");
-      const output   = document.getElementById("outputArea");
-      const noResult = document.getElementById("noResult");
-      const resImg   = document.getElementById("resultImg");
-      const detLabel = document.getElementById("detectedLabels");
-      const boxCount = document.getElementById("boxCount");
+    .viewport-img[data-zoom="detail"] {
+      transform: scale(2.4);
+    }
 
-      if (!prompt) { alert("Please enter a text prompt."); return; }
-      if (!extId)  { alert("Please enter your Chrome Extension ID."); return; }
+    .viewport-img[data-zoom="full"] {
+      transform: scale(1.0);
+    }
 
-      btn.disabled = true;
-      loading.style.display = "block";
-      output.style.display  = "none";
-      noResult.style.display = "none";
+    .state-panel {
+      max-width: 440px;
+      padding: 24px;
+      text-align: center;
+      color: #F1F5F9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
 
-      try {
-        const b64Image = await captureViaExtension(extId);
+    .preset-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+    }
 
-        const res = await fetch(`${API}/api/grounding/locate`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_b64: b64Image, prompt })
-        });
+    .preset-btn {
+      min-height: 44px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
 
-        const data = await res.json();
+    .preset-btn:hover {
+      border-color: var(--accent-focus);
+    }
 
-        if (data.success && data.boxes?.length > 0) {
-          resImg.src = `data:image/jpeg;base64,${data.annotated_image}`;
-          output.style.display = "block";
+    .result-box {
+      background-color: var(--bg-subsurface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px;
+      margin-top: 14px;
+    }
 
-          detLabel.innerHTML = "";
-          data.detected_labels.forEach(lbl => {
-            const chip = document.createElement("span");
-            chip.className = "det-chip";
-            chip.textContent = lbl;
-            detLabel.appendChild(chip);
-          });
+    .detected-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
 
-          boxCount.textContent = `${data.boxes.length} object(s) detected`;
-        } else {
-          noResult.textContent = data.error
-            ? "Error: " + data.error
-            : "No objects detected for this prompt. Try a different description.";
-          noResult.style.display = "block";
-        }
+    .det-tag {
+      padding: 4px 10px;
+      border-radius: 4px;
+      background-color: var(--status-open-bg);
+      color: var(--status-open-text);
+      border: 1px solid var(--status-open-border);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
 
-      } catch (err) {
-        noResult.textContent = "Connection error: " + err.message;
-        noResult.style.display = "block";
-      } finally {
-        loading.style.display = "none";
-        btn.disabled = false;
+    .error-box {
+      background-color: var(--status-err-bg);
+      color: var(--status-err-text);
+      border: 1px solid var(--status-err-border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .error-box.is-visible {
+      display: block;
+    }
+
+    .ext-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .site-footer {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 14px 24px 24px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 1079px) {
+      .workspace {
+        grid-template-columns: 1fr;
       }
     }
 
-    function captureViaExtension(extId) {
-      return new Promise((resolve, reject) => {
-        if (!window.chrome?.runtime) {
-          reject(new Error("Chrome extension API not available. Open this page in Chrome."));
-          return;
-        }
-        chrome.runtime.sendMessage(extId, { action: "CAPTURE_ONCE" }, (response) => {
-          if (chrome.runtime.lastError)
-            reject(new Error(chrome.runtime.lastError.message));
-          else if (response?.image)
-            resolve(response.image);
-          else
-            reject(new Error("No image returned: " + (response?.error || "unknown")));
-        });
-      });
+    @media (max-width: 679px) {
+      .site-header { padding: 12px 16px; }
+      .workspace { padding: 14px 16px; }
+      .panel { padding: 14px; }
+      .viewport-stage { min-height: 260px; aspect-ratio: 4 / 3; }
+      .toolbar-grid { flex-direction: column; align-items: stretch; }
+      .control-group, .btn, .select-input, .text-input { width: 100%; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main workspace</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-title-row">
+          <h1>Visual Grounding Locator</h1>
+          <span class="spec-tag tabular">Objective 3 · Grounding DINO Swin-T OGC</span>
+        </div>
+        <p class="subtitle">Open-vocabulary text-prompted bounding-box localization on 3D vehicle frames</p>
+      </div>
+
+      <div class="header-controls">
+        <nav class="nav-bar" aria-label="Research objectives">
+          <a href="index.html" class="nav-link">1. PA-SCAN Detection</a>
+          <a href="vlm.html" class="nav-link">2. VLM Description</a>
+          <a href="grounding.html" class="nav-link" aria-current="page">3. Visual Grounding</a>
+        </nav>
+        <button type="button" class="theme-btn" id="themeToggleBtn" aria-label="Switch color theme">
+          Theme: Dark
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="workspace">
+    <!-- Left Column: Large Annotated 3D Car Viewport -->
+    <section class="panel" aria-labelledby="grounding-viewport-heading">
+      <div class="panel-header">
+        <h2 class="panel-title" id="grounding-viewport-heading">Annotated 3D Grounding Viewport</h2>
+        <span class="spec-tag tabular" id="boxCountBadge">Boxes: 0</span>
+      </div>
+
+      <div class="toolbar-grid">
+        <div class="control-group">
+          <label class="control-label" for="zoomSelect">Optical Viewport Zoom</label>
+          <select id="zoomSelect" class="select-input">
+            <option value="studio" selected>1.85x Studio Close-Up</option>
+            <option value="detail">2.40x Detail Zoom</option>
+            <option value="full">1.00x Raw Frame</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="viewport-stage">
+        <div class="state-panel" id="emptyState">
+          <strong style="font-size:1rem;">Grounding Viewport Ready</strong>
+          <p style="font-size:0.86rem; color:#CBD5E1;">
+            Enter a localization prompt on the right and select "Locate on Next 3D Dataset Sample" to run open-vocabulary bounding-box detection.
+          </p>
+        </div>
+        <img
+          id="resultImg"
+          class="viewport-img"
+          data-zoom="studio"
+          src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+          width="1264"
+          height="625"
+          fetchpriority="high"
+          alt="Annotated 3D vehicle frame with Grounding DINO bounding boxes"
+        >
+      </div>
+    </section>
+
+    <!-- Right Column: Prompt Controls & Detection Summary -->
+    <section class="panel" aria-labelledby="grounding-controls-heading">
+      <div class="panel-header">
+        <h2 class="panel-title" id="grounding-controls-heading">Text Prompt Configuration</h2>
+        <span class="spec-tag tabular" id="groundStatusTag">Idle</span>
+      </div>
+
+      <div class="error-box" id="errorBox" role="alert"></div>
+
+      <div class="control-group" style="margin-bottom:10px;">
+        <label class="control-label" for="promptInput">Target Component Prompt</label>
+        <input
+          type="text"
+          class="text-input"
+          id="promptInput"
+          value="open doors"
+          placeholder="e.g. front left door, hood, open doors"
+        >
+      </div>
+
+      <p class="control-label">Quick Prompt Presets</p>
+      <div class="preset-grid" role="group" aria-label="Quick prompt presets">
+        <button type="button" class="preset-btn" data-prompt="open doors">Open doors</button>
+        <button type="button" class="preset-btn" data-prompt="front left door">Front left door</button>
+        <button type="button" class="preset-btn" data-prompt="front right door">Front right door</button>
+        <button type="button" class="preset-btn" data-prompt="rear left door">Rear left door</button>
+        <button type="button" class="preset-btn" data-prompt="rear right door">Rear right door</button>
+        <button type="button" class="preset-btn" data-prompt="hood">Hood</button>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="sampleGroundBtn" style="width:100%;">
+        Locate on Next 3D Dataset Sample
+      </button>
+
+      <div class="result-box" aria-live="polite">
+        <p class="control-label">Detected Bounding Box Labels</p>
+        <p id="statusSummary" style="font-size:0.86rem; margin-top:4px; color:var(--text-secondary);">
+          No grounding query executed yet.
+        </p>
+        <div class="detected-list" id="detectedLabels"></div>
+      </div>
+
+      <div class="ext-section">
+        <label class="control-label" for="extIdInput">Optional: Chrome Extension ID (for external tab capture)</label>
+        <input
+          type="text"
+          class="text-input tabular"
+          id="extIdInput"
+          placeholder="e.g. abcdefghijklmnopqrstuvwxyz123456"
+        >
+        <button type="button" class="btn" id="extGroundBtn">
+          Capture &amp; Locate via Chrome Extension
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Objective 3: Zero-Shot Open-Vocabulary Grounding (Grounding DINO Swin-T OGC)</span>
+    <span class="tabular">Endpoint: POST /api/grounding/locate</span>
+  </footer>
+
+  <script>
+    const htmlEl = document.documentElement;
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const savedTheme = localStorage.getItem("pascan_theme") || "dark";
+    applyTheme(savedTheme);
+
+    function applyTheme(theme) {
+      htmlEl.setAttribute("data-theme", theme);
+      localStorage.setItem("pascan_theme", theme);
+      themeToggleBtn.textContent = theme === "dark" ? "Theme: Dark" : "Theme: Light";
+    }
+
+    themeToggleBtn.addEventListener("click", () => {
+      const current = htmlEl.getAttribute("data-theme") === "light" ? "light" : "dark";
+      applyTheme(current === "dark" ? "light" : "dark");
+    });
+
+    const promptInput = document.getElementById("promptInput");
+    document.querySelectorAll(".preset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        promptInput.value = btn.getAttribute("data-prompt") || "";
+        promptInput.focus();
+      });
+    });
+
+    const resultImg = document.getElementById("resultImg");
+    const emptyState = document.getElementById("emptyState");
+    const zoomSelect = document.getElementById("zoomSelect");
+    const errorBox = document.getElementById("errorBox");
+    const groundStatusTag = document.getElementById("groundStatusTag");
+    const boxCountBadge = document.getElementById("boxCountBadge");
+    const statusSummary = document.getElementById("statusSummary");
+    const detectedLabels = document.getElementById("detectedLabels");
+    const sampleGroundBtn = document.getElementById("sampleGroundBtn");
+    const extGroundBtn = document.getElementById("extGroundBtn");
+
+    zoomSelect.addEventListener("change", () => {
+      resultImg.setAttribute("data-zoom", zoomSelect.value);
+    });
+
+    async function executeGroundingOnB64(b64Image) {
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        errorBox.textContent = "Enter a target component prompt before running localization.";
+        errorBox.classList.add("is-visible");
+        return;
+      }
+
+      errorBox.classList.remove("is-visible");
+      groundStatusTag.textContent = "Localizing...";
+      statusSummary.textContent = `Running Grounding DINO for prompt "${prompt}"...`;
+      detectedLabels.innerHTML = "";
+
+      emptyState.style.display = "none";
+      resultImg.src = b64Image;
+      resultImg.classList.add("is-visible");
+
+      const res = await fetch("/api/grounding/locate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_b64: b64Image, prompt })
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || "Grounding DINO inference failed.");
+      }
+
+      if (data.annotated_image) {
+        resultImg.src = `data:image/jpeg;base64,${data.annotated_image}`;
+      }
+
+      const count = Array.isArray(data.boxes) ? data.boxes.length : 0;
+      boxCountBadge.textContent = `Boxes: ${count}`;
+      groundStatusTag.textContent = "Completed";
+
+      if (count > 0) {
+        statusSummary.textContent = `${count} region(s) localized for prompt "${prompt}":`;
+        (data.detected_labels || []).forEach((lbl) => {
+          const span = document.createElement("span");
+          span.className = "det-tag tabular";
+          span.textContent = lbl;
+          detectedLabels.appendChild(span);
+        });
+      } else {
+        statusSummary.textContent = `0 regions matched "${prompt}" above threshold (0.35). Try another prompt preset.`;
+      }
+    }
+
+    sampleGroundBtn.addEventListener("click", async () => {
+      sampleGroundBtn.disabled = true;
+      errorBox.classList.remove("is-visible");
+      try {
+        const res = await fetch("/api/demo/sample", { method: "POST" });
+        const sample = await res.json();
+        if (!sample.success) {
+          throw new Error(sample.error || "Failed to fetch sample.");
+        }
+        await executeGroundingOnB64(sample.image_b64);
+      } catch (err) {
+        errorBox.textContent = `Grounding request failed: ${err.message}`;
+        errorBox.classList.add("is-visible");
+        groundStatusTag.textContent = "Error";
+      } finally {
+        sampleGroundBtn.disabled = false;
+      }
+    });
+
+    extGroundBtn.addEventListener("click", async () => {
+      const extId = document.getElementById("extIdInput").value.trim();
+      errorBox.classList.remove("is-visible");
+      if (!extId) {
+        errorBox.textContent = "Enter a valid Chrome Extension ID above, or use 'Locate on Next 3D Dataset Sample' to test directly.";
+        errorBox.classList.add("is-visible");
+        return;
+      }
+
+      extGroundBtn.disabled = true;
+      try {
+        const b64Image = await new Promise((resolve, reject) => {
+          if (!window.chrome || !window.chrome.runtime) {
+            reject(new Error("Chrome extension runtime API is not available in this tab."));
+            return;
+          }
+          chrome.runtime.sendMessage(extId, { action: "CAPTURE_ONCE" }, (response) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+            } else if (response && response.image) {
+              resolve(response.image);
+            } else {
+              reject(new Error("No frame returned by extension."));
+            }
+          });
+        });
+        await executeGroundingOnB64(b64Image);
+      } catch (err) {
+        errorBox.textContent = `Extension capture failed: ${err.message}`;
+        errorBox.classList.add("is-visible");
+        groundStatusTag.textContent = "Error";
+      } finally {
+        extGroundBtn.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>

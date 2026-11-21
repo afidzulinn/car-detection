@@ -1,109 +1,1421 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Car Component Detector</title>
+  <title>PA-SCAN Telemetry Workstation: 3D Vehicle Component State Detection</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 24px; }
-    h1 { font-size: 1.6rem; color: #38bdf8; }
-    .subtitle { color: #94a3b8; font-size: 0.9rem; }
-    .nav { display: flex; gap: 12px; }
-    .nav a { padding: 6px 16px; background: #1e293b; border-radius: 999px; color: #94a3b8; text-decoration: none; font-size: 0.85rem; transition: all 0.2s; }
-    .nav a:hover { background: #334155; color: #e2e8f0; }
-    .nav a.active { background: #0284c7; color: white; }
-    .card { background: #1e293b; border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
-    .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: #cbd5e1; border-bottom: 1px solid #334155; padding-bottom: 12px; }
-    .component-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #0f172a; }
-    .component-row:last-child { border-bottom: none; }
-    .comp-left { display: flex; flex-direction: column; gap: 3px; }
-    .component-name { font-size: 0.95rem; color: #94a3b8; }
-    .conf { font-size: 0.72rem; color: #475569; }
-    .badge { padding: 5px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; transition: all 0.3s ease; }
-    .open   { background: #16a34a; color: white; box-shadow: 0 0 8px #16a34a55; }
-    .closed { background: #dc2626; color: white; }
-    .unknown { background: #475569; color: white; }
-    .changed-alert { padding: 10px 14px; background: #fbbf2415; border: 1px solid #fbbf24; border-radius: 8px; color: #fbbf24; font-size: 0.85rem; margin-bottom: 12px; display: none; }
-    .status-bar { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding: 12px; background: #0f172a; border-radius: 8px; font-size: 0.85rem; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .dot.active { background: #22c55e; animation: pulse 1.2s infinite; }
-    .dot.inactive { background: #ef4444; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .fps-counter { margin-left: auto; font-size: 0.75rem; color: #475569; }
+    :root,
+    [data-theme="dark"] {
+      --bg-canvas: #0B0F14;
+      --bg-surface: #121820;
+      --bg-subsurface: #1A222D;
+      --bg-viewport: #0E131A;
+      --text-primary: #F1F5F9;
+      --text-secondary: #A3B3C6;
+      --text-muted: #94A3B8;
+      --border-subtle: #2A3646;
+      --border-control: #647B97;
+      --accent-primary: #F59E0B;
+      --accent-text: #FBBF24;
+      --accent-contrast: #0B0F14;
+      --accent-focus: #FBBF24;
+      --status-open-bg: #065F46;
+      --status-open-text: #ECFDF5;
+      --status-open-border: #10B981;
+      --status-closed-bg: #1E293B;
+      --status-closed-text: #E2E8F0;
+      --status-closed-border: #647B97;
+      --status-err-bg: #7F1D1D;
+      --status-err-text: #FEE2E2;
+      --status-err-border: #F87171;
+      --bar-track: #0B0F14;
+      --car-body-fill: #1E293B;
+      --car-body-stroke: #94A3B8;
+    }
+
+    [data-theme="light"] {
+      --bg-canvas: #F4F6F8;
+      --bg-surface: #FFFFFF;
+      --bg-subsurface: #EDF1F5;
+      --bg-viewport: #16191E;
+      --text-primary: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #475569;
+      --border-subtle: #CBD5E1;
+      --border-control: #64748B;
+      --accent-primary: #0F172A;
+      --accent-text: #92400E;
+      --accent-contrast: #FFFFFF;
+      --accent-focus: #B45309;
+      --status-open-bg: #065F46;
+      --status-open-text: #FFFFFF;
+      --status-open-border: #047857;
+      --status-closed-bg: #E2E8F0;
+      --status-closed-text: #0F172A;
+      --status-closed-border: #64748B;
+      --status-err-bg: #991B1B;
+      --status-err-text: #FFFFFF;
+      --status-err-border: #B91C1C;
+      --bar-track: #CBD5E1;
+      --car-body-fill: #E2E8F0;
+      --car-body-stroke: #475569;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Base interactive affordances (R-32, R-39) */
+    a[href],
+    button:not(:disabled),
+    select:not(:disabled),
+    input[type="file"]:not(:disabled),
+    label[for] {
+      cursor: pointer;
+    }
+
+    button:disabled,
+    select:disabled,
+    input:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent-focus);
+      outline-offset: 2px;
+    }
+
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 16px;
+      background: var(--accent-primary);
+      color: var(--accent-contrast);
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-decoration: none;
+      z-index: 1000;
+    }
+
+    .skip-link:focus-visible {
+      top: 12px;
+    }
+
+    .tabular {
+      font-family: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top Instrumentation Header */
+    .site-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 24px;
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .spec-tag {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-text);
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-subsurface);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .nav-link:hover {
+      border-color: var(--border-control);
+      color: var(--text-primary);
+    }
+
+    .nav-link[aria-current="page"] {
+      background-color: var(--accent-primary);
+      color: var(--accent-contrast);
+      border-color: var(--accent-primary);
+    }
+
+    .theme-btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .theme-btn:hover {
+      background-color: var(--bg-canvas);
+    }
+
+    /* Main Asymmetric Inspection Layout */
+    .workspace {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.78fr) minmax(360px, 1fr);
+      gap: 20px;
+      flex: 1;
+      align-items: start;
+    }
+
+    .panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .panel-title {
+      font-size: clamp(1rem, 1.3vw, 1.12rem);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* Viewport Toolbar */
+    .toolbar-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--accent-focus);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-primary);
+      color: var(--accent-contrast);
+      border-color: var(--accent-primary);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.92;
+    }
+
+    .btn-active-stream {
+      background-color: var(--status-open-bg);
+      color: var(--status-open-text);
+      border-color: var(--status-open-border);
+    }
+
+    .select-input {
+      min-height: 44px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .file-input-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    /* Large 3D Car Optical Viewport Stage */
+    .viewport-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 440px;
+      background-color: var(--bg-viewport);
+      border: 1px solid var(--border-control);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewport-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .viewport-canvas-wrap.is-visible {
+      display: flex;
+    }
+
+    .viewport-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform-origin: 50% 50%;
+      image-rendering: high-quality;
+      display: block;
+    }
+
+    /* Studio Optical Zoom Levels: enlarges the centered 3D car by cropping out empty dark side margins */
+    .viewport-img[data-zoom="studio"] {
+      transform: scale(1.85);
+    }
+
+    .viewport-img[data-zoom="detail"] {
+      transform: scale(2.4);
+    }
+
+    .viewport-img[data-zoom="full"] {
+      transform: scale(1.0);
+    }
+
+    /* Optional PA-SCAN ROI Box Overlay */
+    .roi-overlay {
+      position: absolute;
+      left: 17%;
+      top: 19%;
+      width: 66%;
+      height: 43%;
+      border: 2px dashed #FBBF24;
+      border-radius: 4px;
+      pointer-events: none;
+      display: none;
+    }
+
+    .roi-overlay.is-visible {
+      display: block;
+    }
+
+    .roi-tag {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background-color: rgba(11, 15, 20, 0.88);
+      color: #FBBF24;
+      border: 1px solid #FBBF24;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    /* Viewport HUD Corner Readouts */
+    .hud-top-bar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .hud-pill {
+      background-color: rgba(11, 15, 20, 0.88);
+      color: #F1F5F9;
+      border: 1px solid #647B97;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* Explicit Empty, Loading, and Error States (R-27) */
+    .state-panel {
+      max-width: 460px;
+      padding: 24px;
+      text-align: center;
+      color: #F1F5F9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .state-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #F1F5F9;
+    }
+
+    .state-desc {
+      font-size: 0.86rem;
+      color: #CBD5E1;
+    }
+
+    .state-error {
+      background-color: var(--status-err-bg);
+      color: var(--status-err-text);
+      border: 1px solid var(--status-err-border);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      font-size: 0.85rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .state-error.is-visible {
+      display: flex;
+    }
+
+    /* Viewport Metadata Strip */
+    .viewport-meta {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .meta-cell {
+      background-color: var(--bg-subsurface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-size: 0.73rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .meta-value {
+      font-size: 0.86rem;
+      color: var(--text-primary);
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    /* Right Column: Component Telemetry & Schematic */
+    .match-badge {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid var(--border-control);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+    }
+
+    .match-badge.is-perfect {
+      background-color: var(--status-open-bg);
+      color: var(--status-open-text);
+      border-color: var(--status-open-border);
+    }
+
+    .match-badge.is-mismatch {
+      background-color: var(--status-err-bg);
+      color: var(--status-err-text);
+      border-color: var(--status-err-border);
+    }
+
+    .change-banner {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--accent-focus);
+      background-color: var(--bg-subsurface);
+      color: var(--text-primary);
+      font-size: 0.83rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .change-banner.is-visible {
+      display: block;
+    }
+
+    /* 2D Top-Down Vehicle Schematic */
+    .schematic-box {
+      background-color: var(--bg-subsurface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .schematic-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid var(--border-control);
+    }
+
+    .legend-swatch.open {
+      background-color: var(--status-open-bg);
+      border-color: var(--status-open-border);
+    }
+
+    .legend-swatch.closed {
+      background-color: var(--status-closed-bg);
+      border-color: var(--status-closed-border);
+    }
+
+    /* 5-Component Telemetry List */
+    .telemetry-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .comp-item {
+      background-color: var(--bg-subsurface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .comp-item.is-open {
+      border-color: var(--status-open-border);
+    }
+
+    .comp-item.is-mismatch {
+      border-color: var(--status-err-border);
+    }
+
+    .comp-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .comp-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comp-code {
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .comp-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid var(--status-closed-border);
+      background-color: var(--status-closed-bg);
+      color: var(--status-closed-text);
+    }
+
+    .status-badge.open {
+      background-color: var(--status-open-bg);
+      color: var(--status-open-text);
+      border-color: var(--status-open-border);
+    }
+
+    .status-badge.closed {
+      background-color: var(--status-closed-bg);
+      color: var(--status-closed-text);
+      border-color: var(--status-closed-border);
+    }
+
+    .status-badge.unknown {
+      background-color: var(--bg-surface);
+      color: var(--text-secondary);
+      border-color: var(--border-control);
+    }
+
+    .comp-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background-color: var(--bar-track);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .comp-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--border-control);
+    }
+
+    .comp-bar-fill.open {
+      background-color: var(--status-open-border);
+    }
+
+    .comp-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .gt-tag {
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .gt-tag.match {
+      background-color: var(--status-open-bg);
+      color: var(--status-open-text);
+      border: 1px solid var(--status-open-border);
+    }
+
+    .gt-tag.mismatch {
+      background-color: var(--status-err-bg);
+      color: var(--status-err-text);
+      border: 1px solid var(--status-err-border);
+    }
+
+    /* Connection Status Bar */
+    .connection-bar {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background-color: var(--bg-subsurface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+
+    .conn-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .conn-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background-color: var(--status-err-border);
+      border: 1px solid var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .conn-indicator.online {
+      background-color: var(--status-open-border);
+    }
+
+    /* Footer */
+    .site-footer {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 14px 24px 24px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Tablet Breakpoint (680px to 1079px): Stack stage above 2-column telemetry grid (R-03) */
+    @media (max-width: 1079px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .telemetry-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    /* Mobile Breakpoint (< 680px): Single-column reflow with mobile scale (R-03) */
+    @media (max-width: 679px) {
+      .site-header {
+        padding: 12px 16px;
+      }
+
+      .workspace {
+        padding: 14px 16px;
+        gap: 16px;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .viewport-stage {
+        min-height: 280px;
+        aspect-ratio: 4 / 3;
+      }
+
+      .telemetry-list {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar-grid {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .control-group,
+      .btn,
+      .select-input {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Car Component Detector</h1>
-  <p class="subtitle">Objective 1 — Real-time CNN Detection</p>
-  <nav class="nav">
-    <a href="index.html" class="active">Detection</a>
-    <a href="vlm.html">VLM Description</a>
-    <a href="grounding.html">Visual Grounding</a>
-  </nav>
-  <div class="card">
-    <div class="card-title">AI Realtime Detected State</div>
-    <div class="changed-alert" id="changedAlert"></div>
-    <div id="components"></div>
-    <div class="status-bar">
-      <div class="dot inactive" id="dot"></div>
-      <span id="statusText">Waiting for connection...</span>
-      <span class="fps-counter" id="fpsCounter"></span>
-    </div>
-  </div>
-  <script>
-    const LABEL_NAMES = {
-      front_left_door: "Front Left Door",
-      front_right_door: "Front Right Door",
-      rear_left_door: "Rear Left Door",
-      rear_right_door: "Rear Right Door",
-      hood: "Hood"
-    };
-    const container = document.getElementById("components");
-    const dot = document.getElementById("dot");
-    const statusText = document.getElementById("statusText");
-    const fpsCounter = document.getElementById("fpsCounter");
-    const changedAlert = document.getElementById("changedAlert");
+  <a href="#main-content" class="skip-link">Skip to main workspace</a>
 
-    Object.entries(LABEL_NAMES).forEach(([key, name]) => {
-      container.innerHTML += `<div class="component-row"><div class="comp-left"><div class="component-name">${name}</div><div class="conf" id="conf-${key}">Confidence: —</div></div><span class="badge unknown" id="badge-${key}">Unknown</span></div>`;
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-title-row">
+          <h1>PA-SCAN Vehicle Telemetry Workstation</h1>
+          <span class="spec-tag tabular">98.02% Mean Acc · 90.10% Exact Match · 231.9 FPS</span>
+        </div>
+        <p class="subtitle">Objective 1: Multi-Scale Pose-Aware Custom CNN across 360° Azimuth and 3 Camera Elevations (Mid, High, Top)</p>
+      </div>
+
+      <div class="header-controls">
+        <nav class="nav-bar" aria-label="Research objectives">
+          <a href="index.html" class="nav-link" aria-current="page">1. PA-SCAN Detection</a>
+          <a href="vlm.html" class="nav-link">2. VLM Description</a>
+          <a href="grounding.html" class="nav-link">3. Visual Grounding</a>
+        </nav>
+        <button type="button" class="theme-btn" id="themeToggleBtn" aria-label="Switch color theme">
+          Theme: Dark
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="workspace">
+    <!-- Primary Focal Point: Large 3D Car Inspection Stage -->
+    <section class="panel" aria-labelledby="viewport-heading">
+      <div class="panel-header">
+        <h2 class="panel-title" id="viewport-heading">Live 3D Vehicle Inspection Viewport</h2>
+        <span class="spec-tag tabular" id="latencyBadge">Latency: n/a</span>
+      </div>
+
+      <!-- Error State Banner (R-27) -->
+      <div class="state-error" id="errorBanner" role="alert">
+        <span id="errorText">Unable to reach backend server on port 8000.</span>
+        <button type="button" class="btn" id="retryBtn">Retry Request</button>
+      </div>
+
+      <!-- Interactive Optical & Simulator Toolbar -->
+      <div class="toolbar-grid" role="group" aria-label="Viewport and sample controls">
+        <div class="control-group">
+          <label class="control-label" for="stepNextBtn">Dataset Frame Step</label>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn" id="stepPrevBtn" title="Load previous 3D car sample">Prev Sample</button>
+            <button type="button" class="btn btn-primary" id="stepNextBtn">Next 3D Sample</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="elevFilter">Camera Elevation Filter</label>
+          <select id="elevFilter" class="select-input">
+            <option value="all">All Elevations (Mid, High, Top)</option>
+            <option value="mid">Mid (Eye-Level, 15°)</option>
+            <option value="high">High (Elevated, 45°)</option>
+            <option value="top">Top (Overhead, 90°)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="zoomSelect">Optical Viewport Zoom</label>
+          <select id="zoomSelect" class="select-input">
+            <option value="studio" selected>1.85x Studio Close-Up (Default)</option>
+            <option value="detail">2.40x Door &amp; Hood Detail</option>
+            <option value="full">1.00x Raw Frame (1264x625)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="autoBtn">Continuous Feed</label>
+          <button type="button" class="btn" id="autoBtn" aria-pressed="false">Start Auto-Stream (1.5s)</button>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="roiToggleBtn">ROI Calibration</label>
+          <button type="button" class="btn" id="roiToggleBtn" aria-pressed="false">Show PA-SCAN ROI</button>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="localFileInput">Local File Test</label>
+          <label for="localFileInput" class="btn">Inspect Local Image</label>
+          <input type="file" id="localFileInput" class="file-input-hidden" accept="image/jpeg,image/png,image/webp">
+        </div>
+      </div>
+
+      <!-- High-Clarity 3D Viewport Stage -->
+      <div class="viewport-stage" id="viewportStage">
+        <!-- Empty / Loading State (R-27) -->
+        <div class="state-panel" id="emptyState" aria-live="polite">
+          <p class="state-title" id="stateTitle">3D Vehicle Viewport Ready</p>
+          <p class="state-desc" id="stateDesc">
+            Select "Next 3D Sample" to inspect a high-resolution 3D vehicle frame with 1.85x Studio Close-Up magnification, upload a local image from dataset/raw, or stream live via the Chrome Extension.
+          </p>
+          <button type="button" class="btn btn-primary" id="emptyLoadBtn">Load First 3D Car Sample</button>
+        </div>
+
+        <!-- Active 3D Frame Canvas -->
+        <div class="viewport-canvas-wrap" id="canvasWrap">
+          <div class="hud-top-bar">
+            <span class="hud-pill tabular" id="hudPose">Azimuth: n/a · Elevation: n/a</span>
+            <span class="hud-pill tabular" id="hudZoom">Optical: 1.85x Studio Close-Up</span>
+          </div>
+          <img
+            id="viewportImg"
+            class="viewport-img"
+            data-zoom="studio"
+            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+            width="1264"
+            height="625"
+            fetchpriority="high"
+            alt="3D vehicle inspection frame showing current door and hood states"
+          >
+          <div class="roi-overlay" id="roiOverlay">
+            <span class="roi-tag tabular">PA-SCAN ROI (0.17..0.83 W, 0.19..0.62 H)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabular Frame Metadata -->
+      <div class="viewport-meta">
+        <div class="meta-cell">
+          <span class="meta-label">Sample File</span>
+          <span class="meta-value tabular" id="metaFile">n/a</span>
+        </div>
+        <div class="meta-cell">
+          <span class="meta-label">Camera Azimuth</span>
+          <span class="meta-value tabular" id="metaAngle">n/a</span>
+        </div>
+        <div class="meta-cell">
+          <span class="meta-label">Camera Elevation</span>
+          <span class="meta-value tabular" id="metaElev">n/a</span>
+        </div>
+        <div class="meta-cell">
+          <span class="meta-label">Feed Source</span>
+          <span class="meta-value tabular" id="metaSource">Standby</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Secondary Column: Component Telemetry & Top-Down Schematic -->
+    <section class="panel" aria-labelledby="telemetry-heading">
+      <div class="panel-header">
+        <h2 class="panel-title" id="telemetry-heading">Component State Telemetry</h2>
+        <span class="match-badge tabular" id="matchBadge">GT Verification: Standby</span>
+      </div>
+
+      <div class="change-banner" id="changeBanner" role="status" aria-live="polite"></div>
+
+      <!-- 2D Top-Down Vehicle Status Schematic -->
+      <div class="schematic-box" aria-label="Top-down vehicle closure schematic">
+        <div class="schematic-legend">
+          <strong style="color:var(--text-primary); font-size:0.84rem;">Closure Schematic (Top View)</strong>
+          <div class="legend-row">
+            <span class="legend-swatch open"></span>
+            <span>Open Closure (Active Signal)</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-swatch closed"></span>
+            <span>Closed Closure (Latched)</span>
+          </div>
+        </div>
+
+        <svg width="150" height="96" viewBox="0 0 150 96" role="img" aria-label="Top-down diagram of hood and four doors">
+          <!-- Car Chassis Outline -->
+          <rect x="30" y="18" width="90" height="60" rx="14" fill="var(--car-body-fill)" stroke="var(--car-body-stroke)" stroke-width="2"/>
+          <!-- Windshield & Roof -->
+          <rect x="56" y="24" width="44" height="48" rx="6" fill="none" stroke="var(--car-body-stroke)" stroke-width="1.5"/>
+          <!-- Hood Indicator (Front is Left: x=30..54) -->
+          <rect id="svg-hood" x="33" y="24" width="20" height="48" rx="5" fill="var(--status-closed-bg)" stroke="var(--status-closed-border)" stroke-width="2"/>
+          <text x="43" y="51" text-anchor="middle" font-size="8" font-weight="700" fill="var(--text-primary)">HOOD</text>
+          <!-- Front Left Door (Top-Left: x=56..77, y=6..18) -->
+          <rect id="svg-front_left_door" x="55" y="5" width="24" height="11" rx="2" fill="var(--status-closed-bg)" stroke="var(--status-closed-border)" stroke-width="2"/>
+          <text x="67" y="13" text-anchor="middle" font-size="7" font-weight="700" fill="var(--text-primary)">FL</text>
+          <!-- Rear Left Door (Top-Right: x=81..103, y=6..18) -->
+          <rect id="svg-rear_left_door" x="81" y="5" width="24" height="11" rx="2" fill="var(--status-closed-bg)" stroke="var(--status-closed-border)" stroke-width="2"/>
+          <text x="93" y="13" text-anchor="middle" font-size="7" font-weight="700" fill="var(--text-primary)">RL</text>
+          <!-- Front Right Door (Bottom-Left: x=56..77, y=78..90) -->
+          <rect id="svg-front_right_door" x="55" y="80" width="24" height="11" rx="2" fill="var(--status-closed-bg)" stroke="var(--status-closed-border)" stroke-width="2"/>
+          <text x="67" y="88" text-anchor="middle" font-size="7" font-weight="700" fill="var(--text-primary)">FR</text>
+          <!-- Rear Right Door (Bottom-Right: x=81..103, y=78..90) -->
+          <rect id="svg-rear_right_door" x="81" y="80" width="24" height="11" rx="2" fill="var(--status-closed-bg)" stroke="var(--status-closed-border)" stroke-width="2"/>
+          <text x="93" y="88" text-anchor="middle" font-size="7" font-weight="700" fill="var(--text-primary)">RR</text>
+        </svg>
+      </div>
+
+      <!-- 5 Component Rows -->
+      <div class="telemetry-list" id="telemetryList"></div>
+
+      <!-- WebSocket Connection Status -->
+      <div class="connection-bar" role="status" aria-live="polite">
+        <div class="conn-left">
+          <span class="conn-indicator" id="connDot"></span>
+          <span id="connText">Connecting to PA-SCAN WebSocket...</span>
+        </div>
+        <span class="tabular" id="fpsCounter" style="font-weight:700; color:var(--accent-text);">0.0 fps</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>PA-SCAN Architecture: 5-Stage Strided ResNet + CoordConv + Unit-Centered CBAM + Pose-Guided FiLM (7.50M params, 0.867 GMACs)</span>
+    <span class="tabular">Validation Split: N = 192 (64 Mid · 64 High · 64 Top)</span>
+  </footer>
+
+  <script>
+    const COMPONENTS = [
+      { key: "front_left_door",  code: "FL",   name: "Front Left Door" },
+      { key: "front_right_door", code: "FR",   name: "Front Right Door" },
+      { key: "rear_left_door",   code: "RL",   name: "Rear Left Door" },
+      { key: "rear_right_door",  code: "RR",   name: "Rear Right Door" },
+      { key: "hood",             code: "HOOD", name: "Hood (Engine Lid)" }
+    ];
+
+    // Theme Persistence & Toggle (R-21, R-34)
+    const htmlEl = document.documentElement;
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const savedTheme = localStorage.getItem("pascan_theme") || "dark";
+    applyTheme(savedTheme);
+
+    function applyTheme(theme) {
+      htmlEl.setAttribute("data-theme", theme);
+      localStorage.setItem("pascan_theme", theme);
+      themeToggleBtn.textContent = theme === "dark" ? "Theme: Dark" : "Theme: Light";
+    }
+
+    themeToggleBtn.addEventListener("click", () => {
+      const current = htmlEl.getAttribute("data-theme") === "light" ? "light" : "dark";
+      applyTheme(current === "dark" ? "light" : "dark");
     });
 
-    let frameCount = 0, lastFpsTime = Date.now();
-    function updateFPS() {
-      const delta = (Date.now() - lastFpsTime) / 1000;
-      if (delta >= 2) { fpsCounter.textContent = `${(frameCount/delta).toFixed(1)} fps`; frameCount = 0; lastFpsTime = Date.now(); }
-    }
+    // Build Component Telemetry Rows
+    const telemetryList = document.getElementById("telemetryList");
+    COMPONENTS.forEach(({ key, code, name }) => {
+      const row = document.createElement("div");
+      row.className = "comp-item";
+      row.id = `row-${key}`;
+      row.innerHTML = `
+        <div class="comp-top">
+          <div class="comp-title-group">
+            <span class="comp-code tabular">${code}</span>
+            <span class="comp-name">${name}</span>
+          </div>
+          <span class="status-badge unknown tabular" id="badge-${key}">STANDBY</span>
+        </div>
+        <div class="comp-bar-wrap" aria-hidden="true">
+          <div class="comp-bar-fill" id="bar-${key}"></div>
+        </div>
+        <div class="comp-bottom">
+          <span class="tabular" id="conf-${key}">Open Prob: n/a</span>
+          <span class="gt-tag tabular" id="gt-${key}">GT: n/a</span>
+        </div>
+      `;
+      telemetryList.appendChild(row);
+    });
 
-    let ws;
-    function connect() {
-      ws = new WebSocket("ws://localhost:8000/ws/dashboard");
-      ws.onopen = () => { dot.className = "dot active"; statusText.textContent = "Connected — receiving predictions"; };
-      ws.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        if (data.ping) return;
-        frameCount++; updateFPS();
-        updateUI(data.predictions, data.changed_components || []);
-      };
-      ws.onclose = () => { dot.className = "dot inactive"; statusText.textContent = "Disconnected — retrying in 3s..."; fpsCounter.textContent = ""; setTimeout(connect, 3000); };
-    }
+    // Optical Zoom & ROI Controls
+    const viewportImg = document.getElementById("viewportImg");
+    const zoomSelect = document.getElementById("zoomSelect");
+    const hudZoom = document.getElementById("hudZoom");
+    const roiToggleBtn = document.getElementById("roiToggleBtn");
+    const roiOverlay = document.getElementById("roiOverlay");
 
-    function updateUI(predictions, changed) {
-      Object.entries(predictions).forEach(([key, val]) => {
+    const ZOOM_LABELS = {
+      studio: "Optical: 1.85x Studio Close-Up",
+      detail: "Optical: 2.40x Detail Zoom",
+      full: "Optical: 1.00x Full Frame"
+    };
+
+    zoomSelect.addEventListener("change", () => {
+      const mode = zoomSelect.value;
+      viewportImg.setAttribute("data-zoom", mode);
+      hudZoom.textContent = ZOOM_LABELS[mode] || ZOOM_LABELS.studio;
+    });
+
+    roiToggleBtn.addEventListener("click", () => {
+      const visible = roiOverlay.classList.toggle("is-visible");
+      roiToggleBtn.setAttribute("aria-pressed", String(visible));
+      roiToggleBtn.textContent = visible ? "Hide PA-SCAN ROI" : "Show PA-SCAN ROI";
+    });
+
+    // Update Telemetry UI & 2D Schematic
+    const matchBadge = document.getElementById("matchBadge");
+    const changeBanner = document.getElementById("changeBanner");
+    const latencyBadge = document.getElementById("latencyBadge");
+
+    function updateTelemetry(predictions, changed = [], groundTruth = null, inferMs = null) {
+      if (inferMs !== null && inferMs !== undefined) {
+        latencyBadge.textContent = `Latency: ${Number(inferMs).toFixed(2)} ms`;
+      }
+
+      let matchCount = 0;
+      let hasGt = false;
+
+      COMPONENTS.forEach(({ key }) => {
+        const val = predictions ? predictions[key] : null;
+        const row = document.getElementById(`row-${key}`);
         const badge = document.getElementById(`badge-${key}`);
-        const conf  = document.getElementById(`conf-${key}`);
-        if (!badge) return;
-        badge.textContent = val.status === "open" ? "Open" : val.status === "closed" ? "Closed" : "Unknown";
-        badge.className = `badge ${val.status || "unknown"}`;
-        conf.textContent = val.confidence ? `Confidence: ${(val.confidence*100).toFixed(1)}%` : "Confidence: —";
+        const bar = document.getElementById(`bar-${key}`);
+        const conf = document.getElementById(`conf-${key}`);
+        const gtEl = document.getElementById(`gt-${key}`);
+        const svgPart = document.getElementById(`svg-${key}`);
+
+        if (!val || !badge) return;
+
+        const isOpen = val.status === "open";
+        const isClosed = val.status === "closed";
+        const probPct = val.confidence !== undefined ? (val.confidence * 100) : 0;
+        const clsConfPct = val.class_confidence !== undefined
+          ? (val.class_confidence * 100)
+          : (isOpen ? probPct : (100 - probPct));
+        const thrVal = val.threshold !== undefined ? Number(val.threshold).toFixed(2) : "0.50";
+
+        badge.textContent = isOpen ? "[OPEN]" : isClosed ? "[CLOSED]" : "STANDBY";
+        badge.className = `status-badge tabular ${isOpen ? "open" : isClosed ? "closed" : "unknown"}`;
+
+        bar.style.width = `${Math.min(100, Math.max(2, probPct)).toFixed(1)}%`;
+        bar.className = `comp-bar-fill ${isOpen ? "open" : ""}`;
+        conf.textContent = val.confidence !== undefined
+          ? `P(Open): ${probPct.toFixed(1)}% · Conf: ${clsConfPct.toFixed(1)}% (thr ${thrVal})`
+          : "P(Open): n/a";
+
+        if (svgPart) {
+          svgPart.setAttribute("fill", isOpen ? "var(--status-open-bg)" : "var(--status-closed-bg)");
+          svgPart.setAttribute("stroke", isOpen ? "var(--status-open-border)" : "var(--status-closed-border)");
+        }
+
+        row.classList.toggle("is-open", isOpen);
+        row.classList.remove("is-mismatch");
+
+        if (groundTruth && groundTruth[key] !== undefined) {
+          hasGt = true;
+          const gtOpen = Number(groundTruth[key]) === 1;
+          const gtStatus = gtOpen ? "OPEN" : "CLOSED";
+          const isMatch = (gtOpen && isOpen) || (!gtOpen && isClosed);
+          if (isMatch) {
+            matchCount++;
+            gtEl.textContent = `GT: ${gtStatus} · MATCH`;
+            gtEl.className = "gt-tag tabular match";
+          } else {
+            gtEl.textContent = `GT: ${gtStatus} · MISMATCH`;
+            gtEl.className = "gt-tag tabular mismatch";
+            row.classList.add("is-mismatch");
+          }
+        } else {
+          gtEl.textContent = "GT: Live Stream";
+          gtEl.className = "gt-tag tabular";
+        }
       });
+
+      if (hasGt) {
+        matchBadge.textContent = `GT Match: ${matchCount}/5 (${(matchCount * 20)}%)`;
+        matchBadge.className = `match-badge tabular ${matchCount === 5 ? "is-perfect" : "is-mismatch"}`;
+      } else {
+        matchBadge.textContent = "Live Stream (No GT)";
+        matchBadge.className = "match-badge tabular";
+      }
+
       if (changed && changed.length > 0) {
-        changedAlert.textContent = `Changed: ${changed.map(k => LABEL_NAMES[k] || k).join(", ")}`;
-        changedAlert.style.display = "block";
-        setTimeout(() => { changedAlert.style.display = "none"; }, 3000);
+        const names = changed.map(k => {
+          const found = COMPONENTS.find(c => c.key === k);
+          return found ? found.name : k;
+        }).join(", ");
+        changeBanner.textContent = `State transition detected: ${names}`;
+        changeBanner.classList.add("is-visible");
+        clearTimeout(changeBanner._timer);
+        changeBanner._timer = setTimeout(() => {
+          changeBanner.classList.remove("is-visible");
+        }, 3500);
       }
     }
-    connect();
+
+    function showViewportImage(imgSrc, meta = {}) {
+      const emptyState = document.getElementById("emptyState");
+      const canvasWrap = document.getElementById("canvasWrap");
+      emptyState.style.display = "none";
+      canvasWrap.classList.add("is-visible");
+      viewportImg.src = imgSrc;
+
+      const fileStr = meta.sample_file || "Live Frame";
+      const angleStr = meta.angle !== null && meta.angle !== undefined ? `${meta.angle}°` : "n/a";
+      const elevStr = meta.elevation ? String(meta.elevation).toUpperCase() : "n/a";
+      const srcStr = meta.source || "Dataset Simulator";
+
+      document.getElementById("metaFile").textContent = fileStr;
+      document.getElementById("metaAngle").textContent = angleStr;
+      document.getElementById("metaElev").textContent = elevStr;
+      document.getElementById("metaSource").textContent = srcStr;
+      document.getElementById("hudPose").textContent = `Azimuth: ${angleStr} · Elevation: ${elevStr}`;
+    }
+
+    function showError(msg) {
+      const banner = document.getElementById("errorBanner");
+      document.getElementById("errorText").textContent = msg;
+      banner.classList.add("is-visible");
+    }
+
+    function clearError() {
+      document.getElementById("errorBanner").classList.remove("is-visible");
+    }
+
+    // Dataset Simulator Step (Prev / Next + Elevation Filter)
+    const stepNextBtn = document.getElementById("stepNextBtn");
+    const stepPrevBtn = document.getElementById("stepPrevBtn");
+    const emptyLoadBtn = document.getElementById("emptyLoadBtn");
+    const elevFilter = document.getElementById("elevFilter");
+
+    async function loadDemoSample(direction = "next") {
+      stepNextBtn.disabled = true;
+      stepPrevBtn.disabled = true;
+      emptyLoadBtn.disabled = true;
+      document.getElementById("stateTitle").textContent = "Loading 3D Car Sample...";
+      clearError();
+
+      try {
+        const elev = encodeURIComponent(elevFilter.value || "all");
+        const dir = encodeURIComponent(direction);
+        const res = await fetch(`/api/demo/sample?direction=${dir}&elevation=${elev}`, {
+          method: "POST"
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} from /api/demo/sample`);
+        }
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || "Failed to load sample from backend.");
+        }
+
+        showViewportImage(data.image_b64, {
+          sample_file: data.sample_file,
+          angle: data.angle,
+          elevation: data.elevation,
+          source: "Dataset Simulator"
+        });
+        updateTelemetry(data.predictions, data.changed_components || [], data.ground_truth, data.inference_ms);
+      } catch (err) {
+        showError(`Simulator request failed: ${err.message}`);
+        document.getElementById("stateTitle").textContent = "Connection Error";
+      } finally {
+        stepNextBtn.disabled = false;
+        stepPrevBtn.disabled = false;
+        emptyLoadBtn.disabled = false;
+      }
+    }
+
+    stepNextBtn.addEventListener("click", () => loadDemoSample("next"));
+    stepPrevBtn.addEventListener("click", () => loadDemoSample("prev"));
+    emptyLoadBtn.addEventListener("click", () => loadDemoSample("next"));
+    document.getElementById("retryBtn").addEventListener("click", () => loadDemoSample("next"));
+
+    elevFilter.addEventListener("change", () => {
+      loadDemoSample("next");
+    });
+
+    // Auto-Stream with explicit Pause/Stop control (R-39)
+    let autoTimer = null;
+    const autoBtn = document.getElementById("autoBtn");
+
+    function stopAutoStream() {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+      autoBtn.classList.remove("btn-active-stream");
+      autoBtn.setAttribute("aria-pressed", "false");
+      autoBtn.textContent = "Start Auto-Stream (1.5s)";
+    }
+
+    autoBtn.addEventListener("click", () => {
+      if (autoTimer) {
+        stopAutoStream();
+      } else {
+        loadDemoSample("next");
+        autoTimer = setInterval(() => loadDemoSample("next"), 1500);
+        autoBtn.classList.add("btn-active-stream");
+        autoBtn.setAttribute("aria-pressed", "true");
+        autoBtn.textContent = "Pause Auto-Stream";
+      }
+    });
+
+    // Local File Upload Inspection
+    const localFileInput = document.getElementById("localFileInput");
+    localFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      stopAutoStream();
+      clearError();
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const b64 = reader.result;
+        try {
+          const res = await fetch("/api/cnn/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_b64: b64, filename: file.name })
+          });
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+          const data = await res.json();
+          if (!data.success) {
+            throw new Error(data.error || "Inference failed");
+          }
+          showViewportImage(b64, {
+            sample_file: data.sample_file || file.name,
+            angle: data.angle,
+            elevation: data.elevation,
+            source: "Local File Inspection"
+          });
+          updateTelemetry(data.predictions, data.changed_components || [], data.ground_truth, data.inference_ms);
+        } catch (err) {
+          showError(`Local file inspection failed: ${err.message}`);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // WebSocket Live Telemetry Connection
+    const connDot = document.getElementById("connDot");
+    const connText = document.getElementById("connText");
+    const fpsCounter = document.getElementById("fpsCounter");
+    let frameCount = 0;
+    let lastFpsTime = performance.now();
+
+    function updateFps() {
+      const now = performance.now();
+      const delta = (now - lastFpsTime) / 1000;
+      if (delta >= 1.2) {
+        fpsCounter.textContent = `${(frameCount / delta).toFixed(1)} fps`;
+        frameCount = 0;
+        lastFpsTime = now;
+      }
+    }
+
+    function connectWebSocket() {
+      const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+      const host = location.host || "localhost:8000";
+      const ws = new WebSocket(`${protocol}//${host}/ws/dashboard`);
+
+      ws.onopen = () => {
+        connDot.classList.add("online");
+        connText.textContent = "Connected to PA-SCAN Backend (/ws/dashboard)";
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.ping) return;
+        frameCount++;
+        updateFps();
+
+        if (data.image_b64 && data.source === "extension") {
+          showViewportImage(data.image_b64, {
+            sample_file: "Chrome Extension Live Stream",
+            angle: data.angle,
+            elevation: data.elevation,
+            source: "Chrome Extension"
+          });
+          updateTelemetry(data.predictions, data.changed_components || [], null, data.inference_ms);
+        } else if (data.timestamp > 0 && data.source !== "simulator") {
+          updateTelemetry(data.predictions, data.changed_components || [], data.ground_truth || null, data.inference_ms);
+        }
+      };
+
+      ws.onclose = () => {
+        connDot.classList.remove("online");
+        connText.textContent = "Backend WebSocket disconnected. Reconnecting in 3s...";
+        fpsCounter.textContent = "0.0 fps";
+        setTimeout(connectWebSocket, 3000);
+      };
+    }
+
+    connectWebSocket();
+    // Automatically load the first 3D vehicle sample on startup so the viewport is immediately populated
+    loadDemoSample("next");
   </script>
 </body>
 </html>
